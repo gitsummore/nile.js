@@ -41,10 +41,11 @@ document.getElementById('button-play-gum').addEventListener('click', function ()
       });
 
       // makes a post request to the server
-      sendFileToServer(file);
+      sendFileToServer(blob);
     };
 
     videoStream = stream.getTracks();
+    console.log('videoStream', videoStream);
     // Stream the data
     video.src = createSrc(stream);
     video.play();
@@ -66,6 +67,9 @@ document.getElementById('button-stop-gum').addEventListener('click', function ()
 
   // stops the recording
   mediaRecorder.stop();
+
+  // reset chunks
+  chunks = [];
 });
 
 function sendFileToServer(movieFile) {
