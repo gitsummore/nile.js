@@ -22,10 +22,27 @@ document.getElementById('button-play-gum').addEventListener('click', function ()
     mediaRecorder = new MediaRecorder(stream);
     mediaRecorder.start();
     console.log('MediaRecorder state:', mediaRecorder.state);
+
     mediaRecorder.ondataavailable = function (chunk) {
-      console.log('chunk:', chunk);
       chunks.push(chunk.data)
-    }
+    };
+
+    mediaRecorder.onstop = function (event) {
+      console.log('MediaRecorder state:', mediaRecorder.state);
+
+      // create blob from the recorded files
+      let blob = new Blob(chunks, {
+        type: 'video/webm'
+      });
+
+      // convert the blob into a file
+      let file = new File([blob], 'test.webm', {
+        type: 'video/webm'
+      });
+
+      // makes a post request to the server
+      sendFileToServer(file);
+    };
 
     videoStream = stream.getTracks();
     // Stream the data
@@ -49,20 +66,6 @@ document.getElementById('button-stop-gum').addEventListener('click', function ()
 
   // stops the recording
   mediaRecorder.stop();
-  console.log('MediaRecorder state:', mediaRecorder.state);
-
-  // create blob from the recorded files
-  let blob = new Blob(chunks, {
-    type: 'video/webm'
-  });
-
-  // convert the blob into a file
-  let file = new File([blob], 'test.webm', {
-    type: 'video/webm'
-  })
-
-  // makes a post request to the server
-  sendFileToServer(file);
 });
 
 function sendFileToServer(movieFile) {
