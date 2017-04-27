@@ -15,18 +15,17 @@ app.post('/uploadfile', (req, res) => {
   // parse files in request
   const form = new formidable.IncomingForm();
 
-  // set file upload dir
-  form.uploadDir = "uploads";
+  // set upload dir
+  form.uploadDir = 'uploads';
 
   // parse form data
   form.parse(req);
 
   // custom data handler
-  form.onPart = function dataToVideo (part) {
-    fs.writeFile('test.webm', part, (err) => {
-      if (err) throw err;
-    })
-  };
+  form.on('fileBegin', function editFileInfo (name, file) {
+    // save to webm file
+    file.path += '.webm';
+  });
   
   res.sendStatus(200);
 })
