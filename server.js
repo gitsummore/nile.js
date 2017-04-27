@@ -8,7 +8,7 @@ const app = express();
 const port = parseInt(process.env.PORT, 10) || 8000;
 
 // Serve static files
-app.use(express.static(path.join(__dirname, 'client')))
+app.use(express.static(path.join(__dirname, 'client')));
 
 // Routes
 app.post('/uploadfile', (req, res) => {
@@ -18,14 +18,22 @@ app.post('/uploadfile', (req, res) => {
   // set upload dir
   form.uploadDir = 'uploads';
 
-  // parse form data
-  form.parse(req);
+  // create uploads dir if doesn't exist
+  fs.mkdir('uploads', (err) => {
+    // skips pre-existing dir error
+    if (err && err.code !== 'EEXIST') {
+      throw err;
+    }
+  });
 
-  // custom data handler
+  // change data to webm
   form.on('fileBegin', function editFileInfo (name, file) {
     // save to webm file
     file.path += '.webm';
   });
+
+  // parse form data
+  form.parse(req);
   
   res.sendStatus(200);
 })
