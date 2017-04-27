@@ -3,6 +3,8 @@ const path = require('path');
 const fs = require('fs');
 const formidable = require('formidable');
 const createTorrent = require('create-torrent');
+const async = require('asyncawait/async');
+const await = require('asyncawait/await');
 
 const app = express();
 const port = parseInt(process.env.PORT, 10) || 8000;
@@ -15,29 +17,70 @@ app.post('/uploadfile', (req, res) => {
   // parse files in request
   const form = new formidable.IncomingForm();
 
-  // set upload dir
-  form.uploadDir = 'uploads';
+  // set dirs for generated files
+  const uploadDir = form.uploadDir = 'uploads';
+  const torrentDir = 'torrents';
 
-  // create uploads dir if doesn't exist
-  fs.mkdir('uploads', (err) => {
+  // create uploads and torrent dirs if doesn't exist
+  makeDir(uploadDir);
+  makeDir(torrentDir);
+
+  // change data to webm
+  form.on('fileBegin', (name, file) => {
+    // save to webm file
+    file.path += '.webm';
+  });
+
+  // put file into torrent
+  form.on('file', function makeTorrent(name, file) {
+
+    // place to save generated torrent files
+    const torrentPath = path.resolve(__dirname, torrentDir);
+
+    // async function make torrent from file
+    const createTorrentFrom = async(function () {
+
+      // make initial promise for createTorrent
+      const createTorrentPromise = new Promise((resolve, reject) => {
+        createTorrent(file.path, (err, torrent) => {
+          if (err) reject(err);
+          resolve(torrent);
+        });
+      });
+
+      try {
+        const torrent = await(createTorrentPromise);
+        await(
+          fs.writeFile(file.path + '.torrent', torrent, (err) => {
+            if (err) throw err;
+          })
+        );
+      } catch (err) {
+        throw err;
+      }
+    });
+    createTorrentFrom(file);
+  });
+
+  // handle errors
+  form.on('error', (error) => { throw error });
+
+  // parse form data
+  form.parse(req);
+
+  res.sendStatus(200);
+})
+
+app.listen(port, () => {
+  console.log(`Listening on port ${port}`)
+});
+
+// make directory if it doesn't exist already
+function makeDir(dir) {
+  fs.mkdir(dir, (err) => {
     // skips pre-existing dir error
     if (err && err.code !== 'EEXIST') {
       throw err;
     }
   });
-
-  // change data to webm
-  form.on('fileBegin', function editFileInfo (name, file) {
-    // save to webm file
-    file.path += '.webm';
-  });
-
-  // parse form data
-  form.parse(req);
-  
-  res.sendStatus(200);
-})
-
-app.listen(port, () => {
-  console.log('Listening on port 8000')
-});
+}
