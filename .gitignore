@@ -1,1 +1,8 @@
 node_modules
+
+# Video uploads
+uploads/
+
+# Torrent files
+*.torrent
+**/*.torrent
