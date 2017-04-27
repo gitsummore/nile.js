@@ -11,16 +11,7 @@ document.getElementById('button-play-gum').addEventListener('click', function ()
 
   // Capture user's audio and video source
   navigator.mediaDevices.getUserMedia({
-    video: {
-      mandatory: {
-        minWidth: 1280,
-        minHeight: 720,
-        minFrameRate: 30
-      },
-      optional: [
-        { minFrameRate: 60 }
-      ]
-    },
+    video: true,
     audio: true
   })
     .then(onGetMediaSuccess)
@@ -30,8 +21,9 @@ document.getElementById('button-play-gum').addEventListener('click', function ()
   function onGetMediaSuccess(stream) {
     mediaRecorder = new MediaRecorder(stream);
     mediaRecorder.start();
-    console.log(mediaRecorder.state);
+    console.log('MediaRecorder state:', mediaRecorder.state);
     mediaRecorder.ondataavailable = function (chunk) {
+      console.log('chunk:', chunk);
       chunks.push(chunk.data)
     }
 
@@ -43,7 +35,7 @@ document.getElementById('button-play-gum').addEventListener('click', function ()
 
   // on error
   function onGetMediaFailure(error) {
-    console.log("Video capture error: ", error.code);
+    console.log("Video capture error: ", error);
   };
 })
 
@@ -57,7 +49,7 @@ document.getElementById('button-stop-gum').addEventListener('click', function ()
 
   // stops the recording
   mediaRecorder.stop();
-  console.log(mediaRecorder.state);
+  console.log('MediaRecorder state:', mediaRecorder.state);
 
   // create blob from the recorded files
   let blob = new Blob(chunks, {
