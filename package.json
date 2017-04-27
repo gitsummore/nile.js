@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "create-torrent": "^3.29.1",
     "express": "^4.15.2",
     "formidable": "^1.1.1",
     "fs": "0.0.1-security",
