@@ -15,8 +15,8 @@ app.post('/uploadfile', (req, res) => {
 
   form.parse(req, (err, fields, files) => {
     if (err) throw err;
-    console.log('Getting files:');
-    console.log(files.file.size);
+    console.log('Getting file...');
+    
     res.sendStatus(200);
   });
   

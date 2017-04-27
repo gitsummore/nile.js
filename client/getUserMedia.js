@@ -88,5 +88,4 @@ function sendFileToServer(movieFile) {
   formData.append('file', movieFile);
 
   xhr.send(formData);
-  console.log(movieFile);
 }
