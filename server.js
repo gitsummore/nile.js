@@ -22,7 +22,7 @@ app.post('/uploadfile', (req, res) => {
   form.parse(req);
 
   // custom data handler
-  form.onPart = function dataToTorrent (part) {
+  form.onPart = function dataToVideo (part) {
     fs.writeFile('test.webm', part, (err) => {
       if (err) throw err;
     })
