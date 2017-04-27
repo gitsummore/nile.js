@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>getUserMedia</title>
+  <style>
+    body {
+      max-width: 500px;
+      margin: 2em auto;
+      font-size: 20px;
+    }
+    
+    h1 {
+      text-align: center;
+    }
+    
+    .buttons-wrapper {
+      text-align: center;
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    #video {
+      display: block;
+      width: 100%;
+    }
+    
+    .button-demo {
+      padding: 0.5em;
+      display: inline-block;
+      margin: 1em auto;
+    }
+    
+    .author {
+      display: block;
+      margin-top: 1em;
+    }
+  </style>
+</head>
+
+<body>
+  <video id="video" autoplay="autoplay" controls="true"></video>
+  <div class="buttons-wrapper">
+    <button id="button-play-gum" class="button-demo" href="#">Play</button>
+    <button id="button-stop-gum" class="button-demo" href="#">Stop</button>
+  </div>
+  <span id="gum-unsupported" class="hidden">API not supported</span>
+  <span id="gum-partially-supported" class="hidden">API partially supported (video only)</span>
+
+<hr />
+<video id="video2" autoplay="autoplay" controls="true"></video>
+
+  <script src="./getUserMedia.js"></script>
+</body>
+
+</html>
