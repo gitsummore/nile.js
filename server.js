@@ -23,14 +23,8 @@ app.post('/uploadfile', (req, res) => {
 
   // custom data handler
   form.onPart = function dataToTorrent (part) {
-    createTorrent(part, function(err, torrent) {
+    fs.writeFile('test.webm', part, (err) => {
       if (err) throw err;
-      fs.writeFile(
-        'test.torrent',
-        torrent,
-        (err) => {
-          if (err) throw err;
-        });
     })
   };
   
