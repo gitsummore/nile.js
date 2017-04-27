@@ -3,6 +3,7 @@ node_modules
 
 # Video uploads
 uploads/
+**/*.webm
 
 # Torrent files
 *.torrent
