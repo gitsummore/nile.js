@@ -12,7 +12,7 @@ let createSrc = (window.URL) ? window.URL.createObjectURL : function (stream) { 
 
 // creates a new instance of torrent so that user is able to seed the video/webm file
 let client = new WebTorrent();
-let client1 = new WebTorrent();
+let client2 = new WebTorrent();
 let magnetURI1;
 let magnetURI2;
 
