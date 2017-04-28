@@ -3,8 +3,6 @@ const path = require('path');
 const fs = require('fs');
 const formidable = require('formidable');
 const createTorrent = require('create-torrent');
-const async = require('asyncawait/async');
-const await = require('asyncawait/await');
 
 const app = express();
 const port = parseInt(process.env.PORT, 10) || 8000;
@@ -37,29 +35,17 @@ app.post('/uploadfile', (req, res) => {
     // place to save generated torrent files
     const torrentPath = path.resolve(__dirname, torrentDir);
 
-    // async function make torrent from file
-    const createTorrentFrom = async(function () {
-
-      // make initial promise for createTorrent
-      const createTorrentPromise = new Promise((resolve, reject) => {
-        createTorrent(file.path, (err, torrent) => {
-          if (err) reject(err);
-          resolve(torrent);
-        });
-      });
-
-      try {
-        const torrent = await(createTorrentPromise);
-        await(
-          fs.writeFile(file.path + '.torrent', torrent, (err) => {
-            if (err) throw err;
-          })
-        );
-      } catch (err) {
-        throw err;
-      }
+    createTorrent(file.path, (err, torrent) => {
+      if (err) throw err;
+      fs.writeFile(
+        `${file.path}.torrent`,
+        torrent,
+        (err) => {
+          if (err) throw err;
+        }
+      );
     });
-    createTorrentFrom(file);
+
   });
 
   // handle errors
