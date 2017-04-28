@@ -3,13 +3,21 @@ const path = require('path');
 const fs = require('fs');
 const formidable = require('formidable');
 const createTorrent = require('create-torrent');
+const socketController = require('./socketController');
 
 const app = express();
 const port = parseInt(process.env.PORT, 10) || 8000;
 
+// get Node Server instance when calling app.listen
+const server = app.listen(port, () => {
+  console.log(`Listening on port ${port}`)
+});
+
+// Pass server instance to use socket controller
+socketController(server);
+
 // Serve static files
 app.use(express.static(path.join(__dirname, 'client')));
-app.use(express.static(path.join(__dirname, 'uploads')));
 
 // Routes
 app.post('/uploadfile', (req, res) => {
@@ -56,10 +64,6 @@ app.post('/uploadfile', (req, res) => {
   form.parse(req);
 
   res.sendStatus(200);
-})
-
-app.listen(port, () => {
-  console.log(`Listening on port ${port}`)
 });
 
 // make directory if it doesn't exist already
