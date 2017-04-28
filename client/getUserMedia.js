@@ -1,8 +1,5 @@
 // import WebTorrent from 'webtorrent';
 
-// interval to record video at (in ms)
-const recordInterval = 5000;
-
 let videoStream = null;
 let mediaRecorder = null;
 let chunks = [];
@@ -25,26 +22,12 @@ document.getElementById('button-play-gum').addEventListener('click', function ()
   // function runs if getting media is successful
   function onGetMediaSuccess(stream) {
     mediaRecorder = new MediaRecorder(stream);
-    mediaRecorder.start(recordInterval);
+    mediaRecorder.start();
     console.log('MediaRecorder state:', mediaRecorder.state);
 
     mediaRecorder.ondataavailable = function (chunk) {
       // add chunk to overall stream
       chunks.push(chunk.data);
-
-      // save chunk to server
-      // create blob from the recorded files
-      let blob = new Blob([chunk], {
-        type: 'video/webm'
-      });
-
-      // convert the blob into a file
-      let file = new File([blob], 'test.webm', {
-        type: 'video/webm'
-      });
-
-      // makes a post request to the server
-      sendFileToServer(file);
     };
 
     mediaRecorder.onstop = function (event) {
