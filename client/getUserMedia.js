@@ -1,78 +1,62 @@
 // import WebTorrent from 'webtorrent';
+// import MediaStreamRecorder from 'mediastreamrecorder'
+
+// interval to record video at (in ms)
+const _recordInterval = 5000;
 
 let videoStream = null;
-let mediaRecorder = null;
-let chunks = [];
 let video = document.getElementById("video");
 
 // allows you to see yourself while recording
 let createSrc = (window.URL) ? window.URL.createObjectURL : function (stream) { return stream };
 
-// test playing torrent
-var client = new WebTorrent();
-// Sintel
-var torrentId = 'magnet:?xt=urn:btih:08ada5a7a6183aae1e09d831df6748d566095a10&dn=Sintel&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.fastcast.nz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&ws=https%3A%2F%2Fwebtorrent.io%2Ftorrents%2F&xs=https%3A%2F%2Fwebtorrent.io%2Ftorrents%2Fsintel.torrent';
+// creates a new instance of torrent so that user is able to seed the video/webm file
+let client = new WebTorrent();
+let client2 = new WebTorrent();
+let magnetURI1;
+let magnetURI2;
 
-client.add(torrentId, (torrent) => {
-  // find webm file
-  const file = torrent.files.find((file) => {
-    return file.name.endsWith('.mp4');
-  });
-  
-  // display file in video2 tag
-  file.renderTo('video#video2');
-  // file.appendTo('body');
-})
-
-// play button gum = GetUserMedia
+// when pressing the play button, start recording
 document.getElementById('button-play-gum').addEventListener('click', function () {
+  var mediaConstraints = {
+    audio: true,
+    video: true 
+  };
 
-  // Capture user's audio and video source
-  navigator.mediaDevices.getUserMedia({
-    video: true,
-    audio: true
-  })
-    .then(onGetMediaSuccess)
-    .catch(onGetMediaFailure);
+  // begin using the webcam
+  navigator.getUserMedia(mediaConstraints, onMediaSuccess, onMediaError);
 
-  // function runs if getting media is successful
-  function onGetMediaSuccess(stream) {
-    mediaRecorder = new MediaRecorder(stream);
-    mediaRecorder.start();
-    console.log('MediaRecorder state:', mediaRecorder.state);
+  function onMediaSuccess(stream) {
+    let mediaRecorder = new MediaStreamRecorder(stream);
+    // record a blob every _recordInterval amount of time
+    mediaRecorder.start(_recordInterval);
+    mediaRecorder.mimeType = 'video/webm';
 
-    mediaRecorder.ondataavailable = function (chunk) {
-      chunks.push(chunk.data)
-    };
-
-    mediaRecorder.onstop = function (event) {
-      console.log('MediaRecorder state:', mediaRecorder.state);
-
-      // create blob from the recorded files
-      let blob = new Blob(chunks, {
-        type: 'video/webm'
-      });
-
-      // convert the blob into a file
+    // every _recordInterval, make a new torrent file and start seeding it
+    mediaRecorder.ondataavailable = function (blob) {;
       let file = new File([blob], 'test.webm', {
         type: 'video/webm'
       });
 
-      // makes a post request to the server
-      sendFileToServer(blob);
+      client.seed(file, function (torrent) {
+        magnetURI = torrent.magnetURI;
+        console.log('Client is seeding ' + torrent.magnetURI)
+      })
+
+      sendFileToServer(file);
     };
 
+    // retrieve the devices that are being used to record
     videoStream = stream.getTracks();
-    console.log('videoStream', videoStream);
-    // Stream the data
+
+    // play back the recording to the streamer
     video.src = createSrc(stream);
     video.play();
   }
 
-  // on error
-  function onGetMediaFailure(error) {
-    console.log("Video capture error: ", error);
-  };
+  function onMediaError(e) {
+    console.error('media error', e);
+  }
 })
 
 // when the user pauses the video, stop the stream and send data to server
@@ -82,21 +66,12 @@ document.getElementById('button-stop-gum').addEventListener('click', function ()
 
   // stops the the audio and video from recording
   videoStream.forEach((stream) => stream.stop());
-
-  // stops the recording
-  mediaRecorder.stop();
-
-  // reset chunks
-  chunks = [];
 });
 
 function sendFileToServer(movieFile) {
   // send to server
   let xhr = new XMLHttpRequest();
   xhr.open('POST', '/uploadfile', true);
-
-  // // set proper header for request, not sure if we have to send this
-  // xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 
   xhr.onreadystatechange = function () {
     if (xhr.status === 200) {
