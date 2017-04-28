@@ -1,5 +1,8 @@
 // import WebTorrent from 'webtorrent';
 
+// interval to record video at (in ms)
+const recordInterval = 5000;
+
 let videoStream = null;
 let mediaRecorder = null;
 let chunks = [];
@@ -7,22 +10,6 @@ let video = document.getElementById("video");
 
 // allows you to see yourself while recording
 let createSrc = (window.URL) ? window.URL.createObjectURL : function (stream) { return stream };
-
-// test playing torrent
-var client = new WebTorrent();
-// Sintel
-var torrentId = 'magnet:?xt=urn:btih:08ada5a7a6183aae1e09d831df6748d566095a10&dn=Sintel&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.fastcast.nz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&ws=https%3A%2F%2Fwebtorrent.io%2Ftorrents%2F&xs=https%3A%2F%2Fwebtorrent.io%2Ftorrents%2Fsintel.torrent';
-
-client.add(torrentId, (torrent) => {
-  // find webm file
-  const file = torrent.files.find((file) => {
-    return file.name.endsWith('.mp4');
-  });
-  
-  // display file in video2 tag
-  file.renderTo('video#video2');
-  // file.appendTo('body');
-})
 
 // play button gum = GetUserMedia
 document.getElementById('button-play-gum').addEventListener('click', function () {
@@ -38,11 +25,26 @@ document.getElementById('button-play-gum').addEventListener('click', function ()
   // function runs if getting media is successful
   function onGetMediaSuccess(stream) {
     mediaRecorder = new MediaRecorder(stream);
-    mediaRecorder.start();
+    mediaRecorder.start(recordInterval);
     console.log('MediaRecorder state:', mediaRecorder.state);
 
     mediaRecorder.ondataavailable = function (chunk) {
-      chunks.push(chunk.data)
+      // add chunk to overall stream
+      chunks.push(chunk.data);
+
+      // save chunk to server
+      // create blob from the recorded files
+      let blob = new Blob([chunk], {
+        type: 'video/webm'
+      });
+
+      // convert the blob into a file
+      let file = new File([blob], 'test.webm', {
+        type: 'video/webm'
+      });
+
+      // makes a post request to the server
+      sendFileToServer(file);
     };
 
     mediaRecorder.onstop = function (event) {
@@ -59,7 +61,7 @@ document.getElementById('button-play-gum').addEventListener('click', function ()
       });
 
       // makes a post request to the server
-      sendFileToServer(blob);
+      sendFileToServer(file);
     };
 
     videoStream = stream.getTracks();
