@@ -1,11 +1,13 @@
 // torrentId will change whenever the viewer is notified of the new magnet via websockets or WebRTC
-let torrentId = 'magnet:?xt=urn:btih:999f99f93eeaaedbf4ab9ac09ca2a9d39692779d&dn=test.webm&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.fastcast.nz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com'
+// this will also trigger event to check if isPlay1Playing true or false
+// and then it will either run the first download or the second download, torrent ID must be different
+let torrentId = 'https://webtorrent.io/torrents/sintel.torrent'
 
 // initiate new torrent connection
 const client = new WebTorrent()
 
 // grab DOM elements where the torrent video will be rendered too
-const $play1 = document.getElementById('player');
+const $play1 = document.getElementById('player2');
 const $play2 = document.getElementById('player2');
 let file1;
 let file2;
@@ -29,11 +31,11 @@ function startDownloadingFirst(magnetURI) {
      * add additional file types for scaling. E.g other video formats or even VR!
      */
     file1 = torrent.files.find(function (file) {
-      return file.name.endsWith('.webm')
+      return file.name.endsWith('.mp4')
     })
-
+    console.log('playr')
     // Stream the file in the browser
-    file1.renderTo('video#player')
+    file1.renderTo('video#player1')
   })
 
   // listen to when video one ends, immediately play the other video
@@ -56,7 +58,7 @@ function startDownloadingSecond(magnetURI) {
      * add additional file types for scaling. E.g other video formats or even VR!
      */
     file2 = torrent.files.find(function (file) {
-      return file.name.endsWith('.webm')
+      return file.name.endsWith('.mp4')
     })
 
     // Stream the second file, but currently invisible and not playing
