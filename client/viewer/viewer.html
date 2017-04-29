@@ -43,9 +43,13 @@
 </head>
 
 <body>
-  <video id="video" autoplay="autoplay" controls="true"></video>
+  <video id="player" controls></video>
+  <video id="player2" hidden controls></video>
+
   <script src="https://cdn.jsdelivr.net/webtorrent/latest/webtorrent.min.js"></script>
-  <script src="/socket.io/socket.io.js"></script>
+  <script src="./../socket.io/socket.io.js"></script>
   <script src="viewMedia.js"></script>
+  <script src="combineVideos.js"></script>
 </body>
+
 </html>
