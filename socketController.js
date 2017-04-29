@@ -1,5 +1,8 @@
 // limit of initial clients to have socket connections w/
-const CLIENT_LIMIT = 3;
+const CLIENT_LIMIT = 1;
+
+// store refs to connected clients' RTC connections
+const clientRTCConns = {};
 
 module.exports = function (server) {
   const io = require('socket.io')(server);
