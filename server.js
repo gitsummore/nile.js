@@ -3,13 +3,18 @@ const path = require('path');
 const fs = require('fs');
 const formidable = require('formidable');
 const createTorrent = require('create-torrent');
+const WebTorrent = require('webtorrent');
+
+let client = new WebTorrent(); 
+let client2;
 
 const app = express();
+
 const port = parseInt(process.env.PORT, 10) || 8000;
 
 // Serve static files
 app.use(express.static(path.join(__dirname, 'client')));
-app.use(express.static(path.join(__dirname, 'torrents')));
+// app.use(express.static(path.join(__dirname, 'torrents')));
 
 // Routes
 app.post('/uploadfile', (req, res) => {
@@ -36,6 +41,16 @@ app.post('/uploadfile', (req, res) => {
     // place to save generated torrent files
     const torrentPath = path.resolve(__dirname, torrentDir);
 
+    // client.destroy(function() {
+    //   console.log('client destroyed')
+    // })
+
+    // client = new WebTorrent();
+
+    // client.seed(file.path, (torrent) => {
+    //   console.log('MagnetURI', torrent.magnetURI);
+    // })
+
     createTorrent(file.path, (err, torrent) => {
       if (err) throw err;
       fs.writeFile(
@@ -52,8 +67,8 @@ app.post('/uploadfile', (req, res) => {
   // handle errors
   form.on('error', (error) => { throw error });
 
-  // parse form data
-  form.parse(req);
+  // // parse form data
+  // form.parse(req);
 
   res.sendStatus(200);
 })
