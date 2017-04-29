@@ -13,7 +13,8 @@ module.exports = function (server) {
 
       let msg, disconnect;
       if (clients.length <= CLIENT_LIMIT) {
-        msg = 'Have a socket!';
+        // msg = 'Have a socket!';
+        msg = 'https://webtorrent.io/torrents/sintel.torrent'
         disconnect = false;
       } else {
         msg = 'No socket for you!';
