@@ -11,17 +11,19 @@ module.exports = function (server) {
     function clientHandler (err, clients) {
       if (err) throw err;
 
-      let msg;
+      let msg, disconnect;
       if (clients.length <= CLIENT_LIMIT) {
         msg = 'Have a socket!';
+        disconnect = false;
       } else {
         msg = 'No socket for you!';
+        disconnect = true;
 
         // TODO: if socket comes after CLIENT_LIMIT exceeded,
         // redirect to getting hash by WebRTC
       }
 
-      socket.emit('infohash', msg);
+      socket.emit('infohash', msg, disconnect);
     }
 
     io.sockets.clients(clientHandler);
