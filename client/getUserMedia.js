@@ -7,6 +7,9 @@ const _recordInterval = 3000;
 let videoStream = null;
 let video = document.getElementById("video");
 
+// will hold
+let videoFile;
+
 // allows you to see yourself while recording
 let createSrc = (window.URL) ? window.URL.createObjectURL : function (stream) { return stream };
 
