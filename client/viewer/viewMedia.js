@@ -1,18 +1,22 @@
 // io object exposed from injected socket.io.js
-
 const socket = io.connect();
 
-let peerConn;
+let peerConn = webRTCInit();
 
-socket.on('infohash', (msg, disconnect) => {
-  appendText(msg);
-
-  // Start a WebRTC connection
-  webRTCInit();
-
+socket.on('full', (msg, disconnect) => {
+  addText(msg);
   if (disconnect) {
     console.log('Socket disconnecting');
     socket.disconnect();
+  }
+});
+
+socket.on('magnetURI', (magnetURI) => {
+  // begin downloading the torrents and render them to page, alternate between two torrents
+  if (isPlay1Playing) {
+    startDownloadingSecond(magnetURI);
+  } else {
+    startDownloadingFirst(magnetURI);
   }
 });
 
@@ -21,7 +25,7 @@ socket.on('infohash', (msg, disconnect) => {
 
 function webRTCInit() {
   // Create WebRTC connection
-  peerConn = new RTCPeerConnection({
+  const peerConn = new RTCPeerConnection({
     iceServers: [
       { url: 'stun:stun.l.google.com:19302' },
       { url: 'stun:stun1.l.google.com:19302' },
@@ -48,6 +52,8 @@ function webRTCInit() {
   }
 
   peerConn.onerror = err => console.log('Error: ', err);
+
+  return peerConn;
 }
 
 // send message on RTC connection
