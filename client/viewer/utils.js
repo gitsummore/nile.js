@@ -18,8 +18,6 @@ let file1;
 let file2;
 let isPlay1Playing = false;
 
-
-
 // Function for downloading the torrent
 function startDownloadingFirst(magnetURI) {
 
@@ -31,7 +29,7 @@ function startDownloadingFirst(magnetURI) {
      * add additional file types for scaling. E.g other video formats or even VR!
      */
     file1 = torrent.files.find(function (file) {
-      return file.name.endsWith('.mp4')
+      return file.name.endsWith('.webm')
     })
     // Stream the file in the browser
     file1.renderTo('video#player1')
@@ -57,7 +55,7 @@ function startDownloadingSecond(magnetURI) {
      * add additional file types for scaling. E.g other video formats or even VR!
      */
     file2 = torrent.files.find(function (file) {
-      return file.name.endsWith('.mp4')
+      return file.name.endsWith('.webm')
     })
 
     // Stream the second file, but currently invisible and not playing
