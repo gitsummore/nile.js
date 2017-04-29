@@ -62,9 +62,11 @@ document.getElementById('button-play-gum').addEventListener('click', function ()
         client2.seed(file, function (torrent) {
           magnetURI2 = torrent.magnetURI;
           console.log('Client is seeding ' + torrent.magnetURI)
+          sendMagnetToServer(magnetURI2);
         });
 
          _wasLastClient_1 = false;
+
       } else {
 
         if (magnetURI1) {
@@ -78,12 +80,12 @@ document.getElementById('button-play-gum').addEventListener('click', function ()
         client1.seed(file, function (torrent) {
           magnetURI1 = torrent.magnetURI;
           console.log('Client is seeding ' + torrent.magnetURI)
+          sendMagnetToServer(magnetURI1);
         });
 
         _wasLastClient_1 = true;
+        
       }
-
-      sendFileToServer(file);
     };
 
     // retrieve the devices that are being used to record
@@ -108,21 +110,43 @@ document.getElementById('button-stop-gum').addEventListener('click', function ()
   videoStream.forEach((stream) => stream.stop());
 });
 
-function sendFileToServer(movieFile) {
+// sends magnet to server
+function sendMagnetToServer(magnetURI) {
   // send to server
-  let formData = new FormData();
-  formData.append('file', movieFile);
-
   let xhr = new XMLHttpRequest();
+
+  xhr.open('POST', '/uploadfile', true);
 
   xhr.onreadystatechange = function () {
     if (this.status === 200) {
-      console.log('upload success')
+      console.log('Magnet Emitted')
     } else {
-      console.log('upload failed')
+      console.log('Emit Failed')
     }
   }
-  xhr.open('POST', '/uploadfile', true);
+  console.log('testing', magnetURI);
+  // xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+  xhr.setRequestHeader("Content-type", "application/json");
 
-  xhr.send(formData);
+  xhr.send(JSON.stringify({'magnetURI': magnetURI}));
 }
+
+// sends file to server
+// function sendFileToServer(movieFile) {
+//   // send to server
+//   let formData = new FormData();
+//   formData.append('file', movieFile);
+
+//   let xhr = new XMLHttpRequest();
+
+//   xhr.onreadystatechange = function () {
+//     if (this.status === 200) {
+//       console.log('upload success')
+//     } else {
+//       console.log('upload failed')
+//     }
+//   }
+//   xhr.open('POST', '/uploadfile', true);
+
+//   xhr.send(formData);
+// }

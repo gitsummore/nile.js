@@ -1,17 +1,25 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
-const formidable = require('formidable');
-const createTorrent = require('create-torrent');
+// const formidable = require('formidable');
+// const createTorrent = require('create-torrent');
 
-const WebTorrent = require('webtorrent');
+const bodyParser = require('body-parser')
 
-let client = new WebTorrent(); 
-let client2;
+// const WebTorrent = require('webtorrent');
+
+// let client = new WebTorrent(); 
+// let client2;
 
 const socketController = require('./socketController');
 
 const app = express();
+
+// // parse application/x-www-form-urlencoded 
+// app.use(bodyParser.urlencoded({ extended: false }))
+
+// parse application/json 
+app.use(bodyParser.json())
 
 const port = parseInt(process.env.PORT, 10) || 8000;
 
@@ -21,7 +29,7 @@ const server = app.listen(port, () => {
 });
 
 // Pass server instance to use socket controller
-socketController(server);
+const socket = new socketController(server);
 
 // Serve static files
 app.use(express.static(path.join(__dirname, 'client')));
@@ -29,7 +37,15 @@ app.use(express.static(path.join(__dirname, 'client')));
 
 // Routes
 app.post('/uploadfile', (req, res) => {
-  // parse files in request
+
+  // assuming that the post is only a hash string each time, we send to socket to emit
+  // ===================================================
+
+  socket.emitNewMagnet(req.body.magnetURI);
+
+  // ===================================================
+
+  /*// parse files in request
   const form = new formidable.IncomingForm();
 
   // set dirs for generated files
@@ -80,7 +96,7 @@ app.post('/uploadfile', (req, res) => {
 
   // // parse form data
   // form.parse(req);
-
+  */
   res.sendStatus(200);
 });
 

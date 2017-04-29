@@ -1,8 +1,9 @@
 // limit of initial clients to have socket connections w/
 const CLIENT_LIMIT = 3;
 
-module.exports = function (server) {
-  const io = require('socket.io')(server);
+function socketController(server) {
+
+  const io = this.io = require('socket.io')(server);
 
   io.on('connection', function (socket) {
     console.log('New connection');
@@ -14,17 +15,16 @@ module.exports = function (server) {
       let msg, disconnect;
       if (clients.length <= CLIENT_LIMIT) {
         // msg = 'Have a socket!';
-        msg = 'https://webtorrent.io/torrents/sintel.torrent'
+        msg = 'Connected to the server'
         disconnect = false;
       } else {
-        msg = 'No socket for you!';
+        msg = 'Go connect using webRTC!';
         disconnect = true;
 
         // TODO: if socket comes after CLIENT_LIMIT exceeded,
         // redirect to getting hash by WebRTC
       }
-
-      socket.emit('infohash', msg, disconnect);
+      socket.emit('full', msg, disconnect);
     }
 
     io.sockets.clients(clientHandler);
@@ -34,3 +34,10 @@ module.exports = function (server) {
     });
   });
 }
+
+socketController.prototype.emitNewMagnet = function(magnetURI) {
+  console.log('hello')
+  this.io.emit('magnetURI', magnetURI)
+}
+
+module.exports = socketController;
