@@ -35,6 +35,8 @@ function webRTCInit() {
     ]
   });
   console.log('WebRTC connection started');
+  
+  // TODO: creates offer if not connected to socket
 
   // send ICE candidates to other peer
   // fires when RTCIceCandidate has been added to target
@@ -47,6 +49,20 @@ function webRTCInit() {
     }
   }
 
+  // receive message
+  peerConn.onmessage = function(msg) {
+    console.log('Received message');
+    const data = JSON.parse(msg.data);
+
+    switch (data.type) {
+      case 'offer':
+        answerOffer(data.offer);
+        break;
+      case 'answer':
+
+    }
+  }
+
   peerConn.onopen = function () {
     console.log('Connected');
   }
@@ -54,6 +70,22 @@ function webRTCInit() {
   peerConn.onerror = err => console.log('Error: ', err);
 
   return peerConn;
+}
+
+// send answer to offer
+function answerOffer(offer) {
+  peerConn.createAnswer((answer) => {
+    // specifies properties of local end of connection
+    peerConn.setLocalDescription(answer)
+      .then(() => console.log('Answer set'))
+      .catch(err => console.log('Answer error:', err));
+
+    // send answer
+    send({
+      type: 'answer',
+      answer
+    });
+  });
 }
 
 // send message on RTC connection
