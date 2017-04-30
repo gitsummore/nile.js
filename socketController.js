@@ -23,9 +23,6 @@ function socketController(server) {
       } else {
         msg = 'Go connect using webRTC!';
         disconnect = true;
-
-        // TODO: if socket comes after CLIENT_LIMIT exceeded,
-        // redirect to getting hash by WebRTC
       }
       socket.emit('full', msg, disconnect);
     }

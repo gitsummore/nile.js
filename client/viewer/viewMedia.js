@@ -1,15 +1,11 @@
 // io object exposed from injected socket.io.js
+// const PEER_LIMIT = 1
 const socket = io.connect();
 
-let peerConn = webRTCInit();
-
-socket.on('full', (msg, disconnect) => {
-  addText(msg);
-  if (disconnect) {
-    console.log('Socket disconnecting');
-    socket.disconnect();
-  }
-});
+// connection to parent - client node that's closer to server
+let connToParent,
+    // connection to child - client moving farther away from server
+    connToChild;
 
 socket.on('magnetURI', (magnetURI) => {
   // begin downloading the torrents and render them to page, alternate between two torrents
@@ -20,13 +16,42 @@ socket.on('magnetURI', (magnetURI) => {
   }
 });
 
+// if sockets are full, get torrent info from server thru WebRTC
+socket.on('full', (msg, disconnect) => {
+  addText(msg);
+  if (disconnect) {
+    console.log('Socket disconnecting');
+    socket.disconnect();
+
+    // create new WebRTC connection to connect to a parent
+    connToParent = createRTCConn();
+
+    // TODO: creates offer to connect to next connected client
+    connToParent.createOffer()
+      // set local description of media data once offer resolves
+      .then(offer => connToParent.setLocalDescription(offer))
+      // send offer along to peer
+      .then(() => send({
+        type: 'offer',
+        sdp: connToParent.localDescription,
+      }))
+      .catch(reason => console.log('Error:', reason));
+  }
+});
+
+// receives new child peer to send torrent info to
+socket.on('child', () => {
+
+});
+
 // TODO: on disconnect, bridge server and next-linked node
 // socket.on('disconnect')
 
-function webRTCInit() {
-  // Create WebRTC connection
-  const peerConn = new RTCPeerConnection({
+// Create WebRTC connection
+function createRTCConn() {
+  const conn = new RTCPeerConnection({
     iceServers: [
+      // STUN servers
       { url: 'stun:stun.l.google.com:19302' },
       { url: 'stun:stun1.l.google.com:19302' },
       { url: 'stun:stun2.l.google.com:19302' },
@@ -35,12 +60,10 @@ function webRTCInit() {
     ]
   });
   console.log('WebRTC connection started');
-  
-  // TODO: creates offer if not connected to socket
 
   // send ICE candidates to other peer
   // fires when RTCIceCandidate has been added to target
-  peerConn.onicecandidate = function (event) {
+  conn.onicecandidate = function (event) {
     if (event.candidate) {
       send({
         type: 'candidate',
@@ -49,48 +72,13 @@ function webRTCInit() {
     }
   }
 
-  // receive message
-  peerConn.onmessage = function(msg) {
-    console.log('Received message');
-    const data = JSON.parse(msg.data);
-
-    switch (data.type) {
-      case 'offer':
-        answerOffer(data.offer);
-        break;
-      case 'answer':
-
-    }
-  }
-
-  peerConn.onopen = function () {
-    console.log('Connected');
-  }
-
-  peerConn.onerror = err => console.log('Error: ', err);
-
-  return peerConn;
-}
-
-// send answer to offer
-function answerOffer(offer) {
-  peerConn.createAnswer((answer) => {
-    // specifies properties of local end of connection
-    peerConn.setLocalDescription(answer)
-      .then(() => console.log('Answer set'))
-      .catch(err => console.log('Answer error:', err));
-
-    // send answer
-    send({
-      type: 'answer',
-      answer
-    });
-  });
+  return conn;
 }
 
 // send message on RTC connection
 function send(msg) {
-  peerConn && peerConn.send(JSON.stringify(msg));
+  // TODO: send messages across signal server via sockets or DataChannel
+  
 }
 
 function appendText(msg) {
