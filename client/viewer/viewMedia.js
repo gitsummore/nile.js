@@ -1,4 +1,8 @@
 // io object exposed from injected socket.io.js
+
+// import io from 'socket.io';
+// import * as utils from './utils';
+
 // const PEER_LIMIT = 1
 const socket = io.connect();
 
@@ -38,11 +42,31 @@ socket.on('offer', (msg) => {
 
   // set remote end's info
   connToChild.setRemoteDescription(desc)
-    .then(() => console.log('Remote description set'));
+    // create answer to offer
+    .then(() => connToChild.createAnswer())
+    // set local description of callee
+    .then((answer) => connToChild.setLocalDescription(answer))
+    // send answer to caller
+    .then(() => {
+      const msg = {
+        type: 'answer',
+        sdp: connToChild.localDescription,
+      };
+      send(msg);
+    })
+    .catch(logError);
+
+  // TODO: redirect new peer if exceed peer limit
 });
 
 // TODO: on disconnect, bridge server and next-linked node
 // socket.on('disconnect', () => {});
+
+// send message on RTC connection
+function send(msg) {
+  // TODO: send messages across signal server via sockets or DataChannel
+
+}
 
 // Create WebRTC connection to a peer
 function createPeerConn() {
@@ -59,10 +83,10 @@ function createPeerConn() {
   });
   console.log('WebRTC connection started');
 
-  // send ICE candidates to other peer
-  // fires when RTCIceCandidate has been added to target
+  // when ICE candidates need to be sent to callee
   conn.onicecandidate = function (event) {
     if (event.candidate) {
+      // send child peer ICE candidate
       send({
         type: 'candidate',
         candidate: event.candidate,
@@ -75,27 +99,44 @@ function createPeerConn() {
   return conn;
 }
 
-// send message on RTC connection
-function send(msg) {
-  // TODO: send messages across signal server via sockets or DataChannel
-
-}
-
+// call a parent client
 function handleParentNegotiation() {
   // create offer to parent
   connToParent.createOffer()
-    // set local description of media data once offer resolves
+    // set local description of caller
     .then(offer => connToParent.setLocalDescription(offer))
     // send offer along to peer
     .then(() => send({
       type: 'offer',
       sdp: connToParent.localDescription,
     }))
-    .catch(reason => console.log('Error:', reason));
+    .catch(logError);
 }
 
-function appendText(msg) {
-  const pNode = document.createElement('p');
-  pNode.innerText = msg;
-  document.body.appendChild(pNode);
+// receive an ICE candidate from caller
+function handleNewIceCandidate(msg) {
+  const candidate = new RTCIceCandidate(msg.candidate);
+
+  // add ICE candidate from caller (parent)
+  connToParent.addIceCandidate(candidate)
+    .catch(logError);
+}
+
+// close connections and free up resources
+function closeConnToParent(conn) {
+  connToParent.close();
+  connToParent = null;
+  // tell other peer to close connection as well
+  send({
+    type: 'close'
+  });
+}
+
+function closeConnToChild(conn) {
+  connToChild.close();
+  connToChild = null;
+  // tell other peer to close connection as well
+  send({
+    type: 'close'
+  });
 }
