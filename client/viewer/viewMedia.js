@@ -143,16 +143,12 @@ function closeConnToParent(conn) {
   connToParent.close();
   connToParent = null;
   // tell other peer to close connection as well
-  send({
-    type: 'close'
-  });
+  // sendBySocket('close')
 }
 
 function closeConnToChild(conn) {
   connToChild.close();
   connToChild = null;
   // tell other peer to close connection as well
-  send({
-    type: 'close'
-  });
+  // sendBySocket('close');
 }
