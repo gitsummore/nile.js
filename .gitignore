@@ -9,6 +9,5 @@ uploads/
 *.torrent
 **/*.torrent
 
-# Npm/Yarn
-yarn.lock
+# NPM
 *debug.log
