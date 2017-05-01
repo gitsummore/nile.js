@@ -39,9 +39,10 @@ function startDownloadingFirst(magnetURI) {
     file1 = torrent.files.find(function (file) {
       return file.name.endsWith('.webm')
     })
+
     // Stream the file in the browser
     if (firstIteration === 1) {
-      window.setTimeout(() => { file1.renderTo('video#player1') }, 5000);
+      window.setTimeout(() => { file1.renderTo('video#player1') }, 4000);
       firstIteration += 1;
     } else {
       file1.renderTo('video#player1', { autoplay: false })
@@ -51,7 +52,7 @@ function startDownloadingFirst(magnetURI) {
   // listen to when video 1 ends, immediately play the other video
   $play1.onended = function (e) {
     $play2.play();
-    console.log('am i working?')
+
     $play2.removeAttribute('hidden');
 
     $play1.setAttribute('hidden', true);
@@ -78,7 +79,7 @@ function startDownloadingSecond(magnetURI) {
   // listen to when video 2 ends, immediately play the other video
   $play2.onended = function (e) {
     $play3.play();
-console.log('am i working?')
+
     $play3.removeAttribute('hidden');
 
     $play2.setAttribute('hidden', true);

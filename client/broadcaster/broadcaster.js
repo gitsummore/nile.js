@@ -2,7 +2,7 @@
 // import MediaStreamRecorder from 'mediastreamrecorder'
 
 // interval to record video at (in ms)
-const _recordInterval = 10000;
+const _recordInterval = 5000;
 
 let videoStream = null;
 let video = document.getElementById("video");
@@ -53,7 +53,7 @@ document.getElementById('button-play-gum').addEventListener('click', function ()
       if (_wasLastBroadcaster_1 && _wasLastBroadcaster_2) {
         if (magnetURI3) {
           broadcaster3.destroy(function () {
-            console.log('broadcaster1 removed')
+            console.log('broadcaster3 removed')
           });
         }
 
@@ -62,8 +62,8 @@ document.getElementById('button-play-gum').addEventListener('click', function ()
         // start seeding the new torrent
         broadcaster3.seed(file, function (torrent) {
           magnetURI3 = torrent.magnetURI;
-          console.log('broadcaster is seeding ' + torrent.magnetURI)
-          sendMagnetToServer(magnetURI2);
+          console.log('broadcaster3 is seeding ' + torrent.magnetURI)
+          sendMagnetToServer(magnetURI3);
         });
 
         _wasLastBroadcaster_1 = _wasLastBroadcaster_2 = false;
@@ -81,7 +81,7 @@ document.getElementById('button-play-gum').addEventListener('click', function ()
         // start seeding the new torrent
         broadcaster2.seed(file, function (torrent) {
           magnetURI2 = torrent.magnetURI;
-          console.log('broadcaster is seeding ' + torrent.magnetURI)
+          console.log('broadcaster2 is seeding ' + torrent.magnetURI)
           sendMagnetToServer(magnetURI2);
         });
 
@@ -99,7 +99,7 @@ document.getElementById('button-play-gum').addEventListener('click', function ()
 
         broadcaster1.seed(file, function (torrent) {
           magnetURI1 = torrent.magnetURI;
-          console.log('broadcaster is seeding ' + torrent.magnetURI)
+          console.log('broadcaster1 is seeding ' + torrent.magnetURI)
           sendMagnetToServer(magnetURI1);
         });
 

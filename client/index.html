@@ -4,54 +4,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>getUserMedia</title>
-  <style>
-    body {
-      max-width: 500px;
-      margin: 2em auto;
-      font-size: 20px;
-    }
-    
-    h1 {
-      text-align: center;
-    }
-    
-    .buttons-wrapper {
-      text-align: center;
-    }
-    
-    .hidden {
-      display: none;
-    }
-    
-    #video {
-      display: block;
-      width: 100%;
-    }
-    
-    .button-demo {
-      padding: 0.5em;
-      display: inline-block;
-      margin: 1em auto;
-    }
-    
-    .author {
-      display: block;
-      margin-top: 1em;
-    }
-  </style>
+  <title>Peer to Peer - Webtorrent Live Video - DEMO</title>
 </head>
 
 <body>
-  <video id="video" autoplay="autoplay" controls="true"></video>
-  <div class="buttons-wrapper">
-    <button id="button-play-gum" class="button-demo" href="#">Play</button>
-    <button id="button-stop-gum" class="button-demo" href="#">Stop</button>
+  <div>
+    <b>Open up the broadcaster tab to start broadcasting your video. And view the broadcast from the viewer tab!</b>
   </div>
-
-  <script src="https://cdn.jsdelivr.net/webtorrent/latest/webtorrent.min.js"></script>
-  <script src="https://cdn.webrtc-experiment.com/MediaStreamRecorder.js"> </script>
-  <script src="./getUserMedia.js"></script>
+  <div>
+    <a href="./broadcaster/broadcaster.html">Broadcaster</a>
+  </div>
+  <div>
+    <a href="./viewer/viewer.html">Viewer</a>
+  </div>
 </body>
 
 </html>
