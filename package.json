@@ -1,6 +1,6 @@
 {
   "name": "nile.js",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A tool for scalable peer-to-peer video streaming using WebTorrent",
   "main": "index.js",
   "scripts": {
