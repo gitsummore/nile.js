@@ -19,6 +19,7 @@ socket.on('magnetURI', (magnetURI) => {
     startDownloadingSecond(magnetURI);
   } else {
     startDownloadingFirst(magnetURI);
+  }
 });
 
 // if sockets are full, get torrent info from server thru WebRTC
