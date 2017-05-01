@@ -33,6 +33,13 @@ function socketController(server) {
       const msg = JSON.parse(msgStr);
     });
 
+    // TODO: WebRTC signaling handlers
+    // TODO: find way to emit to specific socket (i.e. caller/callee clients)
+    socket.on('offer', function (offer) {
+    });
+    // socket.on('answer')
+    // socket.on('candidate')
+
     socket.on('disconnect', function (socket) {
       console.log('Disconnected');
     });
@@ -41,7 +48,7 @@ function socketController(server) {
 
 socketController.prototype.emitNewMagnet = function(magnetURI) {
   console.log('hello')
-  this.io.emit('magnetURI', magnetURI)
+  this.io.emit('magnetURI', magnetURI);
 }
 
 module.exports = socketController;
