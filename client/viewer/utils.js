@@ -4,6 +4,10 @@ function addText(msg) {
   document.body.appendChild(pNode);
 }
 
+function logError(err) {
+  console.log('Error:', err);
+}
+
 // torrentId will change whenever the viewer is notified of the new magnet via websockets or WebRTC
 // this will also trigger event to check if isPlay1Playing true or false
 // and then it will either run the first download or the second download, torrent ID must be different
