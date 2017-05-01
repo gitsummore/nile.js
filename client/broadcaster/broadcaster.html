@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Webtorrent Live Video Viewer</title>
+  <title>Webtorrent Live Video Broadcaster</title>
   <style>
     body {
       max-width: 500px;
@@ -43,14 +43,15 @@
 </head>
 
 <body>
-  <video id="player1" ></video>
-  <video id="player2" hidden></video>
-  <video id="player3" hidden></video>
+  <video id="video" autoplay="autoplay" controls="true"></video>
+  <div class="buttons-wrapper">
+    <button id="button-play-gum" class="button-demo" href="#">Play</button>
+    <button id="button-stop-gum" class="button-demo" href="#">Stop</button>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/webtorrent/latest/webtorrent.min.js"></script>
-  <script src="./../socket.io/socket.io.js"></script>
-  <script src="utils.js"></script>
-  <script src="viewMedia.js"></script>
+  <script src="https://cdn.webrtc-experiment.com/MediaStreamRecorder.js"> </script>
+  <script src="broadcaster.js"></script>
 </body>
 
 </html>

@@ -8,3 +8,7 @@ uploads/
 # Torrent files
 *.torrent
 **/*.torrent
+
+# Npm/Yarn
+yarn.lock
+*debug.log

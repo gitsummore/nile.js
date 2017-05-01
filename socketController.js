@@ -1,8 +1,10 @@
 // limit of initial clients to have socket connections w/
-const CLIENT_LIMIT = 3;
+const CLIENT_LIMIT = 1;
+
+// store refs to connected clients' RTC connections
+const clientRTCConns = {};
 
 function socketController(server) {
-
   const io = this.io = require('socket.io')(server);
 
   io.on('connection', function (socket) {
@@ -20,14 +22,23 @@ function socketController(server) {
       } else {
         msg = 'Go connect using webRTC!';
         disconnect = true;
-
-        // TODO: if socket comes after CLIENT_LIMIT exceeded,
-        // redirect to getting hash by WebRTC
       }
       socket.emit('full', msg, disconnect);
     }
 
     io.sockets.clients(clientHandler);
+
+    socket.on('message', function (msgStr) {
+      // parse stringified message
+      const msg = JSON.parse(msgStr);
+    });
+
+    // TODO: WebRTC signaling handlers
+    // TODO: find way to emit to specific socket (i.e. caller/callee clients)
+    socket.on('offer', function (offer) {
+    });
+    // socket.on('answer')
+    // socket.on('candidate')
 
     socket.on('disconnect', function (socket) {
       console.log('Disconnected');
@@ -37,7 +48,7 @@ function socketController(server) {
 
 socketController.prototype.emitNewMagnet = function(magnetURI) {
   console.log('hello')
-  this.io.emit('magnetURI', magnetURI)
+  this.io.emit('magnetURI', magnetURI);
 }
 
 module.exports = socketController;
