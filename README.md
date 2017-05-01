@@ -1,5 +1,5 @@
 # [nile.js][website]
-A library for scalable peer-to-peer video streaming using WebTorrent.
+A tool for scalable peer-to-peer video streaming using WebTorrent.
 
 ## Why WebTorrent?
 By using the collective power of WebTorrent, video streams get progressively stronger as more peers contribute to a torrent. With torrent, it is also possible for users to access previous parts of a stream unlike traditional WebRTC video streaming.
