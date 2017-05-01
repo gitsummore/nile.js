@@ -5,7 +5,6 @@ const CLIENT_LIMIT = 1;
 const clientRTCConns = {};
 
 function socketController(server) {
-
   const io = this.io = require('socket.io')(server);
 
   io.on('connection', function (socket) {
@@ -28,6 +27,11 @@ function socketController(server) {
     }
 
     io.sockets.clients(clientHandler);
+
+    socket.on('message', function (msgStr) {
+      // parse stringified message
+      const msg = JSON.parse(msgStr);
+    });
 
     socket.on('disconnect', function (socket) {
       console.log('Disconnected');
