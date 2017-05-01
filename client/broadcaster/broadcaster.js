@@ -1,5 +1,5 @@
-// import WebTorrent from 'webtorrent';
-// import MediaStreamRecorder from 'mediastreamrecorder'
+import WebTorrent from 'webtorrent';
+import MediaStreamRecorder from 'mediastreamrecorder'
 
 // interval to record video at (in ms)
 const _recordInterval = 5000;
