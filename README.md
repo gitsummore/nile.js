@@ -17,7 +17,9 @@ This is the client which views what the Broadcaster is recording. It receives a 
 Nile.js utilizes Express middleware and socket.io to receive torrent information, broadcast it to as many clients it can comfortably handle who will then send it out to the rest of the clients.
 
 To use it, require nileServer from our package:
-```const nileServer = require('nile.js/nileServer');```
+```
+const nileServer = require('nile.js/nileServer');
+```
 
 Pass in the Node Server instance. In Express, you can get this instance by calling app.listen:
 ```
@@ -26,7 +28,9 @@ const sendMagnetURI = nileServer(server);
 ```
 
 Now set up a POST endpoint at '/uploadfile' with the newly created middleware function:
-```app.post('/uploadfile', sendMagnetURI);```
+```
+app.post('/uploadfile', sendMagnetURI);
+```
 ### Client
 
 [website]: http://www.nilejs.com
