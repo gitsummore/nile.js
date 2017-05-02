@@ -5,48 +5,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Webtorrent Live Video Broadcaster</title>
-  <style>
-    body {
-      max-width: 500px;
-      margin: 2em auto;
-      font-size: 20px;
-    }
-    
-    h1 {
-      text-align: center;
-    }
-    
-    .buttons-wrapper {
-      text-align: center;
-    }
-    
-    .hidden {
-      display: none;
-    }
-    
-    #video {
-      display: block;
-      width: 100%;
-    }
-    
-    .button-demo {
-      padding: 0.5em;
-      display: inline-block;
-      margin: 1em auto;
-    }
-    
-    .author {
-      display: block;
-      margin-top: 1em;
-    }
-  </style>
+  <link rel="stylesheet" href="broadcaster.css">
 </head>
 
 <body>
   <video id="video" autoplay="autoplay" controls="true"></video>
   <div class="buttons-wrapper">
-    <button id="button-play-gum" class="button-demo" href="#">Play</button>
-    <button id="button-stop-gum" class="button-demo" href="#">Stop</button>
+    <button id="button-play-gum" class="button-demo" href="#">Start Streaming</button>
+    <button id="button-stop-gum" class="button-demo" href="#">Stop Streaming</button>
   </div>
 
   <script src="https://cdn.jsdelivr.net/webtorrent/latest/webtorrent.min.js"></script>
