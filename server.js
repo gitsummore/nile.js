@@ -25,4 +25,5 @@ app.use(express.static(path.join(__dirname, 'client')));
 // app.use(express.static(path.join(__dirname, 'torrents')));
 
 // Routes
-app.post(nileServer(server));
+const sendMagnetURI = nileServer(server);
+app.post('/uploadfile', sendMagnetURI);
