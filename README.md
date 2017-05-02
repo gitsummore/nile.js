@@ -15,7 +15,4 @@ This is the client which views what the Broadcaster is recording. It receives a 
 ## Usage
 Tune in next week for the exciting conclusion of "Usage"!
 
-## NOTE:
-Inside socket.io/engine.io, set "ws" version to ^1.1.4 if encounter "unmask of undefined" error server-side
-
 [website]: http://www.nilejs.com
