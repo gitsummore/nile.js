@@ -17,7 +17,7 @@ class Broadcaster {
   startStream() {
     // interval to record video at (in ms)
     const _recordInterval = this.recordInterval;
-
+    const sendMagnetToServer = this.sendMagnetToServer;
     let videoStream = null;
     let video = document.getElementById(`${this.videoNodeIDForPlayback}`);
 
@@ -77,7 +77,7 @@ class Broadcaster {
             broadcaster3.seed(file, function (torrent) {
               magnetURI3 = torrent.magnetURI;
               console.log('broadcaster3 is seeding ' + torrent.magnetURI)
-              this.sendMagnetToServer(magnetURI3);
+              sendMagnetToServer(magnetURI3);
             });
 
             _wasLastBroadcaster_1 = _wasLastBroadcaster_2 = false;
@@ -96,7 +96,7 @@ class Broadcaster {
             broadcaster2.seed(file, function (torrent) {
               magnetURI2 = torrent.magnetURI;
               console.log('broadcaster2 is seeding ' + torrent.magnetURI)
-              this.sendMagnetToServer(magnetURI2);
+              sendMagnetToServer(magnetURI2);
             });
 
             _wasLastBroadcaster_2 = true;
@@ -114,7 +114,7 @@ class Broadcaster {
             broadcaster1.seed(file, function (torrent) {
               magnetURI1 = torrent.magnetURI;
               console.log('broadcaster1 is seeding ' + torrent.magnetURI)
-              this.sendMagnetToServer(magnetURI1);
+              sendMagnetToServer(magnetURI1);
             });
 
             _wasLastBroadcaster_1 = true;
@@ -165,4 +165,4 @@ class Broadcaster {
   }
 }
 
-export default Broadcaster
+// export default Broadcaster
