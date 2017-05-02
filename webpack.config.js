@@ -11,7 +11,8 @@ const config = {
   },
   module: {
     loaders: [
-      { test: /\.css$/, loader: 'style-loader!css-loader' },
+      { test: /\.js$/, include: path.resolve(__dirname, 'client'), loader: 'babel-loader' },
+      { test: /\.css$/, include: path.resolve(__dirname, 'client'), loader: 'style-loader!css-loader' },
     ]
     rules: [{
       test: /\.js$/,
