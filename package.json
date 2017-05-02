@@ -1,11 +1,12 @@
 {
   "name": "nile.js",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A tool for scalable peer-to-peer video streaming using WebTorrent",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server.js"
+    "start": "nodemon server.js",
+    "postinstall": "npm install bufferutil@1.2.x utf-8-validate@1.2.x"
   },
   "author": "",
   "license": "ISC",
