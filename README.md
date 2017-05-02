@@ -13,6 +13,20 @@ This is the plug-and-play middleware that receives the torrent link from the bro
 This is the client which views what the Broadcaster is recording. It receives a torrent magnet link and renders the video to injected video tags using WebTorrent.
 
 ## Usage
-Tune in next week for the exciting conclusion of "Usage"!
+### Server
+Nile.js utilizes Express middleware and socket.io to receive torrent information, broadcast it to as many clients it can comfortably handle who will then send it out to the rest of the clients.
+
+To use it, require nileServer from our package:
+```const nileServer = require('nile.js/nileServer');```
+
+Pass in the Node Server instance. In Express, you can get this instance by calling app.listen:
+```
+const server = app.listen(8000);
+const sendMagnetURI = nileServer(server);
+```
+
+Now set up a POST endpoint at '/uploadfile' with the newly created middleware function:
+```app.post('/uploadfile', sendMagnetURI);```
+### Client
 
 [website]: http://www.nilejs.com
