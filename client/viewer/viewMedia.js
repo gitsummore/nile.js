@@ -1,3 +1,4 @@
+
 const viewer = new Viewer('body');
 viewer.setUpInitialConnection();
 
@@ -27,6 +28,7 @@ viewer.setUpInitialConnection();
 
 // // if sockets are full, get torrent info from server thru WebRTC
 // socket.on('full', (msg, disconnect) => {
+//   addText(msg);
 //   if (disconnect) {
 //     console.log('Socket disconnecting');
 //     socket.disconnect();
@@ -145,20 +147,12 @@ viewer.setUpInitialConnection();
 //   connToParent.close();
 //   connToParent = null;
 //   // tell other peer to close connection as well
-//   send({
-//     type: 'close'
-//   });
+//   // sendBySocket('close')
 // }
 
 // function closeConnToChild(conn) {
 //   connToChild.close();
 //   connToChild = null;
 //   // tell other peer to close connection as well
-//   send({
-//     type: 'close'
-//   });
-// }
-
-// function logError(err) {
-//   console.log('Error:', err);
+//   // sendBySocket('close');
 // }
