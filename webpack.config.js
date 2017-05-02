@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // webpack.config.js
 const webpack = require('webpack')
 const path = require('path')
@@ -36,3 +37,13 @@ const config = {
 }
 
 module.exports = config
+=======
+module.exports = {
+  entry: './client/module',
+  output: {
+    filename: './dist/nile-bundle.js',
+    libraryTarget: 'umd',
+    library: 'nile'
+  }
+}
+>>>>>>> 5b764ab5fe7b70861db335d691d196195ef63674
