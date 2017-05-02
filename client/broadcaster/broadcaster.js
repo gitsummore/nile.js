@@ -1,67 +1,63 @@
-const broadcaster = new Broadcaster(4000, 'video', 'button-play-gum', 'button-stop-gum');
+import WebTorrent from 'webtorrent';
+import MediaStreamRecorder from 'mediastreamrecorder'
 
-broadcaster.startStream();
+// interval to record video at (in ms)
+const _recordInterval = 5000;
 
-// // import WebTorrent from 'webtorrent';
-// // import MediaStreamRecorder from 'mediastreamrecorder'
+let videoStream = null;
+let video = document.getElementById("video");
 
-// // interval to record video at (in ms)
-// const _recordInterval = 5000;
+// will hold
+let videoFile;
 
-// let videoStream = null;
-// let video = document.getElementById("video");
+// allows you to see yourself while recording
+let createSrc = (window.URL) ? window.URL.createObjectURL : function (stream) { return stream };
 
-// // will hold
-// let videoFile;
+// creates a new instance of torrent so that user is able to seed the video/webm file
+let broadcaster1 = new WebTorrent();
+let broadcaster2 = new WebTorrent();
+let broadcaster3 = new WebTorrent();
+let magnetURI1;
+let magnetURI2;
+let magnetURI3;
+let _wasLastBroadcaster_1 = false;
+let _wasLastBroadcaster_2 = false;
 
-// // allows you to see yourself while recording
-// let createSrc = (window.URL) ? window.URL.createObjectURL : function (stream) { return stream };
+// when pressing the play button, start recording
+document.getElementById('button-play-gum').addEventListener('click', function () {
+  var mediaConstraints = {
+    audio: true,
+    video: true
+  };
 
-// // creates a new instance of torrent so that user is able to seed the video/webm file
-// let broadcaster1 = new WebTorrent();
-// let broadcaster2 = new WebTorrent();
-// let broadcaster3 = new WebTorrent();
-// let magnetURI1;
-// let magnetURI2;
-// let magnetURI3;
-// let _wasLastBroadcaster_1 = false;
-// let _wasLastBroadcaster_2 = false;
+  // begin using the webcam
+  navigator.getUserMedia(mediaConstraints, onMediaSuccess, onMediaError);
 
-// // when pressing the play button, start recording
-// document.getElementById('button-play-gum').addEventListener('click', function () {
-//   var mediaConstraints = {
-//     audio: true,
-//     video: true
-//   };
+  function onMediaSuccess(stream) {
+    let mediaRecorder = new MediaStreamRecorder(stream);
+    // record a blob every _recordInterval amount of time
+    mediaRecorder.start(_recordInterval);
+    mediaRecorder.mimeType = 'video/webm';
 
-//   // begin using the webcam
-//   navigator.getUserMedia(mediaConstraints, onMediaSuccess, onMediaError);
+    // every _recordInterval, make a new torrent file and start seeding it
+    mediaRecorder.ondataavailable = function (blob) {
 
-//   function onMediaSuccess(stream) {
-//     let mediaRecorder = new MediaStreamRecorder(stream);
-//     // record a blob every _recordInterval amount of time
-//     mediaRecorder.start(_recordInterval);
-//     mediaRecorder.mimeType = 'video/webm';
+      let file = new File([blob], 'test.webm', {
+        type: 'video/webm'
+      });
 
-//     // every _recordInterval, make a new torrent file and start seeding it
-//     mediaRecorder.ondataavailable = function (blob) {
+      // /* So that there is no delay in streaming between torrents, this section is going to 
+      //  * make instances of webtorrent and then alternate the seeding between the two
+      //  * once each seed is done, destroy the seed and initiate the next one
+      // */
+      if (_wasLastBroadcaster_1 && _wasLastBroadcaster_2) {
+        if (magnetURI3) {
+          broadcaster3.destroy(function () {
+            console.log('broadcaster3 removed')
+          });
+        }
 
-//       let file = new File([blob], 'test.webm', {
-//         type: 'video/webm'
-//       });
-
-//       // /* So that there is no delay in streaming between torrents, this section is going to 
-//       //  * make instances of webtorrent and then alternate the seeding between the two
-//       //  * once each seed is done, destroy the seed and initiate the next one
-//       // */
-//       if (_wasLastBroadcaster_1 && _wasLastBroadcaster_2) {
-//         if (magnetURI3) {
-//           broadcaster3.destroy(function () {
-//             console.log('broadcaster3 removed')
-//           });
-//         }
-
-//         broadcaster3 = new WebTorrent();
+        broadcaster3 = new WebTorrent();
         
 //         // start seeding the new torrent
 //         broadcaster3.seed(file, function (torrent) {
