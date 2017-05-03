@@ -15,9 +15,20 @@ const socketController = require('./socketController');
 module.exports = function nileServer(server) {
   // Pass server instance to use socket controller
   const socket = new socketController(server);
-  // returns Express middleware function to apply to a developer-provided POST endpoint
-  return function emitMagnetUri(req, res, next) {
+
+  // create nile.js mini-app through express Router
+  const nileServer = express.Router();
+
+  // TODO: change '/uploadfile' to '/magneturi' here and in broadcaster files
+  nileServer.post('/magnet', (req, res, next) => {
     socket.emitNewMagnet(req.body.magnetURI);
     res.sendStatus(200);
-  }
+  });
+
+  // server receives WebRTC connection info from new client
+  nileServer.post('/signal', (req, res, next) => {
+
+  });
+
+  return nileServer;
 }
