@@ -10,31 +10,47 @@
       max-width: 500px;
       margin: 2em auto;
       font-size: 20px;
+      background-image: url('http://hdwallpaperbackgrounds.net/wp-content/uploads/2015/10/Beautiful-Nile-River-HD-Wallpaper.jpg')
     }
-    
+
+
+
     h1 {
       text-align: center;
     }
-    
+
+
+
     .buttons-wrapper {
       text-align: center;
     }
-    
+
+
+
     .hidden {
       display: none;
     }
-    
+
+
+
     #video {
       display: block;
       width: 100%;
     }
-    
+
+
     .button-demo {
-      padding: 0.5em;
-      display: inline-block;
-      margin: 1em auto;
+      width: 280px;
+      margin: 20px;
+      font-size: 30px;
+      font-weight: bold;
+      padding: 20px;
+      opacity: 0.5;
+      border-radius: 20px;
     }
-    
+
+
+
     .author {
       display: block;
       margin-top: 1em;
@@ -45,15 +61,16 @@
 <body>
   <video id="video" autoplay="autoplay" controls="true"></video>
   <div class="buttons-wrapper">
-    <button id="button-play-gum" class="button-demo" href="#">Play</button>
+    <button id="button-play-gum" class="button-demo" href="#">Record</button>
     <button id="button-stop-gum" class="button-demo" href="#">Stop</button>
   </div>
 
   <script src="https://cdn.jsdelivr.net/webtorrent/latest/webtorrent.min.js"></script>
-  <script src="https://cdn.webrtc-experiment.com/MediaStreamRecorder.js"> </script>
+  <script src="https://cdn.webrtc-experiment.com/MediaStreamRecorder.js">
+
+  </script>
   <script src="./../module/broadcaster.js"></script>
   <script src="broadcaster.js"></script>
 </body>
 
 </html>
-
