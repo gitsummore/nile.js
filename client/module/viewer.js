@@ -1,12 +1,12 @@
 // Install this.socket.io-client
 // io object exposed from injected this.socket.io.js
 
-// import io from 'this.socket.io';
-
+import * as io from 'socket.io-client';
+import WebTorrent from 'webtorrent';
 // utils do not need to be imported
 // import * as utils from './utils';
 
-class Viewer {
+export default class Viewer {
   constructor(
     ID_of_NodeToRenderVideo // location on the DOM where the live feed will be rendered
     ) {
@@ -278,8 +278,6 @@ class Viewer {
     }
   }
 }
-
-// export default Viewer
 
 
 

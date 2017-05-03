@@ -1,7 +1,7 @@
-// import WebTorrent from 'webtorrent';
-// import MediaStreamRecorder from 'mediastreamrecorder'
+import WebTorrent from 'webtorrent';
+import MediaStreamRecorder from 'msr'
 
-class Broadcaster {
+export default class Broadcaster {
   constructor(
     recordInterval, // the Interval that the webcam recording should seed each segment of the video
     videoNodeIDForPlayback, // The id of the video node in the html where the broadcaster can see their own recording
@@ -164,5 +164,3 @@ class Broadcaster {
     xhr.send(JSON.stringify({ 'magnetURI': magnetURI }));
   }
 }
-
-// export default Broadcaster
