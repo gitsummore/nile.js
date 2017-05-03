@@ -28,11 +28,10 @@ function socketController(server) {
 
     io.sockets.clients(clientHandler);
 
-    // TODO: find way to emit to specific socket (i.e. caller/callee clients)
     // receives offer from new client
     socket.on('offer', function (offer) {
-      // emit to last client in chain
-      socket.to(/* next socketid */).emit(offer);
+      // emit to root of client chain
+      socket.to(/* chain root socketid */).emit(offer);
     });
     // socket.on('answer')
     // socket.on('candidate')

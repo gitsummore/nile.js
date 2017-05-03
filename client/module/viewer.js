@@ -68,10 +68,6 @@ class Viewer {
     this.socket.on('answer', this.receiveAnswer);
     // Both peers: add new ICE candidates as they come in
     this.socket.on('candidate', this.handleNewIceCandidate);
-
-    // TODO: redirect new peer to a WebRTC only-connected child if exceeds peer limit
-
-    // TODO: on disconnect, bridge server and next-linked node
     // this.socket.on('disconnect', () => {});
   }
 
@@ -85,7 +81,7 @@ class Viewer {
         { url: 'stun:stun2.l.google.com:19302' },
         { url: 'stun:stun3.l.google.com:19302' },
         { url: 'stun:stun4.l.google.com:19302' },
-        // TODO: allow adding of TURN servers
+        // TODO: developer-provided TURN servers go here
       ]
     });
     console.log('WebRTC connection started');
@@ -107,8 +103,6 @@ class Viewer {
     // when ICE candidates need to be sent to callee
     conn.onicecandidate = this.iceCandidateHandler;
 
-    // TODO: message handler for non-this.socket connected clients using DataChannel API
-
     return conn;
   }
 
@@ -123,6 +117,8 @@ class Viewer {
       .then(() => {
         const offer = this.connToParent.localDescription;
         this.sendBySocket('offer', offer);
+
+        // TODO: post to server so non-socket clients can transmit session info w/o sockets?
       })
       .catch(logError);
   }
@@ -175,7 +171,6 @@ class Viewer {
       .catch(logError);
   }
 
-  // TODO: implement close upon disconnect
   // close connections and free up resources
   closeConnToParent(conn) {
     this.connToParent.close();

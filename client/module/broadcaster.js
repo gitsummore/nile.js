@@ -149,7 +149,7 @@ class Broadcaster {
     // send to server
     let xhr = new XMLHttpRequest();
 
-    xhr.open('POST', '/uploadfile', true);
+    xhr.open('POST', '/magnet', true);
 
     xhr.onreadystatechange = function () {
       if (this.status === 200) {
