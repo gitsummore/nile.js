@@ -25,10 +25,17 @@ class Viewer {
     this.connToChild; // connection to child - client moving farther away from server
   }
 
+  // send message on RTC connection
+  sendBySocket(event, msg) {
+    // TODO: make sure only sending message w/in proper node chain
+    this.socket.emit(event, msg);
+  }
+
   setUpInitialConnection() {
     // document.createElement('video');
     console.log('working')
 
+    // start playing next in video tag trio
     this.socket.on('magnetURI', (magnetURI) => {
       // begin downloading the torrents and render them to page, alternate between three torrents
       if (this.isPlay1Playing && this.isPlay2Playing) {
@@ -52,20 +59,20 @@ class Viewer {
       }
     });
 
-    // handle WebRTC workflow handlers
+    /**
+     * WebRTC workflow handlers
+     */
+
+    // Callee: receives offer for a connection
     this.socket.on('offer', this.receiveOffer);
+    // Caller: receives answer after sending offer
     this.socket.on('answer', this.receiveAnswer);
+    // Both peers: add new ICE candidates as they come in
     this.socket.on('candidate', this.handleNewIceCandidate);
 
     // TODO: redirect new peer to a child if exceeds peer limit
     // TODO: on disconnect, bridge server and next-linked node
     // this.socket.on('disconnect', () => {});
-  }
-
-  // send message on RTC connection
-  sendBySocket(event, msg) {
-    // TODO: make sure only sending message w/in proper node chain
-    this.socket.emit(event, msg);
   }
 
   // Create WebRTC connection to a peer
@@ -83,8 +90,20 @@ class Viewer {
     });
     console.log('WebRTC connection started');
 
-    // when ready to negotiate and establish connection
-    conn.onnegotiationneeded = this.handleParentNegotiation;
+    /**
+     * Useful diagrams for WebRTC signaling process:
+     * 
+     * 1. Initiating negotiation:
+     * https://mdn.mozillademos.org/files/12363/WebRTC%20-%20Signaling%20Diagram.svg
+     * -Caller creates offer
+     * 
+     * 2. Exchanging ICE candidates:
+     * https://mdn.mozillademos.org/files/12365/WebRTC%20-%20ICE%20Candidate%20Exchange.svg
+     * 
+     */
+
+    // Caller: when ready to negotiate and establish connection
+    conn.onnegotiationneeded = this.initOffer;
     // when ICE candidates need to be sent to callee
     conn.onicecandidate = this.iceCandidateHandler;
 
@@ -93,8 +112,9 @@ class Viewer {
     return conn;
   }
 
-  // begin connection to parent client
-  handleParentNegotiation() {
+  // Caller: begin connection to parent client
+  // RTC negotiationneeded handler
+  initOffer() {
     // create offer to parent
     this.connToParent.createOffer()
       // set local description of caller
@@ -107,8 +127,8 @@ class Viewer {
       .catch(logError);
   }
 
-  // this.socket offer handler
-  // receive offer from new child peer
+  // Callee: receive offer from new child peer
+  // this.socket 'offer' handler
   receiveOffer(offer) {
     // create child connection
     this.connToChild = this.createPeerConn();
@@ -129,24 +149,24 @@ class Viewer {
       .catch(logError);
   }
 
-  // this.socket answer handler
-  // as a parent/caller, receive answer from child/callee
+  // Callee: as a parent/caller, receive answer from child/callee
+  // this.socket 'answer' handler
   receiveAnswer(answer) {
     // set info from remote end
     this.connToParent.setRemoteDescription(answer)
       .catch(logError);
   }
 
+  // Caller: send ICE candidate to callee
   // RTC onicecandidate handler
-  // send ICE candidate to callee
   iceCandidateHandler(event) {
     if (event.candidate) {
       // send child peer ICE candidate
       this.sendBySocket('candidate', event.candidate);
     }
   }
+  // Callee: receive an ICE candidate from caller
   // this.socket ICE candidate handler
-  // receive an ICE candidate from caller
   handleNewIceCandidate(candidate) {
     const iceCandidate = new RTCIceCandidate(candidate);
 
