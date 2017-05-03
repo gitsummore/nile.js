@@ -27,7 +27,6 @@ class Viewer {
 
   // send message on RTC connection
   sendBySocket(event, msg) {
-    // TODO: make sure only sending message w/in proper node chain
     this.socket.emit(event, msg);
   }
 
@@ -70,7 +69,8 @@ class Viewer {
     // Both peers: add new ICE candidates as they come in
     this.socket.on('candidate', this.handleNewIceCandidate);
 
-    // TODO: redirect new peer to a child if exceeds peer limit
+    // TODO: redirect new peer to a WebRTC only-connected child if exceeds peer limit
+
     // TODO: on disconnect, bridge server and next-linked node
     // this.socket.on('disconnect', () => {});
   }
@@ -181,18 +181,14 @@ class Viewer {
     this.connToParent.close();
     this.connToParent = null;
     // tell other peer to close connection as well
-    send({
-      type: 'close'
-    });
+    sendBySocket('close');
   }
 
   closeConnToChild(conn) {
     this.connToChild.close();
     this.connToChild = null;
     // tell other peer to close connection as well
-    send({
-      type: 'close'
-    });
+    sendBySocket('close');
   }
 
   // torrentId will change whenever the viewer is notified of the new magnet via websockets or WebRTC

@@ -28,9 +28,11 @@ function socketController(server) {
 
     io.sockets.clients(clientHandler);
 
-    // TODO: WebRTC signaling handlers
     // TODO: find way to emit to specific socket (i.e. caller/callee clients)
+    // receives offer from new client
     socket.on('offer', function (offer) {
+      // emit to last client in chain
+      socket.to(/* next socketid */).emit(offer);
     });
     // socket.on('answer')
     // socket.on('candidate')
