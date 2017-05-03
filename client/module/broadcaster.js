@@ -1,5 +1,7 @@
-import WebTorrent from 'webtorrent';
-import MediaStreamRecorder from 'msr'
+// import WebTorrent from 'webtorrent';
+// import MediaStreamRecorder from 'msr'
+// const WebTorrent = require('webtorrent');
+// const MediaStreamRecorder = require('msr');
 
 export default class Broadcaster {
   constructor(

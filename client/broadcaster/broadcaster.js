@@ -1,6 +1,10 @@
+
 const broadcaster = new Broadcaster(4000, 'video', 'button-play-gum', 'button-stop-gum');
 
+console.log(broadcaster);
+
 broadcaster.startStream();
+
 
 // // import WebTorrent from 'webtorrent';
 // // import MediaStreamRecorder from 'mediastreamrecorder'

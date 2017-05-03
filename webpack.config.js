@@ -4,17 +4,17 @@ const path = require('path')
 const glob = require('glob')
 
 module.exports = {
-  entry: {
-    js: glob.sync(path.resolve(__dirname, 'client/module/*.js'))
-  },
-  // devtool: 'source-map',
+  entry: path.resolve(__dirname, 'client/module/broadcaster.js'),
+  // entry: {
+  //   js: glob.sync(path.resolve(__dirname, 'client/module/*.js'))
+  // },
   target: 'node',
   output: {
     publicPath: 'dist',
-    path: path.resolve(__dirname, 'dist'),
+    path: path.resolve(__dirname, 'client/dist'),
     filename: 'nile-bundle.js',
     libraryTarget: 'umd',
-    library: 'nile',
+    library: 'Broadcaster',
     umdNamedDefine: true
   },
   module: {
@@ -22,7 +22,7 @@ module.exports = {
       {
         test: /\.js$/,
         loader: 'babel-loader',
-        exclude: /node_modules/,
+        // exclude: /node_modules/,
         options: {
           presets: [
             ['es2015', { modules: false }]

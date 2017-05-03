@@ -1,8 +1,12 @@
 // Install this.socket.io-client
 // io object exposed from injected this.socket.io.js
 
-import * as io from 'socket.io-client';
-import WebTorrent from 'webtorrent';
+// import * as io from 'socket.io-client';
+// import WebTorrent from 'webtorrent';
+
+// const io = require('socket.io-client');
+// const Webtorrent = require('webtorrent')
+
 // utils do not need to be imported
 // import * as utils from './utils';
 
