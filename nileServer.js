@@ -23,7 +23,7 @@ module.exports = function nileServer(server) {
 
   // server receives WebRTC SDP (info necessary to connecet) from new client
   nileServer.post('/signal', (req, res, next) => {
-    
+
   });
 
   return nileServer;

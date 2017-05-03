@@ -1,10 +1,7 @@
 // Install this.socket.io-client
 // io object exposed from injected this.socket.io.js
 
-// import io from 'this.socket.io';
-
-// utils do not need to be imported
-// import * as utils from './utils';
+// import io from 'socket.io-client';
 
 class Viewer {
   constructor(
