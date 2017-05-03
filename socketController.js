@@ -28,11 +28,6 @@ function socketController(server) {
 
     io.sockets.clients(clientHandler);
 
-    socket.on('message', function (msgStr) {
-      // parse stringified message
-      const msg = JSON.parse(msgStr);
-    });
-
     // TODO: WebRTC signaling handlers
     // TODO: find way to emit to specific socket (i.e. caller/callee clients)
     socket.on('offer', function (offer) {
