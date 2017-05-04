@@ -10,7 +10,7 @@ const socketController = require('./socketController');
 // takes in Node Server instance and returns Express Router
 module.exports = function nileServer(server) {
   // Pass server instance to use socket controller
-  const socket = new socketController(server);
+  const socket = new socketController(server, 1);
 
   // create nile.js mini-app through express Router
   const nileServer = express.Router();
