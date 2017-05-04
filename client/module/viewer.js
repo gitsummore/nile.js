@@ -4,13 +4,13 @@
 // import * as io from 'socket.io-client';
 // import WebTorrent from 'webtorrent';
 
-// const io = require('socket.io-client');
-// const Webtorrent = require('webtorrent')
+const io = require('socket.io-client');
+const WebTorrent = require('./webtorrent.min.js');
 
 // utils do not need to be imported
 // import * as utils from './utils';
 
-export default class Viewer {
+class Viewer {
   constructor(
     ID_of_NodeToRenderVideo // location on the DOM where the live feed will be rendered
     ) {
@@ -283,6 +283,4 @@ export default class Viewer {
   }
 }
 
-
-
-
+module.exports = Viewer

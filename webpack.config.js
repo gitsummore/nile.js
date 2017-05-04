@@ -4,17 +4,21 @@ const path = require('path')
 const glob = require('glob')
 
 module.exports = {
-  entry: path.resolve(__dirname, 'client/module/broadcaster.js'),
+  // entry: path.resolve(__dirname, 'client/module/broadcaster.js'),
   // entry: {
   //   js: glob.sync(path.resolve(__dirname, 'client/module/*.js'))
   // },
+  entry: {
+    Broadcaster: path.resolve(__dirname, 'client/module/broadcaster.js'),
+    Viewer: path.resolve(__dirname, 'client/module/viewer.js')
+  },
   // target: 'web',
   output: {
     publicPath: 'dist',
     path: path.resolve(__dirname, 'client/dist'),
-    filename: 'broadcaster.js',
+    filename: 'nile.[name].js',
+    library: '[name]',
     libraryTarget: 'umd',
-    library: 'Broadcaster',
     umdNamedDefine: true
   },
   module: {
