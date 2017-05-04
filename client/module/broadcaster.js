@@ -1,9 +1,9 @@
-// import WebTorrent from 'webtorrent';
-// import MediaStreamRecorder from 'msr'
-// const WebTorrent = require('webtorrent');
-// const MediaStreamRecorder = require('msr');
+// import * as WebTorrent from 'webtorrent';
+// import * as MediaStreamRecorder from 'msr';
+const WebTorrent = require('./webtorrent.min.js');
+const MediaStreamRecorder = require('msr');
 
-export default class Broadcaster {
+class Broadcaster {
   constructor(
     recordInterval, // the Interval that the webcam recording should seed each segment of the video
     videoNodeIDForPlayback, // The id of the video node in the html where the broadcaster can see their own recording
@@ -20,6 +20,7 @@ export default class Broadcaster {
     // interval to record video at (in ms)
     const _recordInterval = this.recordInterval;
     const sendMagnetToServer = this.sendMagnetToServer;
+    console.log(sendMagnetToServer)
     let videoStream = null;
     let video = document.getElementById(`${this.videoNodeIDForPlayback}`);
 
@@ -150,7 +151,7 @@ export default class Broadcaster {
   sendMagnetToServer(magnetURI) {
     // send to server
     let xhr = new XMLHttpRequest();
-
+    console.log('working')
     xhr.open('POST', '/uploadfile', true);
 
     xhr.onreadystatechange = function () {
@@ -162,7 +163,8 @@ export default class Broadcaster {
     }
 
     xhr.setRequestHeader("Content-type", "application/json");
-
     xhr.send(JSON.stringify({ 'magnetURI': magnetURI }));
   }
 }
+
+module.exports = Broadcaster

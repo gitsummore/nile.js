@@ -8,11 +8,11 @@ module.exports = {
   // entry: {
   //   js: glob.sync(path.resolve(__dirname, 'client/module/*.js'))
   // },
-  target: 'node',
+  // target: 'web',
   output: {
     publicPath: 'dist',
     path: path.resolve(__dirname, 'client/dist'),
-    filename: 'nile-bundle.js',
+    filename: 'broadcaster.js',
     libraryTarget: 'umd',
     library: 'Broadcaster',
     umdNamedDefine: true
@@ -22,10 +22,9 @@ module.exports = {
       {
         test: /\.js$/,
         loader: 'babel-loader',
-        // exclude: /node_modules/,
         options: {
           presets: [
-            ['es2015', { modules: false }]
+            ['es2015']
           ]
         }
       }
