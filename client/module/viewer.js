@@ -3,6 +3,9 @@
 
 // import io from 'socket.io-client';
 
+// set peer connection to Mozilla PeerConnection if in Firefox
+RTCPeerConnection = RTCPeerConnection || mozRTCPeerConnection;
+
 class Viewer {
   constructor(
     ID_of_NodeToRenderVideo // location on the DOM where the live feed will be rendered
@@ -169,7 +172,7 @@ class Viewer {
     console.log('Receiving answer from offer...');
     // set info from remote end
     return this.connToParent.setRemoteDescription(answer)
-      .then(() => { 
+      .then(() => {
         console.log('Set remote description');
         // console.log('Local:', this.connToParent.localDescription);
         // console.log('Remote:', this.connToParent.remoteDescription);
