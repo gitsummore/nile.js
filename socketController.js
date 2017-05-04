@@ -32,23 +32,29 @@ function socketController(server, clientLimit) {
 
     this.io.sockets.clients(checkClientNum);
 
-    // receives offer from new client
-    socket.on('offer', (offer) => {
+    // variable to bind this to in socket handlers
+    const self = this;
+
+    // callee receives offer from new client
+    socket.on('offer', function (offer) {
       // get socket id to send offer to
-      const targetSocket = getTargetSocket(this.sockets);
-      const targetId = targetSocket.id;
+      const calleeSocket = getCalleeSocket(self.sockets);
+      const calleeId = calleeSocket.id;
+      // get this socket's id
+      const callerId = this.id;
 
       // emit to root of client chain
-      // target socket's id maintained throughout signaling
-      console.log('Emitting offer to', targetId);
-      socket.to(targetId).emit('offer', targetId, offer);
+      // callee socket's id maintained throughout signaling
+      console.log('Emitting offer to callee:', calleeId);
+      socket.to(calleeId).emit('offer', this.id, offer);
     });
 
-    socket.on('answer', (targetId, answer) => {
+    // caller receives answer from callee
+    socket.on('answer', (callerId, answer) => {
       // emit to root of client chain
-      // target socket's id maintained throughout signaling
-      console.log('Emitting answer to', targetId);
-      socket.to(targetId).emit('answer', targetId, answer);
+      // callee socket's id maintained throughout signaling
+      console.log('Emitting answer to caller:', callerId);
+      socket.to(callerId).emit('answer', answer);
     });
 
     // socket.on('candidate')
@@ -66,7 +72,7 @@ socketController.prototype.emitNewMagnet = function(magnetURI) {
   this.io.emit('magnetURI', magnetURI);
 }
 
-function getTargetSocket(sockets) {
+function getCalleeSocket(sockets) {
   return sockets[0];
 }
 

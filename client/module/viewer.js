@@ -139,7 +139,7 @@ class Viewer {
 
   // Callee: receive offer from new child peer
   // this.socket 'offer' handler
-  receiveOffer(targetId, offer) {
+  receiveOffer(callerId, offer) {
     console.log('Receiving offer to connect...');
     // create child connection
     this.connToChild = this.createPeerConn();
@@ -154,24 +154,33 @@ class Viewer {
       .then((answer) => this.connToChild.setLocalDescription(answer))
       // send answer to caller
       .then(() => {
+        console.log('Set local description');
+        // console.log('Local:', this.connToChild.localDescription);
+        // console.log('Remote:', this.connToChild.remoteDescription);
         const answer = this.connToChild.localDescription;
-        this.sendBySocket('answer', targetId, answer);
+        this.sendBySocket('answer', callerId, answer);
       })
       .catch(this.logError);
   }
 
   // Callee: as a parent/caller, receive answer from child/callee
   // this.socket 'answer' handler
-  receiveAnswer(targetId, answer) {
+  receiveAnswer(answer) {
     console.log('Receiving answer from offer...');
     // set info from remote end
-    this.connToParent.setRemoteDescription(answer)
+    return this.connToParent.setRemoteDescription(answer)
+      .then(() => { 
+        console.log('Set remote description');
+        // console.log('Local:', this.connToParent.localDescription);
+        // console.log('Remote:', this.connToParent.remoteDescription);
+      })
       .catch(this.logError);
   }
 
   // Caller: send ICE candidate to callee
   // RTC onicecandidate handler
   iceCandidateHandler(event) {
+    console.log('Sending ICE candidates...');
     if (event.candidate) {
       // send child peer ICE candidate
       this.sendBySocket('candidate', event.candidate);
@@ -306,7 +315,7 @@ class Viewer {
   }
 
   logError(err) {
-    console.log('Error:', err);
+    throw err;
   }
 }
 
