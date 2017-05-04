@@ -25,4 +25,9 @@ const server = app.listen(port, () => {
 app.use(express.static(path.join(__dirname, 'client')));
 
 // Routes
+<<<<<<< HEAD
 app.post('/uploadfile', nileServer(server));
+=======
+const sendMagnetURI = nileServer(server);
+app.post('/uploadfile', sendMagnetURI);
+>>>>>>> af3448e30c985ffcc86c3d391397a96366a4752e
