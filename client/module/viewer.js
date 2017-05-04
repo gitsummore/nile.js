@@ -1,7 +1,11 @@
 // Install this.socket.io-client
 // io object exposed from injected this.socket.io.js
 
-// import io from 'this.socket.io';
+// import * as io from 'socket.io-client';
+// import WebTorrent from 'webtorrent';
+
+const io = require('socket.io-client');
+const WebTorrent = require('./webtorrent.min.js');
 
 // utils do not need to be imported
 // import * as utils from './utils';
@@ -279,8 +283,4 @@ class Viewer {
   }
 }
 
-// export default Viewer
-
-
-
-
+module.exports = Viewer
