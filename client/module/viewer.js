@@ -2,9 +2,7 @@
 // io object exposed from injected this.socket.io.js
 
 // import io from 'socket.io-client';
-
-// set peer connection to Mozilla PeerConnection if in Firefox
-RTCPeerConnection = RTCPeerConnection || mozRTCPeerConnection;
+// import ViewerConnection from './viewerConnection';
 
 class Viewer {
   constructor(
@@ -29,10 +27,7 @@ class Viewer {
      * parent - client that's closer to server
      * child - farther away from server
      */ 
-    this.connToParent;
-    this.connToChild;
-    // DataChannels for sending messages
-    this.parentChannel, this.childChannel;
+    this.connToParent, this.connToChild;
   }
 
   // send message on RTC connection
@@ -66,9 +61,9 @@ class Viewer {
 
         // create new WebRTC connection to connect to a parent
         // will disconnect once WebRTC connection established
-        this.connToParent = this.createPeerConn();
+        this.connToParent = new viewerConnection(this.socket);
         // create data channel to pass messges to parent
-        this.parentChannel = this.connToParent.createDataChannel('magnet');
+        this.parentChannel = this.connToParent.RTCconn.createDataChannel('magnet');
         // setup channel event listeners
         this.setupDataChannel(this.parentChannel);
         // begin negotiation process w/ an offer
@@ -92,7 +87,7 @@ class Viewer {
 
   // Create WebRTC connection to a peer
   createPeerConn() {
-    const conn = new RTCPeerConnection({
+    const conn = new ViewerConnection({
       iceServers: [
         // STUN servers
         { url: 'stun:stun.l.google.com:19302' },
