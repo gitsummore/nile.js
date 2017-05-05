@@ -21,9 +21,18 @@ class Viewer {
     this.isPlay2Playing = false;
     this.firstIteration = 0;
     this.socket = io.connect();
-    this.childLimit = 1
-    this.connToParent; // connection to parent - client node that's closer to server
-    this.connToChild; // connection to child - client moving farther away from server
+    this.childLimit = 1;
+
+    /**
+     * WebRTC Connections b/w clients
+     * 
+     * parent - client that's closer to server
+     * child - farther away from server
+     */ 
+    this.connToParent;
+    this.connToChild;
+    // DataChannels for sending messages
+    this.parentChannel, this.childChannel;
   }
 
   // send message on RTC connection
@@ -58,6 +67,10 @@ class Viewer {
         // create new WebRTC connection to connect to a parent
         // will disconnect once WebRTC connection established
         this.connToParent = this.createPeerConn();
+        // create data channel to pass messges to parent
+        this.parentChannel = this.connToParent.createDataChannel('magnet');
+        // setup channel event listeners
+        this.setupDataChannel(this.parentChannel);
         // begin negotiation process w/ an offer
         this.initOffer();
       }
@@ -105,16 +118,29 @@ class Viewer {
      */
 
     // Handle connection state changes
-    conn.onconnectionstatechange = this.connectionStateHandler;
-
+    conn.onconnectionstatechange = this.connectionStateHandler.bind(this);
+    
     // when ICE candidates need to be sent to callee
-    conn.onicecandidate = this.iceCandidateHandler;
+    conn.onicecandidate = this.iceCandidateHandler.bind(this);
+    
+    // Handle requests to open data channel
+    conn.ondatachannel = this.receiveDataChannel.bind(this);
 
     return conn;
   }
 
+  // add event listeners for RTC DataChannel
+  setupDataChannel(channel) {
+    channel.onopen = channel.onclose = this.handleSendChannelStatusChange;
+  }
+
+  handleSendChannelStatusChange(event) {
+
+  }
+
+  // WebRTC connection state handler
   connectionStateHandler() {
-    console.log(conn.connectionState);
+    console.log('Connection state changed to', conn.connectionState);
 
     if (conn.connectionState === 'connected') {
       // disconnect socket.io connection
@@ -143,9 +169,13 @@ class Viewer {
   // Callee: receive offer from new child peer
   // this.socket 'offer' handler
   receiveOffer(callerId, offer) {
-    console.log('Receiving offer to connect...');
+    console.log('Receiving offer at socket', this.socket.id);
     // create child connection
     this.connToChild = this.createPeerConn();
+    // create data channel to pass messges to child
+    this.childChannel = this.connToChild.createDataChannel('magnet');
+    // setup channel event listeners
+    this.setupDataChannel(this.childChannel);
 
     // set remote end's info
     // return Promise that resolves after creating and setting answer as local description
@@ -182,21 +212,29 @@ class Viewer {
 
   // Caller: send ICE candidate to callee
   // RTC onicecandidate handler
+  // TODO: make this function work when viewer is a caller AND a callee
   iceCandidateHandler(event) {
     console.log('Sending ICE candidates...');
     if (event.candidate) {
       // send child peer ICE candidate
-      this.sendBySocket('candidate', event.candidate);
+      this.sendBySocket('candidate', /* peerId, */ event.candidate);
     }
   }
+
   // Callee: receive an ICE candidate from caller
   // this.socket ICE candidate handler
   handleNewIceCandidate(candidate) {
+    console.log('Receiving ICE candidates...');
     const iceCandidate = new RTCIceCandidate(candidate);
 
     // add ICE candidate from caller (parent)
     this.connToParent.addIceCandidate(candidate)
       .catch(this.logError);
+  }
+
+  // RTC: receiver handles request to open data channel
+  receiveDataChannel(event) {
+    
   }
 
   // close connections and free up resources
