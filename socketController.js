@@ -52,16 +52,17 @@ function socketController(server, clientLimit) {
     });
 
     // caller receives answer from callee
-    socket.on('answer', (callerId, answer) => {
-      // emit to root of client chain
+    socket.on('answer', function (callerId, answer) {
+      // emit this (callee) socket's id and answer to root of client chain
       // callee socket's id maintained throughout signaling
       console.log('Emitting answer to caller:', callerId);
-      socket.to(callerId).emit('answer', answer);
+      socket.to(callerId).emit('answer', this.id, answer);
     });
 
     // send peers in a WebRTC connection new ICE candidates
     socket.on('candidate', (peerId, candidate) => {
-      // socket.to(peerId).emit('candidate', candidate);
+      console.log('Emitting candidate to peer:', peerId);
+      socket.to(peerId).emit('candidate', candidate);
     });
 
     socket.on('disconnect', function(socket) {
