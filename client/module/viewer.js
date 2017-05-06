@@ -148,12 +148,12 @@ class Viewer {
   initOffer() {
     console.log('Initiating offer...');
     // create offer to parent
-    this.connToParent.createOffer()
+    this.connToParent.RTCconn.createOffer()
       // set local description of caller
-      .then(offer => this.connToParent.setLocalDescription(offer))
+      .then(offer => this.connToParent.RTCconn.setLocalDescription(offer))
       // send offer along to peer
       .then(() => {
-        const offer = this.connToParent.localDescription;
+        const offer = this.connToParent.RTCconn.localDescription;
         this.sendBySocket('offer', offer);
 
         // TODO: post to server so non-socket clients can transmit session info w/o sockets?
@@ -168,24 +168,24 @@ class Viewer {
     // create child connection
     this.connToChild = this.createPeerConn();
     // create data channel to pass messges to child
-    this.childChannel = this.connToChild.createDataChannel('magnet');
+    this.childChannel = this.connToChild.RTCconn.createDataChannel('magnet');
     // setup channel event listeners
     this.setupDataChannel(this.childChannel);
 
     // set remote end's info
     // return Promise that resolves after creating and setting answer as local description
     // sending answer will be handled by this.socket.io
-    return this.connToChild.setRemoteDescription(offer)
+    return this.connToChild.RTCconn.setRemoteDescription(offer)
       // create answer to offer
-      .then(() => this.connToChild.createAnswer())
+      .then(() => this.connToChild.RTCconn.createAnswer())
       // set local description of callee
-      .then((answer) => this.connToChild.setLocalDescription(answer))
+      .then((answer) => this.connToChild.RTCconn.setLocalDescription(answer))
       // send answer to caller
       .then(() => {
         console.log('Set local description');
-        // console.log('Local:', this.connToChild.localDescription);
-        // console.log('Remote:', this.connToChild.remoteDescription);
-        const answer = this.connToChild.localDescription;
+        // console.log('Local:', this.connToChild.RTCconn.localDescription);
+        // console.log('Remote:', this.connToChild.RTCconn.remoteDescription);
+        const answer = this.connToChild.RTCconn.localDescription;
         this.sendBySocket('answer', callerId, answer);
       })
       .catch(this.logError);
@@ -196,11 +196,11 @@ class Viewer {
   receiveAnswer(answer) {
     console.log('Receiving answer from offer...');
     // set info from remote end
-    return this.connToParent.setRemoteDescription(answer)
+    return this.connToParent.RTCconn.setRemoteDescription(answer)
       .then(() => {
         console.log('Set remote description');
-        // console.log('Local:', this.connToParent.localDescription);
-        // console.log('Remote:', this.connToParent.remoteDescription);
+        // console.log('Local:', this.connToParent.RTCconn.localDescription);
+        // console.log('Remote:', this.connToParent.RTCconn.remoteDescription);
       })
       .catch(this.logError);
   }
@@ -223,7 +223,7 @@ class Viewer {
     const iceCandidate = new RTCIceCandidate(candidate);
 
     // add ICE candidate from caller (parent)
-    this.connToParent.addIceCandidate(candidate)
+    this.connToParent.RTCconn.addIceCandidate(candidate)
       .catch(this.logError);
   }
 
@@ -234,15 +234,15 @@ class Viewer {
 
   // close connections and free up resources
   closeConnToParent(conn) {
-    this.connToParent.close();
-    this.connToParent = null;
+    this.connToParent.RTCconn.close();
+    this.connToParent.RTCconn = null;
     // tell other peer to close connection as well
     sendBySocket('close');
   }
 
   closeConnToChild(conn) {
-    this.connToChild.close();
-    this.connToChild = null;
+    this.connToChild.RTCconn.close();
+    this.connToChild.RTCconn = null;
     // tell other peer to close connection as well
     sendBySocket('close');
   }
