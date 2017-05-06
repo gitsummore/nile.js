@@ -185,7 +185,8 @@ class Viewer {
   // and then it will either run the first download or the second download, torrent ID must be different
 
   // Function for downloading the torrent
-  startDownloadingFirst(magnetURI) {
+  startDownloadingFirst(magnetUR) {
+    let magnetURI = 'https://webtorrent.io/torrents/sintel.torrent'
     this.firstIteration += 1;
     let firstIteration = this.firstIteration;
     let $play1 = this.$play1;
@@ -195,13 +196,15 @@ class Viewer {
 
     this.isPlay1Playing = true;
     
+    let test = new WebTorrent();
 
-    this.client.add(magnetURI, function (torrent) {
-
+    test.add(magnetURI, function (torrent) {
+      console.log('is this working?')
       /* Look for the file that ends in .webm and render it, in the future we can
        * add additional file types for scaling. E.g other video formats or even VR!
        */
       let file1 = torrent.files.find(function (file) {
+        console.log('watchFiles', file)
         return file.name.endsWith('.webm')
       })
       
@@ -237,6 +240,7 @@ class Viewer {
        * add additional file types for scaling. E.g other video formats or even VR!
        */
       let file2 = torrent.files.find(function (file) {
+        console.log('watchFiles', file)
         return file.name.endsWith('.webm')
       })
 
@@ -266,6 +270,7 @@ class Viewer {
        * add additional file types for scaling. E.g other video formats or even VR!
        */
       let file3 = torrent.files.find(function (file) {
+        console.log('watchFiles', file)
         return file.name.endsWith('.webm')
       })
 

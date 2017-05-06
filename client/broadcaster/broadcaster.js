@@ -1,5 +1,5 @@
 
-const broadcaster = new Broadcaster(4000, 'video', 'button-play-gum', 'button-stop-gum');
+const broadcaster = new Broadcaster(5000, 'video', 'button-play-gum', 'button-stop-gum');
 
 console.log(broadcaster);
 

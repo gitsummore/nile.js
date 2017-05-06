@@ -144,9 +144,9 @@ class Broadcaster {
             //   });
             // }
             // console.log(file);
-            if (worker2) {
-              worker2.terminate()
-            }
+            // if (worker2) {
+            //   worker2.terminate()
+            // }
 
             // checks if browser supports Worker api
             if (window.Worker) {
@@ -161,7 +161,7 @@ class Broadcaster {
               }
             }
 
-            console.log('worker 1 from 1', worker1)
+            // console.log('worker 1 from 1', worker1)
 
             // broadcaster1 = new WebTorrent();
             // broadcaster1.seed(file, function (torrent) {

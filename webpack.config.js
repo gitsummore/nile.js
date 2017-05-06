@@ -9,9 +9,9 @@ module.exports = {
   //   js: glob.sync(path.resolve(__dirname, 'client/module/*.js'))
   // },
   entry: {
-    // Broadcaster: path.resolve(__dirname, 'client/module/broadcaster.js'),
-    Viewer: path.resolve(__dirname, 'client/module/viewer.js')
-    // Webworker: path.resolve(__dirname, 'client/module/web-worker.js')
+    Broadcaster: path.resolve(__dirname, 'client/module/broadcaster.js'),
+    Viewer: path.resolve(__dirname, 'client/module/viewer.js'),
+    Webworker: path.resolve(__dirname, 'client/module/web-worker.js')
   },
   // target: 'web',
   output: {

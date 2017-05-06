@@ -73,12 +73,12 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "dist";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 27);
+/******/ 	return __webpack_require__(__webpack_require__.s = 29);
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ 27:
+/***/ 29:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -134,6 +134,9 @@ var Broadcaster = function () {
       var magnetURI3 = void 0;
       var _wasLastBroadcaster_1 = false;
       var _wasLastBroadcaster_2 = false;
+      var worker1 = void 0;
+      var worker2 = void 0;
+      var worker3 = void 0;
 
       // when pressing the play button, start recording
       document.getElementById('' + this.startStreamID).addEventListener('click', function () {
@@ -168,9 +171,20 @@ var Broadcaster = function () {
               //     console.log('broadcaster3 removed')
               //   });
               // }
-
+              // console.log('worker1 from 3', worker1)
+              worker1.terminate();
               // check to see if browser supports web-workers
+              if (window.Worker) {
+                // passes a script as input
+                worker3 = new Worker('./../dist/nile.Webworker.js');
 
+                worker3.postMessage(file);
+
+                worker3.onmessage = function (magnetURI) {
+                  console.log('b1 seeding', magnetURI.data);
+                  sendMagnetToServer(magnetURI.data);
+                };
+              }
               // broadcaster3 = new WebTorrent();
 
               // // start seeding the new torrent
@@ -188,7 +202,19 @@ var Broadcaster = function () {
               //     console.log('broadcaster2 removed')
               //   });
               // }
+              worker3.terminate();
 
+              if (window.Worker) {
+                // passes a script as input
+                worker2 = new Worker('./../dist/nile.Webworker.js');
+
+                worker2.postMessage(file);
+
+                worker2.onmessage = function (magnetURI) {
+                  console.log('b1 seeding', magnetURI.data);
+                  sendMagnetToServer(magnetURI.data);
+                };
+              }
 
               // broadcaster2 = new WebTorrent();
 
@@ -211,17 +237,24 @@ var Broadcaster = function () {
               //   });
               // }
               // console.log(file);
+              // if (worker2) {
+              //   worker2.terminate()
+              // }
+
               // checks if browser supports Worker api
               if (window.Worker) {
                 // passes a script as input
-                var worker1 = new Worker('./../module/web-worker.js');
+                worker1 = new Worker('./../dist/nile.Webworker.js');
 
                 worker1.postMessage(file);
 
-                onmessage = function onmessage(magnetURI) {
-                  sendMagnetToServer(magnetURI);
+                worker1.onmessage = function (magnetURI) {
+                  console.log('b1 seeding', magnetURI.data);
+                  sendMagnetToServer(magnetURI.data);
                 };
               }
+
+              // console.log('worker 1 from 1', worker1)
 
               // broadcaster1 = new WebTorrent();
               // broadcaster1.seed(file, function (torrent) {
@@ -230,7 +263,7 @@ var Broadcaster = function () {
               //   sendMagnetToServer(magnetURI1);
               // });
 
-              _wasLastBroadcaster_1 = true;
+              // _wasLastBroadcaster_1 = true;
             }
           };
 
