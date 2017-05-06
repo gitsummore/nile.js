@@ -34,6 +34,7 @@ class Viewer {
     console.log('working')
 
     this.socket.on('magnetURI', (magnetURI) => {
+      console.log(magnetURI);
       // begin downloading the torrents and render them to page, alternate between three torrents
       if (this.isPlay1Playing && this.isPlay2Playing) {
         this.startDownloadingThird(magnetURI);

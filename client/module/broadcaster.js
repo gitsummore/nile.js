@@ -1,7 +1,7 @@
 // import * as WebTorrent from 'webtorrent';
 // import * as MediaStreamRecorder from 'msr';
-const WebTorrent = require('./webtorrent.min.js');
-const MediaStreamRecorder = require('msr');
+// const WebTorrent = require('./webtorrent.min.js');
+// const MediaStreamRecorder = require('msr');
 
 class Broadcaster {
   constructor(
@@ -39,6 +39,9 @@ class Broadcaster {
     let magnetURI3;
     let _wasLastBroadcaster_1 = false;
     let _wasLastBroadcaster_2 = false;
+    let worker1;
+    let worker2;
+    let worker3;
 
     // when pressing the play button, start recording
     document.getElementById(`${this.startStreamID}`).addEventListener('click', function () {
@@ -68,59 +71,106 @@ class Broadcaster {
           //  * once each seed is done, destroy the seed and initiate the next one
           // */
           if (_wasLastBroadcaster_1 && _wasLastBroadcaster_2) {
-            if (magnetURI3) {
-              broadcaster3.destroy(function () {
-                console.log('broadcaster3 removed')
-              });
+            // if (magnetURI3) {
+            //   broadcaster3.destroy(function () {
+            //     console.log('broadcaster3 removed')
+            //   });
+            // }
+            // console.log('worker1 from 3', worker1)
+            worker1.terminate();
+            // check to see if browser supports web-workers
+            if (window.Worker) {
+              // passes a script as input
+              worker3 = new Worker('./../dist/nile.Webworker.js')
+
+              worker3.postMessage(file);
+
+              worker3.onmessage = (magnetURI) => {
+                console.log('b1 seeding', magnetURI.data)
+                sendMagnetToServer(magnetURI.data);
+              }
             }
+            // broadcaster3 = new WebTorrent();
 
-            broadcaster3 = new WebTorrent();
-
-            // start seeding the new torrent
-            broadcaster3.seed(file, function (torrent) {
-              magnetURI3 = torrent.magnetURI;
-              console.log('broadcaster3 is seeding ' + torrent.magnetURI)
-              sendMagnetToServer(magnetURI3);
-            });
+            // // start seeding the new torrent
+            // broadcaster3.seed(file, function (torrent) {
+            //   magnetURI3 = torrent.magnetURI;
+            //   console.log('broadcaster3 is seeding ' + torrent.magnetURI)
+            //   sendMagnetToServer(magnetURI3);
+            // });
 
             _wasLastBroadcaster_1 = _wasLastBroadcaster_2 = false;
 
+
           } else if (_wasLastBroadcaster_1) {
             // if there is already a seed occuring, destroy it and re-seed
-            if (magnetURI2) {
-              broadcaster2.destroy(function () {
-                console.log('broadcaster2 removed')
-              });
+            // if (magnetURI2) {
+            //   broadcaster2.destroy(function () {
+            //     console.log('broadcaster2 removed')
+            //   });
+            // }
+            worker3.terminate();
+
+            if (window.Worker) {
+              // passes a script as input
+              worker2 = new Worker('./../dist/nile.Webworker.js')
+
+              worker2.postMessage(file);
+
+              worker2.onmessage = (magnetURI) => {
+                console.log('b1 seeding', magnetURI.data)
+                sendMagnetToServer(magnetURI.data);
+              }
             }
 
-            broadcaster2 = new WebTorrent();
+            // broadcaster2 = new WebTorrent();
 
-            // start seeding the new torrent
-            broadcaster2.seed(file, function (torrent) {
-              magnetURI2 = torrent.magnetURI;
-              console.log('broadcaster2 is seeding ' + torrent.magnetURI)
-              sendMagnetToServer(magnetURI2);
-            });
+            // // start seeding the new torrent
+            // broadcaster2.seed(file, function (torrent) {
+            //   magnetURI2 = torrent.magnetURI;
+            //   console.log('broadcaster2 is seeding ' + torrent.magnetURI)
+            //   sendMagnetToServer(magnetURI2);
+            // });
 
             _wasLastBroadcaster_2 = true;
-
           } else {
-
-            if (magnetURI1) {
-              broadcaster1.destroy(function () {
-                console.log('broadcaster1 removed')
-              });
+            // if (worker2) {
+            //   console.log('worker2 closed')
+            //   worker2.terminate();
+            // }
+            // if (magnetURI1) {
+            //   broadcaster1.destroy(function () {
+            //     console.log('broadcaster1 removed')
+            //   });
+            // }
+            // console.log(file);
+            if (worker2) {
+              worker2.terminate()
             }
 
-            broadcaster1 = new WebTorrent();
+            // checks if browser supports Worker api
+            if (window.Worker) {
+              // passes a script as input
+              worker1 = new Worker('./../dist/nile.Webworker.js')
 
-            broadcaster1.seed(file, function (torrent) {
-              magnetURI1 = torrent.magnetURI;
-              console.log('broadcaster1 is seeding ' + torrent.magnetURI)
-              sendMagnetToServer(magnetURI1);
-            });
+              worker1.postMessage(file);
 
-            _wasLastBroadcaster_1 = true;
+              worker1.onmessage = (magnetURI) => {
+                console.log('b1 seeding', magnetURI.data)
+                sendMagnetToServer(magnetURI.data);
+              }
+            }
+
+            console.log('worker 1 from 1', worker1)
+
+            // broadcaster1 = new WebTorrent();
+            // broadcaster1.seed(file, function (torrent) {
+            //   magnetURI1 = torrent.magnetURI;
+            //   console.log('broadcaster1 is seeding ' + torrent.magnetURI)
+            //   sendMagnetToServer(magnetURI1);
+            // });
+
+            // _wasLastBroadcaster_1 = true;
           }
         };
 
@@ -167,4 +217,4 @@ class Broadcaster {
   }
 }
 
-module.exports = Broadcaster
+// module.exports = Broadcaster
