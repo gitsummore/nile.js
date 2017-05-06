@@ -17,7 +17,7 @@ module.exports = function nileServer(server) {
   const socket = new socketController(server);
   // returns Express middleware function to apply to a developer-provided POST endpoint
   return function emitMagnetUri(req, res, next) {
-    console.log('working')
+    // console.log(req.body.magnetURI)
     socket.emitNewMagnet(req.body.magnetURI);
     res.sendStatus(200);
   }

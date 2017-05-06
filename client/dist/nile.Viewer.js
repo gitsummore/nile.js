@@ -9631,7 +9631,7 @@ var Viewer = function () {
       console.log('working');
 
       this.socket.on('magnetURI', function (magnetURI) {
-        console.log(magnetURI);
+        // console.log(magnetURI)
         // begin downloading the torrents and render them to page, alternate between three torrents
         if (_this.isPlay1Playing && _this.isPlay2Playing) {
           _this.startDownloadingThird(magnetURI);
@@ -9810,26 +9810,26 @@ var Viewer = function () {
 
   }, {
     key: 'startDownloadingFirst',
-    value: function startDownloadingFirst(magnetUR) {
-      var magnetURI = 'https://webtorrent.io/torrents/sintel.torrent';
+    value: function startDownloadingFirst(magnetURI) {
       this.firstIteration += 1;
       var firstIteration = this.firstIteration;
       var $play1 = this.$play1;
       var $play2 = this.$play2;
 
       console.log('first Iteration', firstIteration);
+      console.log('magnetURI', magnetURI);
+      // console.log('what am I', this.client);
 
-      this.isPlay1Playing = true;
+      // this.isPlay1Playing = true;
 
-      var test = new WebTorrent();
+      // https://webtorrent.io/torrents/sintel.torrent
 
-      test.add(magnetURI, function (torrent) {
-        console.log('is this working?');
+      this.client.add(magnetURI, function (torrent) {
+        console.log('working?');
         /* Look for the file that ends in .webm and render it, in the future we can
          * add additional file types for scaling. E.g other video formats or even VR!
          */
         var file1 = torrent.files.find(function (file) {
-          console.log('watchFiles', file);
           return file.name.endsWith('.webm');
         });
 
@@ -9842,6 +9842,10 @@ var Viewer = function () {
         } else {
           file1.renderTo('video#player1', { autoplay: false });
         }
+      });
+
+      this.client.on('error', function (err) {
+        console.log('torrent wont start downloading');
       });
 
       // listen to when video 1 ends, immediately play the other video
@@ -9869,7 +9873,6 @@ var Viewer = function () {
          * add additional file types for scaling. E.g other video formats or even VR!
          */
         var file2 = torrent.files.find(function (file) {
-          console.log('watchFiles', file);
           return file.name.endsWith('.webm');
         });
 
@@ -9900,7 +9903,6 @@ var Viewer = function () {
          * add additional file types for scaling. E.g other video formats or even VR!
          */
         var file3 = torrent.files.find(function (file) {
-          console.log('watchFiles', file);
           return file.name.endsWith('.webm');
         });
 

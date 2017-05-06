@@ -47,7 +47,7 @@ function socketController(server) {
 }
 
 socketController.prototype.emitNewMagnet = function(magnetURI) {
-  console.log('hello')
+  console.log('magnetURI', magnetURI)
   this.io.emit('magnetURI', magnetURI);
 }
 

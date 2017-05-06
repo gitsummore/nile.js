@@ -34,7 +34,7 @@ class Viewer {
     console.log('working')
 
     this.socket.on('magnetURI', (magnetURI) => {
-      console.log(magnetURI);
+      // console.log(magnetURI)
       // begin downloading the torrents and render them to page, alternate between three torrents
       if (this.isPlay1Playing && this.isPlay2Playing) {
         this.startDownloadingThird(magnetURI);
@@ -185,26 +185,26 @@ class Viewer {
   // and then it will either run the first download or the second download, torrent ID must be different
 
   // Function for downloading the torrent
-  startDownloadingFirst(magnetUR) {
-    let magnetURI = 'https://webtorrent.io/torrents/sintel.torrent'
+  startDownloadingFirst(magnetURI) {
     this.firstIteration += 1;
     let firstIteration = this.firstIteration;
     let $play1 = this.$play1;
     let $play2 = this.$play2;
 
     console.log('first Iteration', firstIteration)
+      console.log('magnetURI', magnetURI)
+    // console.log('what am I', this.client);
 
-    this.isPlay1Playing = true;
+    // this.isPlay1Playing = true;
     
-    let test = new WebTorrent();
-
-    test.add(magnetURI, function (torrent) {
-      console.log('is this working?')
+    // https://webtorrent.io/torrents/sintel.torrent
+    
+    this.client.add(magnetURI, function (torrent) {
+      console.log('working?')
       /* Look for the file that ends in .webm and render it, in the future we can
        * add additional file types for scaling. E.g other video formats or even VR!
        */
       let file1 = torrent.files.find(function (file) {
-        console.log('watchFiles', file)
         return file.name.endsWith('.webm')
       })
       
@@ -215,6 +215,10 @@ class Viewer {
       } else {
         file1.renderTo('video#player1', { autoplay: false })
       }
+    })
+
+    this.client.on('error', function (err) {
+      console.log('torrent wont start downloading')
     })
 
     // listen to when video 1 ends, immediately play the other video
@@ -240,7 +244,6 @@ class Viewer {
        * add additional file types for scaling. E.g other video formats or even VR!
        */
       let file2 = torrent.files.find(function (file) {
-        console.log('watchFiles', file)
         return file.name.endsWith('.webm')
       })
 
@@ -270,7 +273,6 @@ class Viewer {
        * add additional file types for scaling. E.g other video formats or even VR!
        */
       let file3 = torrent.files.find(function (file) {
-        console.log('watchFiles', file)
         return file.name.endsWith('.webm')
       })
 

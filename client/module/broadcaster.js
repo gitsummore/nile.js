@@ -39,9 +39,9 @@ class Broadcaster {
     let magnetURI3;
     let _wasLastBroadcaster_1 = false;
     let _wasLastBroadcaster_2 = false;
-    let worker1;
-    let worker2;
-    let worker3;
+    let worker1 = undefined;
+    let worker2 = undefined;
+    let worker3 = undefined;
 
     // when pressing the play button, start recording
     document.getElementById(`${this.startStreamID}`).addEventListener('click', function () {
@@ -62,7 +62,7 @@ class Broadcaster {
         // every _recordInterval, make a new torrent file and start seeding it
         mediaRecorder.ondataavailable = function (blob) {
 
-          let file = new File([blob], 'nilejs.webm', {
+          const file = new File([blob], 'nilejs.webm', {
             type: 'video/webm'
           });
 
@@ -77,8 +77,13 @@ class Broadcaster {
             //   });
             // }
             // console.log('worker1 from 3', worker1)
-            worker1.terminate();
-            // check to see if browser supports web-workers
+            // worker1.terminate();
+            // // check to see if browser supports web-workers
+            if (worker1) {
+              worker1.terminate()
+              worker1 = undefined;
+            }
+
             if (window.Worker) {
               // passes a script as input
               worker3 = new Worker('./../dist/nile.Webworker.js')
@@ -109,19 +114,23 @@ class Broadcaster {
             //     console.log('broadcaster2 removed')
             //   });
             // }
-            worker3.terminate();
-
-            if (window.Worker) {
-              // passes a script as input
-              worker2 = new Worker('./../dist/nile.Webworker.js')
-
-              worker2.postMessage(file);
-
-              worker2.onmessage = (magnetURI) => {
-                console.log('b1 seeding', magnetURI.data)
-                sendMagnetToServer(magnetURI.data);
-              }
+            if (worker3) {
+              worker3.terminate()
+              worker3 = undefined;
             }
+            // worker3.terminate();
+
+            // if (window.Worker) {
+            //   // passes a script as input
+            //   worker2 = new Worker('./../dist/nile.Webworker.js')
+
+            //   worker2.postMessage(file);
+
+            //   worker2.onmessage = (magnetURI) => {
+            //     console.log('b1 seeding', magnetURI.data)
+            //     sendMagnetToServer(magnetURI.data);
+            //   }
+            // }
 
             // broadcaster2 = new WebTorrent();
 
@@ -144,9 +153,10 @@ class Broadcaster {
             //   });
             // }
             // console.log(file);
-            // if (worker2) {
-            //   worker2.terminate()
-            // }
+            if (worker2) {
+              worker2.terminate();
+              worker2 = undefined;
+            }
 
             // checks if browser supports Worker api
             if (window.Worker) {
@@ -155,7 +165,7 @@ class Broadcaster {
 
               worker1.postMessage(file);
 
-              worker1.onmessage = (magnetURI) => {
+              worker1.onmessage = function (magnetURI) {
                 console.log('b1 seeding', magnetURI.data)
                 sendMagnetToServer(magnetURI.data);
               }
@@ -166,11 +176,11 @@ class Broadcaster {
             // broadcaster1 = new WebTorrent();
             // broadcaster1.seed(file, function (torrent) {
             //   magnetURI1 = torrent.magnetURI;
-            //   console.log('broadcaster1 is seeding ' + torrent.magnetURI)
+            //   console.log('broadcaster1 is seeding ', torrent.magnetURI)
             //   sendMagnetToServer(magnetURI1);
             // });
 
-            // _wasLastBroadcaster_1 = true;
+            _wasLastBroadcaster_1 = true;
           }
         };
 
@@ -201,7 +211,7 @@ class Broadcaster {
   sendMagnetToServer(magnetURI) {
     // send to server
     let xhr = new XMLHttpRequest();
-    console.log('working')
+
     xhr.open('POST', '/uploadfile', true);
 
     xhr.onreadystatechange = function () {

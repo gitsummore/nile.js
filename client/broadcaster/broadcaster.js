@@ -1,7 +1,7 @@
 
 const broadcaster = new Broadcaster(5000, 'video', 'button-play-gum', 'button-stop-gum');
 
-console.log(broadcaster);
+// console.log(broadcaster);
 
 broadcaster.startStream();
 
