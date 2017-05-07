@@ -43,25 +43,40 @@ class ViewerConnection {
 
     // Handle connection state changes
     this.RTCconn.onconnectionstatechange = this.connectionStateHandler.bind(this);
+
+    // Handle ICE connection state changes
+    this.RTCconn.oniceconnectionstatechange = this.iceConnectionStateHandler.bind(this);
     
     // when ICE candidates need to be sent to callee
-    this.RTCconn.onicecandidate = this.iceCandidateHandler.bind(this);
+    this.RTCconn.onicecandidate = this._iceCandidateHandler.bind(this);
     
     // Handle requests to open data channel
-    this.RTCconn.ondatachannel = this.receiveDataChannel.bind(this);
+    this.RTCconn.ondatachannel = this._receiveDataChannel.bind(this);
+
+    // Signaling state changes - uncomment to get signaling state logs
+    // this.RTCconn.onsignalingstatechange = this.signalingStateHandler.bind(this);
   }
 
-  // add event listeners for RTC DataChannel
+  // create data channel
   initDataChannel() {
-    console.log('Initiating data channel...');
+    // console.log('Initiating data channel...');
     this.channel = this.RTCconn.createDataChannel('magnet');
-    this.channel.onopen = this.channel.onclose = this.handleSendChannelStatusChange;
+    this._setupDataChannel();
+  }
+
+  // add event listeners to RTCDataChannel
+  _setupDataChannel() {
+    // handle open/close events
+    this.channel.onopen = this.channel.onclose = this._handleChannelStatusChange.bind(this);
+    
+    // handle messages
+    this.channel.onmessage = this._receiveMessage.bind(this);
   }
 
   // Caller: begin connection to parent client
   initOffer() {
     console.log('CALLER');
-    console.log('Initiating offer...');
+    // console.log('Initiating offer...');
     // create offer to parent
     this.RTCconn.createOffer()
       // set local description of caller
@@ -84,9 +99,7 @@ class ViewerConnection {
       .then((answer) => this.RTCconn.setLocalDescription(answer))
       // send answer to caller
       .then(() => {
-        console.log('Set local description with offer');
-        // console.log('Local:', this.RTCconn.localDescription);
-        // console.log('Remote:', this.RTCconn.remoteDescription);
+        // console.log('Set local description with offer');
         const answer = this.RTCconn.localDescription;
         this.sendBySocket('answer', callerId, answer);
       })
@@ -95,11 +108,7 @@ class ViewerConnection {
 
   respondToAnswer(answer) {
     this.RTCconn.setRemoteDescription(answer)
-      .then(() => {
-        console.log('Set remote description with answer');
-        // console.log('Local:', this.RTCconn.localDescription);
-        // console.log('Remote:', this.RTCconn.remoteDescription);
-      })
+      // .then(() => console.log('Set remote description with answer'))
       .catch(this.logError);
   }
 
@@ -108,32 +117,57 @@ class ViewerConnection {
       .catch(this.logError);
   }
 
+  // Caller: send ICE candidate to callee
+  _iceCandidateHandler(event) {
+    // console.log('Sending ICE candidates...');
+    if (event.candidate) {
+      // send child peer ICE candidate if has peerId
+      this.peerId && this.sendBySocket('candidate', this.peerId, event.candidate);
+    }
+  }
+
   // WebRTC connection state handler
   connectionStateHandler() {
     console.log('Connection state changed to', conn.connectionState);
 
     if (conn.connectionState === 'connected') {
-      // disconnect socket.io connection
-      this.socket.disconnect();
-    }
-  }
-
-  // Caller: send ICE candidate to callee
-  iceCandidateHandler(event) {
-    console.log('Sending ICE candidates...');
-    if (event.candidate) {
-      // send child peer ICE candidate
-      this.sendBySocket('candidate', this.peerId, event.candidate);
+      
     }
   }
 
   // receiver handles request to open data channel
-  receiveDataChannel(event) {
-    
+  _receiveDataChannel(event) {
+    console.log('Receiving data channel...');
+    // store received channel
+    this.channel = event.channel;
+    this._setupDataChannel();
   }
 
-  handleSendChannelStatusChange(event) {
+  _handleChannelStatusChange(event) {
+    if (!this.channel) return;
 
+    const state = this.channel.readyState;
+    
+    console.log('Channel status:', state);
+    
+    if (state === 'open') {
+      const msg = 'i am 1337 h4x0r';
+      console.log('Sending:', msg);
+      this.channel.send(msg);
+
+      // disconnect socket.io connection
+      console.log('RTC connection succeeded! Disconnecting socket...');
+      this.socket.disconnect();
+    }
+    // if closed
+    else {
+
+    }
+  }
+
+  // DataChannel message handler
+  _receiveMessage(event) {
+    console.log('Received message:', event.data);
   }
 
   // close connections and free up resources
@@ -144,17 +178,27 @@ class ViewerConnection {
     sendBySocket('close', peerId);
   }
 
+  // ICE connection handler
+  iceConnectionStateHandler(event) {
+    console.log('ICE Connection State:', this.RTCconn.iceConnectionState);
+  }
+
+  // Signaling state handler
+  signalingStateHandler(event) {
+    console.log('Signaling State:', this.RTCconn.signalingState);
+  }
+
   // send message on RTC connection
   sendBySocket(event, ...args) {
     this.socket.emit(event, ...args);
   }
 
   addPeerId(peerId) {
-    console.log('Setting peerId:', peerId);
+    // console.log('Setting peerId:', peerId);
     this.peerId = peerId;
   }
 
   logError(err) {
-    throw err;
+    console.log(err);
   }
 }
