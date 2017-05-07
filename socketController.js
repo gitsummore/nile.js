@@ -23,6 +23,7 @@ function socketController(server, clientLimit) {
         disconnect = false;
         // keep socket connection
         this.sockets.push(socket);
+        // console.log('New sockets:', this.sockets.map(socket => socket.id));
       } else {
         msg = 'Go connect using webRTC!';
         disconnect = true;
@@ -32,7 +33,8 @@ function socketController(server, clientLimit) {
 
     this.io.sockets.clients(checkClientNum);
 
-    // variable to bind this to in socket handlers
+    // variable to bind socketController context in socket handlers
+    // so that 'this' in socket handlers can access socket
     const self = this;
 
     // callee receives offer from new client
@@ -50,19 +52,24 @@ function socketController(server, clientLimit) {
     });
 
     // caller receives answer from callee
-    socket.on('answer', (callerId, answer) => {
-      // emit to root of client chain
+    socket.on('answer', function (callerId, answer) {
+      // emit this (callee) socket's id and answer to root of client chain
       // callee socket's id maintained throughout signaling
       console.log('Emitting answer to caller:', callerId);
-      socket.to(callerId).emit('answer', answer);
+      socket.to(callerId).emit('answer', this.id, answer);
     });
 
-    // socket.on('candidate')
+    // send peers in a WebRTC connection new ICE candidates
+    socket.on('candidate', (peerId, candidate) => {
+      console.log('Emitting candidate to peer:', peerId);
+      socket.to(peerId).emit('candidate', candidate);
+    });
 
-    socket.on('disconnect', (socket) => {
-      console.log('Disconnected');
+    socket.on('disconnect', function(socket) {
+      console.log(this.id, 'disconnected');
       // TODO: properly remove socket from this.sockets
-      this.sockets = this.sockets.filter(keptSocket => socket.id !== keptSocket.id);
+      self.sockets = self.sockets.filter(keptSocket => socket.id !== keptSocket.id);
+      // console.log('Removed sockets:', self.sockets.map(socket => socket.id));
     });
   });
 }
