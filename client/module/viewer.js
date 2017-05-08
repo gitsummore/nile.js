@@ -52,6 +52,9 @@ class Viewer {
       } else {
         this.startDownloadingFirst(magnetURI);
       }
+
+      // broadcast magnet URI to next child
+      this.connToChild && this.connToChild.sendMessage(magnetURI);
     });
 
     // if sockets are full, get torrent info from server thru WebRTC

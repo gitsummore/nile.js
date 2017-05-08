@@ -64,6 +64,11 @@ class ViewerConnection {
     this._setupDataChannel();
   }
 
+  // send messages thru connection's RTC data channel
+  sendMessage(msg) {
+    this.channel && this.channel.readyState === 'open' && this.channel.send(msg);
+  } 
+
   // add event listeners to RTCDataChannel
   _setupDataChannel() {
     // handle open/close events

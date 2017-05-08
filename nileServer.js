@@ -15,15 +15,10 @@ module.exports = function nileServer(server) {
   // create nile.js mini-app through express Router
   const nileServer = express.Router();
 
-  // TODO: change '/uploadfile' to '/magneturi' here and in broadcaster files
+  // endpoint for receiving magnet URI from Broadcaster
   nileServer.post('/magnet', (req, res, next) => {
     socket.emitNewMagnet(req.body.magnetURI);
     res.sendStatus(200);
-  });
-
-  // server receives WebRTC SDP (info necessary to connecet) from new client
-  nileServer.post('/signal', (req, res, next) => {
-
   });
 
   return nileServer;
