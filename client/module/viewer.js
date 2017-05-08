@@ -3,6 +3,7 @@
 
 // import io from 'socket.io-client';
 // import ViewerConnection from './viewerConnection';
+// import Message from './message';
 
 /**
  * Viewer class concerned with streaming video from torrents
@@ -25,7 +26,10 @@ class Viewer {
     this.isPlay2Playing = false;
     this.firstIteration = 0;
     this.socket = io.connect();
+    // limit of child clients per client
     this.childLimit = 1;
+    // indicates whether this node is the root connecting to the server
+    this.isRoot = true;
 
     /**
      * WebRTC Connections b/w clients
@@ -43,29 +47,24 @@ class Viewer {
     });
 
     // start playing next in video tag trio
-    this.socket.on('magnetURI', (magnetURI) => {
-      // begin downloading the torrents and render them to page, alternate between three torrents
-      if (this.isPlay1Playing && this.isPlay2Playing) {
-        this.startDownloadingThird(magnetURI);
-      } else if (this.isPlay1Playing) {
-        this.startDownloadingSecond(magnetURI);
-      } else {
-        this.startDownloadingFirst(magnetURI);
-      }
-
-      // broadcast magnet URI to next child
-      this.connToChild && this.connToChild.sendMessage(magnetURI);
-    });
+    this.socket.on('magnetURI', this._magnetURIHandler.bind(this));
 
     // if sockets are full, get torrent info from server thru WebRTC
     this.socket.on('full', (msg, disconnect) => {
       // addText(msg);
       if (disconnect) {
+        // establish that it's a child of some parent client
+        this.isRoot = false;
+
+        // make it a child of server-connected client
         console.log('Sockets full, creating WebRTC connection...');
 
         // create new WebRTC connection to connect to a parent
         // will disconnect once WebRTC connection established
-        this.connToParent = new ViewerConnection(this.socket);
+        this.connToParent = new ViewerConnection(this.socket, this.isRoot);
+
+        // add DataChannel magnet message handler
+        this.connToParent.addMessageHandler('magnet', this._magnetURIHandler.bind(this));
 
         console.log('Starting WebRTC signaling...');
 
@@ -88,15 +87,32 @@ class Viewer {
     // this.socket.on('disconnect', () => {});
   }
 
+  _magnetURIHandler(magnetURI) {
+    console.log('Got magnet');
+    // begin downloading the torrents and render them to page, alternate between three torrents
+    if (this.isPlay1Playing && this.isPlay2Playing) {
+      this.startDownloadingThird(magnetURI);
+    } else if (this.isPlay1Playing) {
+      this.startDownloadingSecond(magnetURI);
+    } else {
+      this.startDownloadingFirst(magnetURI);
+    }
+
+    // broadcast magnet URI to next child
+    const magnetMsg = new Message('magnet', magnetURI);
+    this.connToChild && this.connToChild.sendMessage(JSON.stringify(magnetMsg));
+  }
+
   // Callee: receive offer from new child peer
   // this.socket 'offer' handler
   receiveOffer(callerId, offer) {
     console.log('Receiving offer at socket', this.socket.id);
+
     // create child connection
-    this.connToChild = new ViewerConnection(this.socket);
+    this.connToChild = new ViewerConnection(this.socket, this.isRoot);
 
     // set peer id for child connection
-    this.connToChild.addPeerId(callerId);
+    this.connToChild.setPeerId(callerId);
 
     // connection processes offer/sdp info
     this.connToChild.respondToOffer(callerId, offer);
@@ -108,7 +124,7 @@ class Viewer {
     console.log('Receiving answer from offer...');
 
     // set peer id for parent connection
-    this.connToParent.addPeerId(calleeId);
+    this.connToParent.setPeerId(calleeId);
 
     // set info from remote end
     this.connToParent.respondToAnswer(answer);
