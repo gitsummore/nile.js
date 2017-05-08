@@ -1,10 +1,10 @@
 // store refs to connected clients' RTC connections
 const clientRTCConns = {};
 
-function socketController(server, clientLimit) {
+function socketController(server, socketLimit) {
   /**
    * server: Node Server
-   * clientLimit: # of socket.io connections to keep
+   * socketLimit: # of socket.io connections to keep
    */
   this.io = require('socket.io')(server);
   // will store socket connections to Viewers
@@ -14,21 +14,16 @@ function socketController(server, clientLimit) {
     console.log('New connection:', socket.id);
 
     // check # of clients
+    // kick socket off client if full
     const checkClientNum = (err, clients) => {
       if (err) throw err;
 
-      let msg, disconnect;
-      if (clients.length <= clientLimit) {
-        msg = 'Connected to the server'
-        disconnect = false;
+      if (clients.length <= socketLimit) {
         // keep socket connection
         this.sockets.push(socket);
-        // console.log('New sockets:', this.sockets.map(socket => socket.id));
       } else {
-        msg = 'Go connect using webRTC!';
-        disconnect = true;
+        socket.emit('full');
       }
-      socket.emit('full', msg, disconnect);
     }
 
     this.io.sockets.clients(checkClientNum);
@@ -67,7 +62,7 @@ function socketController(server, clientLimit) {
 
     socket.on('disconnect', function(socket) {
       console.log(this.id, 'disconnected');
-      // TODO: properly remove socket from this.sockets
+      // TODO: properly remove socket from this.sockets, NEED proper disconnection
       self.sockets = self.sockets.filter(keptSocket => socket.id !== keptSocket.id);
       // console.log('Removed sockets:', self.sockets.map(socket => socket.id));
     });

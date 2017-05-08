@@ -7,10 +7,13 @@ const bodyParser = require('body-parser')
 // const WebTorrent = require('webtorrent');
 const socketController = require('./socketController');
 
+// max # of sockets to keep open
+const socketLimit = 1;
+
 // takes in Node Server instance and returns Express Router
 module.exports = function nileServer(server) {
   // Pass server instance to use socket controller
-  const socket = new socketController(server, 1);
+  const socket = new socketController(server, socketLimit);
 
   // create nile.js mini-app through express Router
   const nileServer = express.Router();

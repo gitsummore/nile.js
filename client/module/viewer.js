@@ -50,27 +50,24 @@ class Viewer {
     this.socket.on('magnetURI', this._magnetURIHandler.bind(this));
 
     // if sockets are full, get torrent info from server thru WebRTC
-    this.socket.on('full', (msg, disconnect) => {
-      // addText(msg);
-      if (disconnect) {
-        // establish that it's a child of some parent client
-        this.isRoot = false;
+    this.socket.on('full', () => {
+      // establish that it's a child of some parent client
+      this.isRoot = false;
 
-        // make it a child of server-connected client
-        console.log('Sockets full, creating WebRTC connection...');
+      // make it a child of server-connected client
+      console.log('Sockets full, creating WebRTC connection...');
 
-        // create new WebRTC connection to connect to a parent
-        // will disconnect once WebRTC connection established
-        this.connToParent = new ViewerConnection(this.socket, this.isRoot);
+      // create new WebRTC connection to connect to a parent
+      // will disconnect once WebRTC connection established
+      this.connToParent = new ViewerConnection(this.socket, this.isRoot);
 
-        // add DataChannel magnet message handler
-        this.connToParent.addMessageHandler('magnet', this._magnetURIHandler.bind(this));
+      // add DataChannel magnet message handler
+      this.connToParent.addMessageHandler('magnet', this._magnetURIHandler.bind(this));
 
-        console.log('Starting WebRTC signaling...');
+      console.log('Starting WebRTC signaling...');
 
-        // initiate data channel
-        this.connToParent.initDataChannel();
-      }
+      // initiate data channel
+      this.connToParent.initDataChannel();
     });
 
     /**
