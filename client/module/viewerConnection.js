@@ -5,8 +5,14 @@ RTCPeerConnection = RTCPeerConnection || mozRTCPeerConnection;
  * Wrapper class for RTC connection between parent and child viewers
  */
 class ViewerConnection {
-  constructor(socket) {
+  constructor(socket, isRoot) {
+    // ref to Viewer's socket connection
     this.socket = socket;
+    // indicates whether this node is the root connecting to the server
+    this.isRoot = isRoot;
+    // event handlers for DataChannel messages
+    this.messageHandlers = {};
+
     // reserved variables
     // RTC DataChannel
     this.channel;
@@ -42,19 +48,19 @@ class ViewerConnection {
     this.RTCconn.onnegotiationneeded = this.initOffer.bind(this);
 
     // Handle connection state changes
-    this.RTCconn.onconnectionstatechange = this.connectionStateHandler.bind(this);
+    this.RTCconn.onconnectionstatechange = this._connectionStateHandler.bind(this);
 
     // Handle ICE connection state changes
-    this.RTCconn.oniceconnectionstatechange = this.iceConnectionStateHandler.bind(this);
-    
+    this.RTCconn.oniceconnectionstatechange = this._iceConnectionStateHandler.bind(this);
+
     // when ICE candidates need to be sent to callee
     this.RTCconn.onicecandidate = this._iceCandidateHandler.bind(this);
-    
+
     // Handle requests to open data channel
     this.RTCconn.ondatachannel = this._receiveDataChannel.bind(this);
 
     // Signaling state changes - uncomment to get signaling state logs
-    // this.RTCconn.onsignalingstatechange = this.signalingStateHandler.bind(this);
+    // this.RTCconn.onsignalingstatechange = this._signalingStateHandler.bind(this);
   }
 
   // create data channel
@@ -73,7 +79,7 @@ class ViewerConnection {
   _setupDataChannel() {
     // handle open/close events
     this.channel.onopen = this.channel.onclose = this._handleChannelStatusChange.bind(this);
-    
+
     // handle messages
     this.channel.onmessage = this._receiveMessage.bind(this);
   }
@@ -122,6 +128,15 @@ class ViewerConnection {
       .catch(this.logError);
   }
 
+  setIsRoot(isRoot) {
+    this.isRoot = isRoot;
+  }
+
+  setPeerId(peerId) {
+    // console.log('Setting peerId:', peerId);
+    this.peerId = peerId;
+  }
+
   // Caller: send ICE candidate to callee
   _iceCandidateHandler(event) {
     // console.log('Sending ICE candidates...');
@@ -132,12 +147,12 @@ class ViewerConnection {
   }
 
   // WebRTC connection state handler
-  connectionStateHandler() {
+  _connectionStateHandler() {
     console.log('Connection state changed to', conn.connectionState);
 
-    if (conn.connectionState === 'connected') {
-      
-    }
+    // if (conn.connectionState === 'connected') {
+
+    // }
   }
 
   // receiver handles request to open data channel
@@ -152,17 +167,15 @@ class ViewerConnection {
     if (!this.channel) return;
 
     const state = this.channel.readyState;
-    
-    console.log('Channel status:', state);
-    
-    if (state === 'open') {
-      const msg = 'i am 1337 h4x0r';
-      console.log('Sending:', msg);
-      this.channel.send(msg);
 
-      // disconnect socket.io connection
-      console.log('RTC connection succeeded! Disconnecting socket...');
-      this.socket.disconnect();
+    console.log('Channel status:', state);
+
+    if (state === 'open') {
+      // disconnect socket.io connection if not the root client
+      if (!this.isRoot) {
+        console.log('RTC connection succeeded! Disconnecting socket...');
+        this.socket.disconnect();
+      }
     }
     // if closed
     else {
@@ -170,9 +183,23 @@ class ViewerConnection {
     }
   }
 
+  // Add an event handler for a certain type of DataChannel Message
+  addMessageHandler(type, handler) {
+    if (typeof handler !== 'function') throw new Error('Handler must be a function');
+    this.messageHandlers[type] = handler;
+  }
+
   // DataChannel message handler
   _receiveMessage(event) {
-    console.log('Received message:', event.data);
+    const msg = JSON.parse(event.data);
+
+    const { type, message } = msg;
+
+    console.log(`Received message of type '${type}: ${message}`);
+    const handler = this.messageHandlers[type];
+    
+    // call handler if exists
+    handler && handler(message);
   }
 
   // close connections and free up resources
@@ -184,23 +211,18 @@ class ViewerConnection {
   }
 
   // ICE connection handler
-  iceConnectionStateHandler(event) {
+  _iceConnectionStateHandler(event) {
     console.log('ICE Connection State:', this.RTCconn.iceConnectionState);
   }
 
   // Signaling state handler
-  signalingStateHandler(event) {
+  _signalingStateHandler(event) {
     console.log('Signaling State:', this.RTCconn.signalingState);
   }
 
   // send message on RTC connection
   sendBySocket(event, ...args) {
     this.socket.emit(event, ...args);
-  }
-
-  addPeerId(peerId) {
-    // console.log('Setting peerId:', peerId);
-    this.peerId = peerId;
   }
 
   logError(err) {
