@@ -105,6 +105,14 @@ class Viewer {
   receiveOffer(callerId, offer) {
     console.log('Receiving offer at socket', this.socket.id);
 
+    // tell new client to join at child instead, if exists
+    if (this.connToChild) {
+      // child message - tell child client that chain is adding n
+      const childMsg = new Message('join', { callerId, offer });
+      // send to child client
+      this.connToChild.sendMessage(JSON.stringify(childMsg));
+    }
+
     // create child connection
     this.connToChild = new ViewerConnection(this.socket, this.isRoot);
 
