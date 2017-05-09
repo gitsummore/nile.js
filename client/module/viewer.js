@@ -33,9 +33,7 @@ class Viewer {
     // handlers for both events in socket.io and messages using RTC DataChannel
     this.eventHandlers = {
       magnet: this._magnetURIHandler.bind(this),
-      offer: this.receiveOffer.bind(this),
-      answer: this.receiveAnswer.bind(this),
-      candidate: this.handleNewIceCandidate.bind(this),
+      join: this.receiveOffer.bind(this),
     };
 
     /**
@@ -57,6 +55,7 @@ class Viewer {
     this.socket.on('magnetURI', this.eventHandlers.magnet);
 
     // if sockets are full, get torrent info from server thru WebRTC
+    // use socket to signal w/ last client then disconnect
     this.socket.on('full', () => {
       // establish that it's a child of some parent client
       this.isRoot = false;
@@ -115,16 +114,16 @@ class Viewer {
       const childMsg = new Message('join', { callerId, offer });
       // send to child client
       this.connToChild.sendMessage(JSON.stringify(childMsg));
+    } else {
+      // create child connection
+      this.connToChild = new ViewerConnection(this.socket, this.isRoot);
+
+      // set peer id for child connection
+      this.connToChild.setPeerId(callerId);
+
+      // connection processes offer/sdp info
+      this.connToChild.respondToOffer(callerId, offer);
     }
-
-    // create child connection
-    this.connToChild = new ViewerConnection(this.socket, this.isRoot);
-
-    // set peer id for child connection
-    this.connToChild.setPeerId(callerId);
-
-    // connection processes offer/sdp info
-    this.connToChild.respondToOffer(callerId, offer);
   }
 
   // Callee: as a parent/caller, receive answer from child/callee

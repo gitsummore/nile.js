@@ -95,7 +95,7 @@ class ViewerConnection {
       // send offer along to peer
       .then(() => {
         const offer = this.RTCconn.localDescription;
-        this.sendBySocket('offer', offer);
+        this.send('offer', offer);
       })
       .catch(this.logError);
   }
@@ -112,7 +112,7 @@ class ViewerConnection {
       .then(() => {
         // console.log('Set local description with offer');
         const answer = this.RTCconn.localDescription;
-        this.sendBySocket('answer', callerId, answer);
+        this.send('answer', callerId, answer);
       })
       .catch(this.logError);
   }
@@ -142,7 +142,7 @@ class ViewerConnection {
     // console.log('Sending ICE candidates...');
     if (event.candidate) {
       // send child peer ICE candidate if has peerId
-      this.peerId && this.sendBySocket('candidate', this.peerId, event.candidate);
+      this.peerId && this.send('candidate', this.peerId, event.candidate);
     }
   }
 
@@ -207,7 +207,7 @@ class ViewerConnection {
     this.RTCconn.close();
     this.RTCconn = null;
     // tell other peer to close connection as well
-    sendBySocket('close', peerId);
+    send('close', peerId);
   }
 
   // ICE connection handler
@@ -220,8 +220,8 @@ class ViewerConnection {
     console.log('Signaling State:', this.RTCconn.signalingState);
   }
 
-  // send message on RTC connection
-  sendBySocket(event, ...args) {
+  // send message by socket.io or RTC connection
+  send(event, ...args) {
     this.socket.emit(event, ...args);
   }
 
