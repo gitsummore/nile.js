@@ -5,13 +5,13 @@ RTCPeerConnection = RTCPeerConnection || mozRTCPeerConnection;
  * Wrapper class for RTC connection between parent and child viewers
  */
 class ViewerConnection {
-  constructor(socket, isRoot) {
+  constructor(socket, isRoot, messageHandlers = {}) {
     // ref to Viewer's socket connection
     this.socket = socket;
     // indicates whether this node is the root connecting to the server
     this.isRoot = isRoot;
     // event handlers for DataChannel messages
-    this.messageHandlers = {};
+    this.messageHandlers = messageHandlers;
 
     // reserved variables
     // RTC DataChannel
