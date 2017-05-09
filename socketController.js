@@ -61,7 +61,7 @@ function socketController(server, clientLimit) {
 
     // send peers in a WebRTC connection new ICE candidates
     socket.on('candidate', (peerId, candidate) => {
-      console.log('Emitting candidate to peer:', peerId);
+      console.log('Emitting candidate to peer:', peerId); 
       socket.to(peerId).emit('candidate', candidate);
     });
 
