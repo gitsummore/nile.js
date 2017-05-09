@@ -9589,17 +9589,28 @@ exports.Socket = __webpack_require__(24);
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+var _socket = __webpack_require__(29);
+
+var _socket2 = _interopRequireDefault(_socket);
+
+var _viewerConnection = __webpack_require__(61);
+
+var _viewerConnection2 = _interopRequireDefault(_viewerConnection);
+
+var _message = __webpack_require__(60);
+
+var _message2 = _interopRequireDefault(_message);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 // Install this.socket.io-client
 // io object exposed from injected this.socket.io.js
 
-var io = __webpack_require__(29);
+// const io = require('socket.io-client');
 var WebTorrent = __webpack_require__(4);
-
-// import io from 'socket.io-client';
-// import ViewerConnection from './viewerConnection';
-// import Message from './message';
+// import * as WebTorrent from './webtorrent.min.js'
 
 /**
  * Viewer class concerned with streaming video from torrents
@@ -9623,7 +9634,7 @@ var Viewer = function () {
     this.isPlay1Playing = false;
     this.isPlay2Playing = false;
     this.firstIteration = 0;
-    this.socket = io.connect();
+    this.socket = _socket2.default.connect();
     // limit of child clients per client
     this.childLimit = 1;
     // indicates whether this node is the root connecting to the server
@@ -9663,7 +9674,7 @@ var Viewer = function () {
 
           // create new WebRTC connection to connect to a parent
           // will disconnect once WebRTC connection established
-          _this.connToParent = new ViewerConnection(_this.socket, _this.isRoot);
+          _this.connToParent = new _viewerConnection2.default(_this.socket, _this.isRoot);
 
           // add DataChannel magnet message handler
           _this.connToParent.addMessageHandler('magnet', _this._magnetURIHandler.bind(_this));
@@ -9702,7 +9713,7 @@ var Viewer = function () {
       }
 
       // broadcast magnet URI to next child
-      var magnetMsg = new Message('magnet', magnetURI);
+      var magnetMsg = new _message2.default('magnet', magnetURI);
       this.connToChild && this.connToChild.sendMessage(JSON.stringify(magnetMsg));
     }
 
@@ -9715,7 +9726,7 @@ var Viewer = function () {
       console.log('Receiving offer at socket', this.socket.id);
 
       // create child connection
-      this.connToChild = new ViewerConnection(this.socket, this.isRoot);
+      this.connToChild = new _viewerConnection2.default(this.socket, this.isRoot);
 
       // set peer id for child connection
       this.connToChild.setPeerId(callerId);
@@ -14569,6 +14580,325 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 /***/ (function(module, exports) {
 
 /* (ignored) */
+
+/***/ }),
+/* 60 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var Message = function Message(type, message) {
+  this.type = type;
+  this.message = message;
+};
+
+// export default Message
+
+/***/ }),
+/* 61 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+// set peer connection to Mozilla PeerConnection if in Firefox
+RTCPeerConnection = RTCPeerConnection || mozRTCPeerConnection;
+
+/**
+ * Wrapper class for RTC connection between parent and child viewers
+ */
+
+var ViewerConnection = function () {
+  function ViewerConnection(socket, isRoot) {
+    _classCallCheck(this, ViewerConnection);
+
+    // ref to Viewer's socket connection
+    this.socket = socket;
+    // indicates whether this node is the root connecting to the server
+    this.isRoot = isRoot;
+    // event handlers for DataChannel messages
+    this.messageHandlers = {};
+
+    // reserved variables
+    // RTC DataChannel
+    this.channel;
+    // Peer's socket ID
+    this.peerId;
+
+    // set up wrapped WebRTCConnection
+    this.RTCconn = new RTCPeerConnection({
+      iceServers: [
+      // STUN servers
+      { url: 'stun:stun.l.google.com:19302' }, { url: 'stun:stun1.l.google.com:19302' }, { url: 'stun:stun2.l.google.com:19302' }, { url: 'stun:stun3.l.google.com:19302' }, { url: 'stun:stun4.l.google.com:19302' }]
+    });
+
+    /**
+     * Useful diagrams for WebRTC signaling process:
+     * 
+     * 1. Initiating negotiation:
+     * https://mdn.mozillademos.org/files/12363/WebRTC%20-%20Signaling%20Diagram.svg
+     * -Caller creates offer
+     * 
+     * 2. Exchanging ICE candidates:
+     * https://mdn.mozillademos.org/files/12365/WebRTC%20-%20ICE%20Candidate%20Exchange.svg
+     * 
+     */
+
+    // Handle negotiation needed (i.e. when opening data channel)
+    this.RTCconn.onnegotiationneeded = this.initOffer.bind(this);
+
+    // Handle connection state changes
+    this.RTCconn.onconnectionstatechange = this._connectionStateHandler.bind(this);
+
+    // Handle ICE connection state changes
+    this.RTCconn.oniceconnectionstatechange = this._iceConnectionStateHandler.bind(this);
+
+    // when ICE candidates need to be sent to callee
+    this.RTCconn.onicecandidate = this._iceCandidateHandler.bind(this);
+
+    // Handle requests to open data channel
+    this.RTCconn.ondatachannel = this._receiveDataChannel.bind(this);
+
+    // Signaling state changes - uncomment to get signaling state logs
+    // this.RTCconn.onsignalingstatechange = this._signalingStateHandler.bind(this);
+  }
+
+  // create data channel
+
+
+  _createClass(ViewerConnection, [{
+    key: 'initDataChannel',
+    value: function initDataChannel() {
+      // console.log('Initiating data channel...');
+      this.channel = this.RTCconn.createDataChannel('magnet');
+      this._setupDataChannel();
+    }
+
+    // send messages thru connection's RTC data channel
+
+  }, {
+    key: 'sendMessage',
+    value: function sendMessage(msg) {
+      this.channel && this.channel.readyState === 'open' && this.channel.send(msg);
+    }
+
+    // add event listeners to RTCDataChannel
+
+  }, {
+    key: '_setupDataChannel',
+    value: function _setupDataChannel() {
+      // handle open/close events
+      this.channel.onopen = this.channel.onclose = this._handleChannelStatusChange.bind(this);
+
+      // handle messages
+      this.channel.onmessage = this._receiveMessage.bind(this);
+    }
+
+    // Caller: begin connection to parent client
+
+  }, {
+    key: 'initOffer',
+    value: function initOffer() {
+      var _this = this;
+
+      console.log('CALLER');
+      // console.log('Initiating offer...');
+      // create offer to parent
+      this.RTCconn.createOffer()
+      // set local description of caller
+      .then(function (offer) {
+        return _this.RTCconn.setLocalDescription(offer);
+      })
+      // send offer along to peer
+      .then(function () {
+        var offer = _this.RTCconn.localDescription;
+        _this.sendBySocket('offer', offer);
+      }).catch(this.logError);
+    }
+
+    // Callee: sets offer as remote description and sends answer
+
+  }, {
+    key: 'respondToOffer',
+    value: function respondToOffer(callerId, offer) {
+      var _this2 = this;
+
+      console.log('CALLEE');
+      this.RTCconn.setRemoteDescription(offer)
+      // create answer to offer
+      .then(function () {
+        return _this2.RTCconn.createAnswer();
+      })
+      // set local description of callee
+      .then(function (answer) {
+        return _this2.RTCconn.setLocalDescription(answer);
+      })
+      // send answer to caller
+      .then(function () {
+        // console.log('Set local description with offer');
+        var answer = _this2.RTCconn.localDescription;
+        _this2.sendBySocket('answer', callerId, answer);
+      }).catch(this.logError);
+    }
+  }, {
+    key: 'respondToAnswer',
+    value: function respondToAnswer(answer) {
+      this.RTCconn.setRemoteDescription(answer)
+      // .then(() => console.log('Set remote description with answer'))
+      .catch(this.logError);
+    }
+  }, {
+    key: 'addIceCandidate',
+    value: function addIceCandidate(candidate) {
+      this.RTCconn.addIceCandidate(candidate).catch(this.logError);
+    }
+  }, {
+    key: 'setIsRoot',
+    value: function setIsRoot(isRoot) {
+      this.isRoot = isRoot;
+    }
+  }, {
+    key: 'setPeerId',
+    value: function setPeerId(peerId) {
+      // console.log('Setting peerId:', peerId);
+      this.peerId = peerId;
+    }
+
+    // Caller: send ICE candidate to callee
+
+  }, {
+    key: '_iceCandidateHandler',
+    value: function _iceCandidateHandler(event) {
+      // console.log('Sending ICE candidates...');
+      if (event.candidate) {
+        // send child peer ICE candidate if has peerId
+        this.peerId && this.sendBySocket('candidate', this.peerId, event.candidate);
+      }
+    }
+
+    // WebRTC connection state handler
+
+  }, {
+    key: '_connectionStateHandler',
+    value: function _connectionStateHandler() {
+      console.log('Connection state changed to', conn.connectionState);
+
+      // if (conn.connectionState === 'connected') {
+
+      // }
+    }
+
+    // receiver handles request to open data channel
+
+  }, {
+    key: '_receiveDataChannel',
+    value: function _receiveDataChannel(event) {
+      console.log('Receiving data channel...');
+      // store received channel
+      this.channel = event.channel;
+      this._setupDataChannel();
+    }
+  }, {
+    key: '_handleChannelStatusChange',
+    value: function _handleChannelStatusChange(event) {
+      if (!this.channel) return;
+
+      var state = this.channel.readyState;
+
+      console.log('Channel status:', state);
+
+      if (state === 'open') {
+        // disconnect socket.io connection if not the root client
+        if (!this.isRoot) {
+          console.log('RTC connection succeeded! Disconnecting socket...');
+          this.socket.disconnect();
+        }
+      }
+      // if closed
+      else {}
+    }
+
+    // Add an event handler for a certain type of DataChannel Message
+
+  }, {
+    key: 'addMessageHandler',
+    value: function addMessageHandler(type, handler) {
+      if (typeof handler !== 'function') throw new Error('Handler must be a function');
+      this.messageHandlers[type] = handler;
+    }
+
+    // DataChannel message handler
+
+  }, {
+    key: '_receiveMessage',
+    value: function _receiveMessage(event) {
+      var msg = JSON.parse(event.data);
+
+      var type = msg.type,
+          message = msg.message;
+
+
+      console.log('Received message of type \'' + type + ': ' + message);
+      var handler = this.messageHandlers[type];
+
+      // call handler if exists
+      handler && handler(message);
+    }
+
+    // close connections and free up resources
+
+  }, {
+    key: 'closeConn',
+    value: function closeConn() {
+      this.RTCconn.close();
+      this.RTCconn = null;
+      // tell other peer to close connection as well
+      sendBySocket('close', peerId);
+    }
+
+    // ICE connection handler
+
+  }, {
+    key: '_iceConnectionStateHandler',
+    value: function _iceConnectionStateHandler(event) {
+      console.log('ICE Connection State:', this.RTCconn.iceConnectionState);
+    }
+
+    // Signaling state handler
+
+  }, {
+    key: '_signalingStateHandler',
+    value: function _signalingStateHandler(event) {
+      console.log('Signaling State:', this.RTCconn.signalingState);
+    }
+
+    // send message on RTC connection
+
+  }, {
+    key: 'sendBySocket',
+    value: function sendBySocket(event) {
+      var _socket;
+
+      for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+        args[_key - 1] = arguments[_key];
+      }
+
+      (_socket = this.socket).emit.apply(_socket, [event].concat(args));
+    }
+  }, {
+    key: 'logError',
+    value: function logError(err) {
+      console.log(err);
+    }
+  }]);
+
+  return ViewerConnection;
+}();
 
 /***/ })
 /******/ ]);

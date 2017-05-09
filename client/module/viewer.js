@@ -1,12 +1,12 @@
 // Install this.socket.io-client
 // io object exposed from injected this.socket.io.js
 
-const io = require('socket.io-client');
+// const io = require('socket.io-client');
 const WebTorrent = require('./webtorrent.min.js');
-
-// import io from 'socket.io-client';
-// import ViewerConnection from './viewerConnection';
-// import Message from './message';
+// import * as WebTorrent from './webtorrent.min.js'
+import io from 'socket.io-client';
+import ViewerConnection from './viewerConnection';
+import Message from './message';
 
 /**
  * Viewer class concerned with streaming video from torrents
