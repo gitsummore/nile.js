@@ -4,19 +4,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="index.css">
   <title>Peer to Peer - Webtorrent Live Video - DEMO</title>
 </head>
 
 <body>
-  <div>
-    <b>Open up the broadcaster tab to start broadcasting your video. And view the broadcast from the viewer tab!</b>
+  <div id="container">
+    <div id="blob">
+      <b id="blog">Open up the broadcaster tab to start broadcasting your video. And view the broadcast from the viewer tab!</b>
+    </div>
+    <div id='secondCont'>
+      <button class="broadcaster">
+      <a href="./broadcaster/broadcaster.html">Broadcaster</a>
+    </button>
+      <button class="broadcaster">
+      <a href="./viewer/viewer.html">Viewer</a>
+    </button>
+    </div>
   </div>
-  <div>
-    <a href="./broadcaster/broadcaster.html">Broadcaster</a>
-  </div>
-  <div>
-    <a href="./viewer/viewer.html">Viewer</a>
-  </div>
+
+  <script src="index.js"></script>
 </body>
 
 </html>

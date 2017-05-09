@@ -5,41 +5,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Webtorrent Live Video Viewer</title>
-  <style>
-    body {
-      max-width: 500px;
-      margin: 2em auto;
-      font-size: 20px;
-    }
-    
-    h1 {
-      text-align: center;
-    }
-    
-    .buttons-wrapper {
-      text-align: center;
-    }
-    
-    .hidden {
-      display: none;
-    }
-    
-    #video {
-      display: block;
-      width: 100%;
-    }
-    
-    .button-demo {
-      padding: 0.5em;
-      display: inline-block;
-      margin: 1em auto;
-    }
-    
-    .author {
-      display: block;
-      margin-top: 1em;
-    }
-  </style>
+
+  <link rel="stylesheet" href="viewer.html">
+
 </head>
 
 <body>
@@ -47,12 +15,14 @@
   <video id="player2" hidden></video>
   <video id="player3" hidden></video>
 
-  <script src="https://cdn.jsdelivr.net/webtorrent/latest/webtorrent.min.js"></script>
-  <script src="./../socket.io/socket.io.js"></script>
+  <!--<script src="https://cdn.jsdelivr.net/webtorrent/latest/webtorrent.min.js"></script>-->
+  <!--<script src="./../socket.io/socket.io.js"></script>-->
   <!--<script src="utils.js"></script>-->
+  <!--<script src="./../module/viewer.js"></script>-->
+  <script src="./../dist/nile.Viewer.js"></script>
   <script src="./../module/message.js"></script>
   <script src="./../module/viewerConnection.js"></script>
-  <script src="./../module/viewer.js"></script>
+  <!--<script src="./../module/viewer.js"></script>-->
   <script src="viewMedia.js"></script>
 </body>
 

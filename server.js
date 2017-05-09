@@ -21,8 +21,8 @@ const server = app.listen(port, () => {
 });
 
 // Serve static files
+// app.use(express.static(path.join(__dirname, 'dist')));
 app.use(express.static(path.join(__dirname, 'client')));
-// app.use(express.static(path.join(__dirname, 'torrents')));
 
 // Routes
 const nileHandler = nileServer(server);
