@@ -9917,10 +9917,6 @@ var _viewerConnection = __webpack_require__(29);
 
 var _viewerConnection2 = _interopRequireDefault(_viewerConnection);
 
-var _message = __webpack_require__(28);
-
-var _message2 = _interopRequireDefault(_message);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -9932,6 +9928,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 // Have to require WebTorrent and not import, or there is a fs error from node.js
 var WebTorrent = __webpack_require__(4);
+var Message = __webpack_require__(28);
 
 /**
  * Viewer class concerned with streaming video from torrents
@@ -10047,7 +10044,7 @@ var Viewer = function () {
       }
 
       // broadcast magnet URI to next child
-      var magnetMsg = new _message2.default('magnet', magnetURI);
+      var magnetMsg = new Message('magnet', magnetURI);
       this.connToChild && this.connToChild.sendMessage(JSON.stringify(magnetMsg));
     }
 
@@ -10251,7 +10248,7 @@ var Viewer = function () {
       // Peers
       $numPeers.innerHTML = torrent.numPeers + (torrent.numPeers === 1 ? ' peer' : ' peers');
 
-      console.log(torrent.uploadSpeed);
+      console.log('torrent', torrent);
       // Speed rates
       $downloadSpeed.innerHTML = torrent.downloadSpeed + '/s';
       $uploadSpeed.innerHTML = torrent.uploadSpeed + '/s';

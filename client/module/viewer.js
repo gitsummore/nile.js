@@ -5,9 +5,9 @@
 
 // Have to require WebTorrent and not import, or there is a fs error from node.js
 const WebTorrent = require('./webtorrent.min.js');
+const Message = require('./message');
 import io from 'socket.io-client';
 import ViewerConnection from './viewerConnection';
-import Message from './message';
 
 /**
  * Viewer class concerned with streaming video from torrents
@@ -300,7 +300,7 @@ class Viewer {
     // Peers
     $numPeers.innerHTML = torrent.numPeers + (torrent.numPeers === 1 ? ' peer' : ' peers');
 
-    console.log(torrent.uploadSpeed);
+    console.log('torrent', torrent);
     // Speed rates
     $downloadSpeed.innerHTML = torrent.downloadSpeed + '/s'
     $uploadSpeed.innerHTML = torrent.uploadSpeed + '/s'
