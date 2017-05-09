@@ -1,15 +1,24 @@
 // Install this.socket.io-client
 // io object exposed from injected this.socket.io.js
 
-// import io from 'this.socket.io';
+const io = require('socket.io-client');
+const WebTorrent = require('./webtorrent.min.js');
 
-// utils do not need to be imported
-// import * as utils from './utils';
+// import io from 'socket.io-client';
+// import ViewerConnection from './viewerConnection';
+// import Message from './message';
+
+/**
+ * Viewer class concerned with streaming video from torrents
+ * and managing WebSocket connection to server
+ * 
+ * TODO: separate WebSocket concerns from torrent streaming
+ */
 
 class Viewer {
   constructor(
     ID_of_NodeToRenderVideo // location on the DOM where the live feed will be rendered
-    ) {
+  ) {
     // initiate new torrent connection
     this.client = new WebTorrent()
     // grab DOM elements where the torrent video will be rendered too
@@ -20,159 +29,119 @@ class Viewer {
     this.isPlay1Playing = false;
     this.isPlay2Playing = false;
     this.firstIteration = 0;
-    this.socket = io.connect(); // const PEER_LIMIT = 1
-    this.connToParent; // connection to parent - client node that's closer to server
-    this.connToChild; // connection to child - client moving farther away from server
+    this.socket = io.connect();
+    // limit of child clients per client
+    this.childLimit = 1;
+    // indicates whether this node is the root connecting to the server
+    this.isRoot = true;
+
+    /**
+     * WebRTC Connections b/w clients
+     * 
+     * parent - client that's closer to server
+     * child - farther away from server
+     */
+    this.connToParent, this.connToChild;
   }
 
   setUpInitialConnection() {
     // document.createElement('video');
-    console.log('working')
-
-    this.socket.on('magnetURI', (magnetURI) => {
-      // begin downloading the torrents and render them to page, alternate between three torrents
-      if (this.isPlay1Playing && this.isPlay2Playing) {
-        this.startDownloadingThird(magnetURI);
-      } else if (this.isPlay1Playing) {
-        this.startDownloadingSecond(magnetURI);
-      } else {
-        this.startDownloadingFirst(magnetURI);
-      }
+    this.socket.on('connect', () => {
+      console.log('working');
     });
+
+    // start playing next in video tag trio
+    this.socket.on('magnetURI', this._magnetURIHandler.bind(this));
 
     // if sockets are full, get torrent info from server thru WebRTC
     this.socket.on('full', (msg, disconnect) => {
       // addText(msg);
       if (disconnect) {
-        console.log('Socket disconnecting');
-        this.socket.disconnect();
+        // establish that it's a child of some parent client
+        this.isRoot = false;
+
+        // make it a child of server-connected client
+        console.log('Sockets full, creating WebRTC connection...');
 
         // create new WebRTC connection to connect to a parent
-        this.connToParent = this.createPeerConn();
+        // will disconnect once WebRTC connection established
+        this.connToParent = new ViewerConnection(this.socket, this.isRoot);
+
+        // add DataChannel magnet message handler
+        this.connToParent.addMessageHandler('magnet', this._magnetURIHandler.bind(this));
+
+        console.log('Starting WebRTC signaling...');
+
+        // initiate data channel
+        this.connToParent.initDataChannel();
       }
     });
 
-    // handle WebRTC workflow handlers
-    this.socket.on('offer', this.receiveOffer);
-    this.socket.on('answer', this.receiveAnswer);
-    this.socket.on('candidate', this.handleNewIceCandidate);
+    /**
+     * WebRTC workflow handlers
+     */
 
-    // TODO: redirect new peer to a child if exceeds peer limit
-    // TODO: on disconnect, bridge server and next-linked node
+    // Callee: receives offer for a connection
+    this.socket.on('offer', this.receiveOffer.bind(this));
+    // Caller: receives answer after sending offer
+    this.socket.on('answer', this.receiveAnswer.bind(this));
+    // Both peers: add new ICE candidates as they come in
+    this.socket.on('candidate', this.handleNewIceCandidate.bind(this));
+
     // this.socket.on('disconnect', () => {});
   }
 
-  // send message on RTC connection
-  sendBySocket(event, msg) {
-    // TODO: make sure only sending message w/in proper node chain
-    this.socket.emit(event, msg);
-  }
-
-  // Create WebRTC connection to a peer
-  createPeerConn() {
-    const conn = new RTCPeerConnection({
-      iceServers: [
-        // STUN servers
-        { url: 'stun:stun.l.google.com:19302' },
-        { url: 'stun:stun1.l.google.com:19302' },
-        { url: 'stun:stun2.l.google.com:19302' },
-        { url: 'stun:stun3.l.google.com:19302' },
-        { url: 'stun:stun4.l.google.com:19302' },
-        // TODO: allow adding of TURN servers
-      ]
-    });
-    console.log('WebRTC connection started');
-
-    // when ready to negotiate and establish connection
-    conn.onnegotiationneeded = this.handleParentNegotiation;
-    // when ICE candidates need to be sent to callee
-    conn.onicecandidate = this.iceCandidateHandler;
-
-    // TODO: message handler for non-this.socket connected clients using DataChannel API
-
-    return conn;
-  }
-
-  // begin connection to parent client
-  handleParentNegotiation() {
-    // create offer to parent
-    this.connToParent.createOffer()
-      // set local description of caller
-      .then(offer => this.connToParent.setLocalDescription(offer))
-      // send offer along to peer
-      .then(() => {
-        const offer = this.connToParent.localDescription;
-        this.sendBySocket('offer', offer);
-      })
-      .catch(logError);
-  }
-
-  // this.socket offer handler
-  // receive offer from new child peer
-  receiveOffer(offer) {
-    // create child connection
-    this.connToChild = this.createPeerConn();
-
-    // set remote end's info
-    // return Promise that resolves after creating and setting answer as local description
-    // sending answer will be handled by this.socket.io
-    return this.connToChild.setRemoteDescription(offer)
-      // create answer to offer
-      .then(() => this.connToChild.createAnswer())
-      // set local description of callee
-      .then((answer) => this.connToChild.setLocalDescription(answer))
-      // send answer to caller
-      .then(() => {
-        const answer = this.connToChild.localDescription;
-        this.sendBySocket('answer', answer);
-      })
-      .catch(logError);
-  }
-
-  // this.socket answer handler
-  // as a parent/caller, receive answer from child/callee
-  receiveAnswer(answer) {
-    // set info from remote end
-    this.connToParent.setRemoteDescription(answer)
-      .catch(logError);
-  }
-
-  // RTC onicecandidate handler
-  // send ICE candidate to callee
-  iceCandidateHandler(event) {
-    if (event.candidate) {
-      // send child peer ICE candidate
-      this.sendBySocket('candidate', event.candidate);
+  _magnetURIHandler(magnetURI) {
+    console.log('Got magnet');
+    // begin downloading the torrents and render them to page, alternate between three torrents
+    if (this.isPlay1Playing && this.isPlay2Playing) {
+      this.startDownloadingThird(magnetURI);
+    } else if (this.isPlay1Playing) {
+      this.startDownloadingSecond(magnetURI);
+    } else {
+      this.startDownloadingFirst(magnetURI);
     }
+
+    // broadcast magnet URI to next child
+    const magnetMsg = new Message('magnet', magnetURI);
+    this.connToChild && this.connToChild.sendMessage(JSON.stringify(magnetMsg));
   }
+
+  // Callee: receive offer from new child peer
+  // this.socket 'offer' handler
+  receiveOffer(callerId, offer) {
+    console.log('Receiving offer at socket', this.socket.id);
+
+    // create child connection
+    this.connToChild = new ViewerConnection(this.socket, this.isRoot);
+
+    // set peer id for child connection
+    this.connToChild.setPeerId(callerId);
+
+    // connection processes offer/sdp info
+    this.connToChild.respondToOffer(callerId, offer);
+  }
+
+  // Callee: as a parent/caller, receive answer from child/callee
+  // this.socket 'answer' handler
+  receiveAnswer(calleeId, answer) {
+    console.log('Receiving answer from offer...');
+
+    // set peer id for parent connection
+    this.connToParent.setPeerId(calleeId);
+
+    // set info from remote end
+    this.connToParent.respondToAnswer(answer);
+  }
+
+  // Callee: receive an ICE candidate from caller
   // this.socket ICE candidate handler
-  // receive an ICE candidate from caller
   handleNewIceCandidate(candidate) {
+    console.log('Receiving ICE candidates...');
     const iceCandidate = new RTCIceCandidate(candidate);
 
     // add ICE candidate from caller (parent)
-    this.connToParent.addIceCandidate(candidate)
-      .catch(logError);
-  }
-
-  // TODO: implement close upon disconnect
-  // close connections and free up resources
-  closeConnToParent(conn) {
-    this.connToParent.close();
-    this.connToParent = null;
-    // tell other peer to close connection as well
-    send({
-      type: 'close'
-    });
-  }
-
-  closeConnToChild(conn) {
-    this.connToChild.close();
-    this.connToChild = null;
-    // tell other peer to close connection as well
-    send({
-      type: 'close'
-    });
+    this.connToParent && this.connToParent.addIceCandidate(iceCandidate);
   }
 
   // torrentId will change whenever the viewer is notified of the new magnet via websockets or WebRTC
@@ -189,7 +158,6 @@ class Viewer {
     console.log('first Iteration', firstIteration)
 
     this.isPlay1Playing = true;
-    
 
     this.client.add(magnetURI, function (torrent) {
 
@@ -199,7 +167,7 @@ class Viewer {
       let file1 = torrent.files.find(function (file) {
         return file.name.endsWith('.webm')
       })
-      
+
       // Stream the file in the browser
       if (firstIteration === 1) {
         window.setTimeout(() => { file1.renderTo('video#player1') }, 4000);
@@ -279,8 +247,4 @@ class Viewer {
   }
 }
 
-// export default Viewer
-
-
-
-
+module.exports = Viewer
