@@ -159,17 +159,16 @@ class Broadcaster {
             }
 
             // checks if browser supports Worker api
-            if (window.Worker) {
+            // if (window.Worker) {
               // passes a script as input
               worker1 = new Worker('./../dist/nile.Webworker.js')
 
               worker1.postMessage(file);
-
               worker1.onmessage = function (magnetURI) {
                 console.log('b1 seeding', magnetURI.data)
                 sendMagnetToServer(magnetURI.data);
               }
-            }
+            // }
 
             // console.log('worker 1 from 1', worker1)
 

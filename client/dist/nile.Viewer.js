@@ -9818,7 +9818,6 @@ var Viewer = function () {
 
       console.log('first Iteration', firstIteration);
       console.log('magnetURI', magnetURI);
-      // console.log('what am I', this.client);
 
       // this.isPlay1Playing = true;
 
