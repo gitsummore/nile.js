@@ -30,6 +30,13 @@ class Viewer {
     this.childLimit = 1;
     // indicates whether this node is the root connecting to the server
     this.isRoot = true;
+    // handlers for both events in socket.io and messages using RTC DataChannel
+    this.eventHandlers = {
+      magnet: this._magnetURIHandler.bind(this),
+      offer: this.receiveOffer.bind(this),
+      answer: this.receiveAnswer.bind(this),
+      candidate: this.handleNewIceCandidate.bind(this),
+    };
 
     /**
      * WebRTC Connections b/w clients
@@ -47,7 +54,7 @@ class Viewer {
     });
 
     // start playing next in video tag trio
-    this.socket.on('magnetURI', this._magnetURIHandler.bind(this));
+    this.socket.on('magnetURI', this.eventHandlers.magnet);
 
     // if sockets are full, get torrent info from server thru WebRTC
     this.socket.on('full', () => {
@@ -59,10 +66,7 @@ class Viewer {
 
       // create new WebRTC connection to connect to a parent
       // will disconnect once WebRTC connection established
-      this.connToParent = new ViewerConnection(this.socket, this.isRoot);
-
-      // add DataChannel magnet message handler
-      this.connToParent.addMessageHandler('magnet', this._magnetURIHandler.bind(this));
+      this.connToParent = new ViewerConnection(this.socket, this.isRoot, this.eventHandlers);
 
       console.log('Starting WebRTC signaling...');
 
@@ -75,11 +79,11 @@ class Viewer {
      */
 
     // Callee: receives offer for a connection
-    this.socket.on('offer', this.receiveOffer.bind(this));
+    this.socket.on('offer', this.eventHandlers.offer);
     // Caller: receives answer after sending offer
-    this.socket.on('answer', this.receiveAnswer.bind(this));
+    this.socket.on('answer', this.eventHandlers.answer);
     // Both peers: add new ICE candidates as they come in
-    this.socket.on('candidate', this.handleNewIceCandidate.bind(this));
+    this.socket.on('candidate', this.eventHandlers.candidate);
 
     // this.socket.on('disconnect', () => {});
   }
