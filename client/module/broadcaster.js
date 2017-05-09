@@ -22,18 +22,13 @@ class Broadcaster {
     const sendMagnetToServer = this.sendMagnetToServer;
     console.log(sendMagnetToServer)
     let videoStream = null;
-    let video = document.getElementById(`${this.videoNodeIDForPlayback}`);
-
-    // will hold
-    let videoFile;
+    let $video = document.getElementById(`${this.videoNodeIDForPlayback}`);
 
     // allows you to see yourself while recording
     let createSrc = (window.URL) ? window.URL.createObjectURL : function (stream) { return stream };
 
     // creates a new instance of torrent so that user is able to seed the video/webm file
-    let broadcaster1 = new WebTorrent();
-    let broadcaster2 = new WebTorrent();
-    let broadcaster3 = new WebTorrent();
+    let broadcaster = new WebTorrent();
     let magnetURI1;
     let magnetURI2;
     let magnetURI3;
@@ -59,7 +54,7 @@ class Broadcaster {
         // every _recordInterval, make a new torrent file and start seeding it
         mediaRecorder.ondataavailable = function (blob) {
 
-          let file = new File([blob], 'nilejs.webm', {
+          const file = new File([blob], 'nilejs.webm', {
             type: 'video/webm'
           });
 
@@ -69,15 +64,13 @@ class Broadcaster {
           // */
           if (_wasLastBroadcaster_1 && _wasLastBroadcaster_2) {
             if (magnetURI3) {
-              broadcaster3.destroy(function () {
-                console.log('broadcaster3 removed')
+              broadcaster.remove(magnetURI3, function () {
+                console.log('magnet removed')
               });
             }
 
-            broadcaster3 = new WebTorrent();
-
             // start seeding the new torrent
-            broadcaster3.seed(file, function (torrent) {
+            broadcaster.seed(file, function (torrent) {
               magnetURI3 = torrent.magnetURI;
               console.log('broadcaster3 is seeding ' + torrent.magnetURI)
               sendMagnetToServer(magnetURI3);
@@ -85,38 +78,34 @@ class Broadcaster {
 
             _wasLastBroadcaster_1 = _wasLastBroadcaster_2 = false;
 
+
           } else if (_wasLastBroadcaster_1) {
             // if there is already a seed occuring, destroy it and re-seed
             if (magnetURI2) {
-              broadcaster2.destroy(function () {
-                console.log('broadcaster2 removed')
+              broadcaster.remove(magnetURI2, function () {
+                console.log('magnet removed')
               });
             }
 
-            broadcaster2 = new WebTorrent();
-
             // start seeding the new torrent
-            broadcaster2.seed(file, function (torrent) {
+            broadcaster.seed(file, function (torrent) {
               magnetURI2 = torrent.magnetURI;
               console.log('broadcaster2 is seeding ' + torrent.magnetURI)
               sendMagnetToServer(magnetURI2);
             });
 
             _wasLastBroadcaster_2 = true;
-
           } else {
-
             if (magnetURI1) {
-              broadcaster1.destroy(function () {
-                console.log('broadcaster1 removed')
+              broadcaster.remove(magnetURI1, function () {
+                console.log('magnet removed')
               });
             }
 
-            broadcaster1 = new WebTorrent();
-
-            broadcaster1.seed(file, function (torrent) {
+            // start seeding the new torrent
+            broadcaster.seed(file, function (torrent) {
               magnetURI1 = torrent.magnetURI;
-              console.log('broadcaster1 is seeding ' + torrent.magnetURI)
+              console.log('broadcaster3 is seeding ' + torrent.magnetURI)
               sendMagnetToServer(magnetURI1);
             });
 
@@ -124,12 +113,17 @@ class Broadcaster {
           }
         };
 
+        // check for if an error occurs, if it does, garbage collection and return error
+        broadcaster.on('error', function (err) {
+          console.log('webtorrents has encountered an error', err)
+        })
+
         // retrieve the devices that are being used to record
         videoStream = stream.getTracks();
 
-        // // play back the recording to the broadcaster
-        video.src = createSrc(stream);
-        video.play();
+        // play back the recording to the broadcaster
+        $video.src = createSrc(stream);
+        $video.play();
       }
 
       function onMediaError(e) {
@@ -140,7 +134,7 @@ class Broadcaster {
     // when the user pauses the video, stop the stream and send data to server
     document.getElementById(`${this.stopStreamID}`).addEventListener('click', function () {
       // Pause the video
-      video.pause();
+      $video.pause();
 
       // stops the the audio and video from recording
       videoStream.forEach((stream) => stream.stop());
@@ -167,4 +161,5 @@ class Broadcaster {
   }
 }
 
+// export default Broadcaster
 module.exports = Broadcaster

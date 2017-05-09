@@ -4,4 +4,5 @@ const Message = function(type, message) {
   this.message = message;
 }
 
+module.exports = Message
 // export default Message

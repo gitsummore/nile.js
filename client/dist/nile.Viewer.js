@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "dist";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 31);
+/******/ 	return __webpack_require__(__webpack_require__.s = 33);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -117,15 +117,15 @@ module.exports = g;
  * Module dependencies.
  */
 
-var keys = __webpack_require__(44);
+var keys = __webpack_require__(46);
 var hasBinary = __webpack_require__(18);
-var sliceBuffer = __webpack_require__(33);
-var after = __webpack_require__(32);
-var utf8 = __webpack_require__(58);
+var sliceBuffer = __webpack_require__(35);
+var after = __webpack_require__(34);
+var utf8 = __webpack_require__(60);
 
 var base64encoder;
 if (global && global.ArrayBuffer) {
-  base64encoder = __webpack_require__(35);
+  base64encoder = __webpack_require__(37);
 }
 
 /**
@@ -183,7 +183,7 @@ var err = { type: 'error', data: 'parser error' };
  * Create a blob api even for blob builder when vendor prefixes exist
  */
 
-var Blob = __webpack_require__(36);
+var Blob = __webpack_require__(38);
 
 /**
  * Encodes a packet.
@@ -6448,7 +6448,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
  * Expose `debug()` as the module.
  */
 
-exports = module.exports = __webpack_require__(43);
+exports = module.exports = __webpack_require__(45);
 exports.log = log;
 exports.formatArgs = formatArgs;
 exports.save = save;
@@ -6617,7 +6617,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
  * Expose `debug()` as the module.
  */
 
-exports = module.exports = __webpack_require__(50);
+exports = module.exports = __webpack_require__(52);
 exports.log = log;
 exports.formatArgs = formatArgs;
 exports.save = save;
@@ -6945,7 +6945,7 @@ Transport.prototype.onClose = function () {
 
 // browser shim for xmlhttprequest module
 
-var hasCORS = __webpack_require__(46);
+var hasCORS = __webpack_require__(48);
 
 module.exports = function (opts) {
   var xdomain = opts.xdomain;
@@ -7229,10 +7229,10 @@ exports.decode = function (qs) {
  * Module dependencies.
  */
 
-var debug = __webpack_require__(53)('socket.io-parser');
-var json = __webpack_require__(47);
-var Emitter = __webpack_require__(52);
-var binary = __webpack_require__(51);
+var debug = __webpack_require__(55)('socket.io-parser');
+var json = __webpack_require__(49);
+var Emitter = __webpack_require__(54);
+var binary = __webpack_require__(53);
 var isBuf = __webpack_require__(25);
 
 /**
@@ -7734,9 +7734,9 @@ module.exports = function (obj, fn) {
  */
 
 var XMLHttpRequest = __webpack_require__(9);
-var XHR = __webpack_require__(41);
-var JSONP = __webpack_require__(40);
-var websocket = __webpack_require__(42);
+var XHR = __webpack_require__(43);
+var JSONP = __webpack_require__(42);
+var websocket = __webpack_require__(44);
 
 /**
  * Export transports.
@@ -8049,7 +8049,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
  * Module requirements.
  */
 
-var isArray = __webpack_require__(45);
+var isArray = __webpack_require__(47);
 
 /**
  * Module exports.
@@ -8329,7 +8329,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
  * Module dependencies.
  */
 
-var eio = __webpack_require__(37);
+var eio = __webpack_require__(39);
 var Socket = __webpack_require__(24);
 var Emitter = __webpack_require__(2);
 var parser = __webpack_require__(12);
@@ -8337,7 +8337,7 @@ var on = __webpack_require__(23);
 var bind = __webpack_require__(15);
 var debug = __webpack_require__(7)('socket.io-client:manager');
 var indexOf = __webpack_require__(19);
-var Backoff = __webpack_require__(34);
+var Backoff = __webpack_require__(36);
 
 /**
  * IE6+ hasOwnProperty
@@ -8928,7 +8928,7 @@ function on(obj, ev, fn) {
 
 var parser = __webpack_require__(12);
 var Emitter = __webpack_require__(2);
-var toArray = __webpack_require__(57);
+var toArray = __webpack_require__(59);
 var on = __webpack_require__(23);
 var bind = __webpack_require__(15);
 var debug = __webpack_require__(7)('socket.io-client:socket');
@@ -9462,8 +9462,331 @@ yeast.decode = decode;
 module.exports = yeast;
 
 /***/ }),
-/* 28 */,
+/* 28 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var Message = function Message(type, message) {
+  if (typeof type !== 'string') throw new Error('type must be a string');
+  this.type = type;
+  this.message = message;
+};
+
+module.exports = Message;
+// export default Message
+
+/***/ }),
 /* 29 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+// set peer connection to Mozilla PeerConnection if in Firefox
+RTCPeerConnection = RTCPeerConnection || mozRTCPeerConnection;
+
+/**
+ * Wrapper class for RTC connection between parent and child viewers
+ */
+
+var ViewerConnection = function () {
+  function ViewerConnection(socket, isRoot) {
+    var messageHandlers = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+    _classCallCheck(this, ViewerConnection);
+
+    // ref to Viewer's socket connection
+    this.socket = socket;
+    // indicates whether this node is the root connecting to the server
+    this.isRoot = isRoot;
+    // event handlers for DataChannel messages
+    this.messageHandlers = messageHandlers;
+
+    // reserved variables
+    // RTC DataChannel
+    this.channel;
+    // Peer's socket ID
+    this.peerId;
+
+    // set up wrapped WebRTCConnection
+    this.RTCconn = new RTCPeerConnection({
+      iceServers: [
+      // STUN servers
+      { url: 'stun:stun.l.google.com:19302' }, { url: 'stun:stun1.l.google.com:19302' }, { url: 'stun:stun2.l.google.com:19302' }, { url: 'stun:stun3.l.google.com:19302' }, { url: 'stun:stun4.l.google.com:19302' }]
+    });
+
+    /**
+     * Useful diagrams for WebRTC signaling process:
+     * 
+     * 1. Initiating negotiation:
+     * https://mdn.mozillademos.org/files/12363/WebRTC%20-%20Signaling%20Diagram.svg
+     * -Caller creates offer
+     * 
+     * 2. Exchanging ICE candidates:
+     * https://mdn.mozillademos.org/files/12365/WebRTC%20-%20ICE%20Candidate%20Exchange.svg
+     * 
+     */
+
+    // Handle negotiation needed (i.e. when opening data channel)
+    this.RTCconn.onnegotiationneeded = this.initOffer.bind(this);
+
+    // Handle connection state changes
+    this.RTCconn.onconnectionstatechange = this._connectionStateHandler.bind(this);
+
+    // Handle ICE connection state changes
+    this.RTCconn.oniceconnectionstatechange = this._iceConnectionStateHandler.bind(this);
+
+    // when ICE candidates need to be sent to callee
+    this.RTCconn.onicecandidate = this._iceCandidateHandler.bind(this);
+
+    // Handle requests to open data channel
+    this.RTCconn.ondatachannel = this._receiveDataChannel.bind(this);
+
+    // Signaling state changes - uncomment to get signaling state logs
+    // this.RTCconn.onsignalingstatechange = this._signalingStateHandler.bind(this);
+  }
+
+  // create data channel
+
+
+  _createClass(ViewerConnection, [{
+    key: 'initDataChannel',
+    value: function initDataChannel() {
+      // console.log('Initiating data channel...');
+      this.channel = this.RTCconn.createDataChannel('magnet');
+      this._setupDataChannel();
+    }
+
+    // send messages thru connection's RTC data channel
+
+  }, {
+    key: 'sendMessage',
+    value: function sendMessage(msg) {
+      this.channel && this.channel.readyState === 'open' && this.channel.send(msg);
+    }
+
+    // add event listeners to RTCDataChannel
+
+  }, {
+    key: '_setupDataChannel',
+    value: function _setupDataChannel() {
+      // handle open/close events
+      this.channel.onopen = this.channel.onclose = this._handleChannelStatusChange.bind(this);
+
+      // handle messages
+      this.channel.onmessage = this._receiveMessage.bind(this);
+    }
+
+    // Caller: begin connection to parent client
+
+  }, {
+    key: 'initOffer',
+    value: function initOffer() {
+      var _this = this;
+
+      console.log('CALLER');
+      // console.log('Initiating offer...');
+      // create offer to parent
+      this.RTCconn.createOffer()
+      // set local description of caller
+      .then(function (offer) {
+        return _this.RTCconn.setLocalDescription(offer);
+      })
+      // send offer along to peer
+      .then(function () {
+        var offer = _this.RTCconn.localDescription;
+        _this.send('offer', offer);
+      }).catch(this.logError);
+    }
+
+    // Callee: sets offer as remote description and sends answer
+
+  }, {
+    key: 'respondToOffer',
+    value: function respondToOffer(callerId, offer) {
+      var _this2 = this;
+
+      console.log('CALLEE');
+      this.RTCconn.setRemoteDescription(offer)
+      // create answer to offer
+      .then(function () {
+        return _this2.RTCconn.createAnswer();
+      })
+      // set local description of callee
+      .then(function (answer) {
+        return _this2.RTCconn.setLocalDescription(answer);
+      })
+      // send answer to caller
+      .then(function () {
+        // console.log('Set local description with offer');
+        var answer = _this2.RTCconn.localDescription;
+        _this2.send('answer', callerId, answer);
+      }).catch(this.logError);
+    }
+  }, {
+    key: 'respondToAnswer',
+    value: function respondToAnswer(answer) {
+      this.RTCconn.setRemoteDescription(answer)
+      // .then(() => console.log('Set remote description with answer'))
+      .catch(this.logError);
+    }
+  }, {
+    key: 'addIceCandidate',
+    value: function addIceCandidate(candidate) {
+      this.RTCconn.addIceCandidate(candidate).catch(this.logError);
+    }
+  }, {
+    key: 'setIsRoot',
+    value: function setIsRoot(isRoot) {
+      this.isRoot = isRoot;
+    }
+  }, {
+    key: 'setPeerId',
+    value: function setPeerId(peerId) {
+      // console.log('Setting peerId:', peerId);
+      this.peerId = peerId;
+    }
+
+    // Caller: send ICE candidate to callee
+
+  }, {
+    key: '_iceCandidateHandler',
+    value: function _iceCandidateHandler(event) {
+      // console.log('Sending ICE candidates...');
+      if (event.candidate) {
+        // send child peer ICE candidate if has peerId
+        this.peerId && this.send('candidate', this.peerId, event.candidate);
+      }
+    }
+
+    // WebRTC connection state handler
+
+  }, {
+    key: '_connectionStateHandler',
+    value: function _connectionStateHandler() {
+      console.log('Connection state changed to', conn.connectionState);
+
+      // if (conn.connectionState === 'connected') {
+
+      // }
+    }
+
+    // receiver handles request to open data channel
+
+  }, {
+    key: '_receiveDataChannel',
+    value: function _receiveDataChannel(event) {
+      console.log('Receiving data channel...');
+      // store received channel
+      this.channel = event.channel;
+      this._setupDataChannel();
+    }
+  }, {
+    key: '_handleChannelStatusChange',
+    value: function _handleChannelStatusChange(event) {
+      if (!this.channel) return;
+
+      var state = this.channel.readyState;
+
+      console.log('Channel status:', state);
+
+      if (state === 'open') {
+        // disconnect socket.io connection if not the root client
+        if (!this.isRoot) {
+          console.log('RTC connection succeeded! Disconnecting socket...');
+          this.socket.disconnect();
+        }
+      }
+      // if closed
+      else {}
+    }
+
+    // Add an event handler for a certain type of DataChannel Message
+
+  }, {
+    key: 'addMessageHandler',
+    value: function addMessageHandler(type, handler) {
+      if (typeof handler !== 'function') throw new Error('Handler must be a function');
+      this.messageHandlers[type] = handler;
+    }
+
+    // DataChannel message handler
+
+  }, {
+    key: '_receiveMessage',
+    value: function _receiveMessage(event) {
+      var msg = JSON.parse(event.data);
+
+      var type = msg.type,
+          message = msg.message;
+
+      // console.log(`Received message of type '${type}': ${JSON.stringify(message)}`);
+
+      var handler = this.messageHandlers[type];
+
+      // call handler if exists
+      handler && handler(message);
+    }
+
+    // close connections and free up resources
+
+  }, {
+    key: 'closeConn',
+    value: function closeConn() {
+      this.RTCconn.close();
+      this.RTCconn = null;
+      // tell other peer to close connection as well
+      send('close', peerId);
+    }
+
+    // ICE connection handler
+
+  }, {
+    key: '_iceConnectionStateHandler',
+    value: function _iceConnectionStateHandler(event) {
+      console.log('ICE Connection State:', this.RTCconn.iceConnectionState);
+    }
+
+    // Signaling state handler
+
+  }, {
+    key: '_signalingStateHandler',
+    value: function _signalingStateHandler(event) {
+      console.log('Signaling State:', this.RTCconn.signalingState);
+    }
+
+    // send message by socket.io
+
+  }, {
+    key: 'send',
+    value: function send(event) {
+      var _socket;
+
+      for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+        args[_key - 1] = arguments[_key];
+      }
+
+      (_socket = this.socket).emit.apply(_socket, [event].concat(args));
+    }
+  }, {
+    key: 'logError',
+    value: function logError(err) {
+      console.error(err);
+    }
+  }]);
+
+  return ViewerConnection;
+}();
+
+/***/ }),
+/* 30 */,
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9475,7 +9798,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
  * Module dependencies.
  */
 
-var url = __webpack_require__(49);
+var url = __webpack_require__(51);
 var parser = __webpack_require__(12);
 var Manager = __webpack_require__(22);
 var debug = __webpack_require__(7)('socket.io-client');
@@ -9580,8 +9903,8 @@ exports.Manager = __webpack_require__(22);
 exports.Socket = __webpack_require__(24);
 
 /***/ }),
-/* 30 */,
-/* 31 */
+/* 32 */,
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9589,17 +9912,28 @@ exports.Socket = __webpack_require__(24);
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+var _socket = __webpack_require__(31);
+
+var _socket2 = _interopRequireDefault(_socket);
+
+var _viewerConnection = __webpack_require__(29);
+
+var _viewerConnection2 = _interopRequireDefault(_viewerConnection);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 // Install this.socket.io-client
 // io object exposed from injected this.socket.io.js
 
-var io = __webpack_require__(29);
-var WebTorrent = __webpack_require__(4);
+// const io = require('socket.io-client');
 
-// import io from 'socket.io-client';
-// import ViewerConnection from './viewerConnection';
-// import Message from './message';
+// Have to require WebTorrent and not import, or there is a fs error from node.js
+var WebTorrent = __webpack_require__(4);
+var Message = __webpack_require__(28);
 
 /**
  * Viewer class concerned with streaming video from torrents
@@ -9609,19 +9943,21 @@ var WebTorrent = __webpack_require__(4);
 var Viewer = function () {
   function Viewer(ID_of_NodeToRenderVideo // location on the DOM where the live feed will be rendered
   ) {
+    var _torrentInfo;
+
     _classCallCheck(this, Viewer);
 
     // initiate new torrent connection
     this.client = new WebTorrent();
     // grab DOM elements where the torrent video will be rendered too
     this.ID_of_NodeToRenderVideo = ID_of_NodeToRenderVideo;
+
+    // video tag ID from html page
     this.$play1 = document.getElementById('player1');
     this.$play2 = document.getElementById('player2');
     this.$play3 = document.getElementById('player3');
-    this.isPlay1Playing = false;
-    this.isPlay2Playing = false;
-    this.firstIteration = 0;
-    this.socket = io.connect();
+
+    this.socket = _socket2.default.connect();
 
     // limit of child clients per client
     this.childLimit = 1;
@@ -9633,6 +9969,11 @@ var Viewer = function () {
       offer: this.receiveOffer.bind(this)
     };
 
+    // progress trackers
+    this.$numPeers = document.querySelector('#numPeers');
+    this.$uploadSpeed = document.querySelector('#uploadSpeed');
+    this.$downloadSpeed = document.querySelector('#downloadSpeed');
+
     /**
      * WebRTC Connections b/w clients
      * 
@@ -9640,6 +9981,13 @@ var Viewer = function () {
      * child - farther away from server
      */
     this.connToParent, this.connToChild;
+
+    this.torrentInfo = (_torrentInfo = {
+      'magnetURI1': 0,
+      'magnetURI2': 0,
+      'magnetURI3': 0,
+      'isPlay1Playing': false
+    }, _defineProperty(_torrentInfo, 'isPlay1Playing', false), _defineProperty(_torrentInfo, 'firstIteration', 0), _torrentInfo);
   }
 
   _createClass(Viewer, [{
@@ -9666,7 +10014,7 @@ var Viewer = function () {
 
         // create new WebRTC connection to connect to a parent
         // will disconnect once WebRTC connection established
-        _this.connToParent = new ViewerConnection(_this.socket, _this.isRoot, _this.eventHandlers);
+        _this.connToParent = new _viewerConnection2.default(_this.socket, _this.isRoot, _this.eventHandlers);
 
         console.log('Starting WebRTC signaling...');
 
@@ -9692,12 +10040,12 @@ var Viewer = function () {
     value: function _magnetURIHandler(magnetURI) {
       console.log('Got magnet');
       // begin downloading the torrents and render them to page, alternate between three torrents
-      if (this.isPlay1Playing && this.isPlay2Playing) {
-        this.startDownloadingThird(magnetURI);
-      } else if (this.isPlay1Playing) {
-        this.startDownloadingSecond(magnetURI);
+      if (this.torrentInfo['isPlay1Playing'] && this.torrentInfo['isPlay2Playing']) {
+        this.startDownloading(magnetURI, this.$play3, this.$play1, 'firstIteration', true, true, 'magnetURI3', 'video#player3', '3');
+      } else if (this.torrentInfo['isPlay1Playing']) {
+        this.startDownloading(magnetURI, this.$play2, this.$play3, 'firstIteration', true, false, 'magnetURI2', 'video#player2', '2');
       } else {
-        this.startDownloadingFirst(magnetURI);
+        this.startDownloading(magnetURI, this.$play1, this.$play2, 'firstIteration', false, false, 'magnetURI1', 'video#player1', '1');
       }
 
       // broadcast magnet URI to next child
@@ -9729,7 +10077,7 @@ var Viewer = function () {
         }
 
         // create child connection
-        this.connToChild = new ViewerConnection(this.socket, this.isRoot);
+        this.connToChild = new _viewerConnection2.default(this.socket, this.isRoot);
 
         // set peer id for child connection
         this.connToChild.setPeerId(callerId);
@@ -9777,116 +10125,121 @@ var Viewer = function () {
     // Function for downloading the torrent
 
   }, {
-    key: 'startDownloadingFirst',
-    value: function startDownloadingFirst(magnetURI) {
-      this.firstIteration += 1;
-      var firstIteration = this.firstIteration;
+    key: 'startDownloading',
+    value: function startDownloading(magnetURI, currPlayer, nextPlayer, firstIteration, isPlay1Playing, isPlay2Playing, prevMagnetURI, renderTo, curr) {
+
       var $play1 = this.$play1;
       var $play2 = this.$play2;
+      var $play3 = this.$play3;
 
+      console.log('this video is playing', curr);
+      // let onProgress = this.onProgress;
+      this.torrentInfo[firstIteration] += 1;
+      console.log(this.torrentInfo[firstIteration]);
+
+      var first = this.torrentInfo[firstIteration];
       // console.log('first Iteration', firstIteration)
+      if (!isPlay1Playing) {
+        console.log('play1 playing');
+        this.torrentInfo['isPlay1Playing'] = true;
+      } else if (!isPlay2Playing) {
+        console.log('play2 playing');
+        this.torrentInfo['isPlay2Playing'] = true;
+      } else {
+        console.log('play3 playing');
+        this.torrentInfo['isPlay1Playing'] = false;
+        this.torrentInfo['isPlay2Playing'] = false;
+      }
 
-      this.isPlay1Playing = true;
+      // removes torrent 
+      if (this.torrentInfo[prevMagnetURI]) {
+        this.client.remove(this.torrentInfo[prevMagnetURI], function () {
+          console.log('Magnet Removed');
+        });
+      }
+
+      this.torrentInfo[prevMagnetURI] = magnetURI;
 
       this.client.add(magnetURI, function (torrent) {
-
         /* Look for the file that ends in .webm and render it, in the future we can
          * add additional file types for scaling. E.g other video formats or even VR!
          */
-        var file1 = torrent.files.find(function (file) {
+        var file = torrent.files.find(function (file) {
           return file.name.endsWith('.webm');
         });
 
         // Stream the file in the browser
-        if (firstIteration === 1) {
+        if (first === 1) {
           window.setTimeout(function () {
-            file1.renderTo('video#player1');
-          }, 4000);
-          firstIteration += 1;
+            file.renderTo(renderTo);
+          }, 6000);
         } else {
-          file1.renderTo('video#player1', { autoplay: false });
+          file.renderTo(renderTo, { autoplay: false });
         }
+
+        // Trigger statistics refresh
+        // setInterval(onProgress.bind(this)(torrent), 500);
       });
 
-      // listen to when video 1 ends, immediately play the other video
-      $play1.onended = function (e) {
-        $play2.play();
+      // listen to when video ends, immediately play the other video
+      currPlayer.onended = function () {
+        nextPlayer.play();
 
-        $play2.removeAttribute('hidden');
+        nextPlayer.removeAttribute('hidden');
 
-        $play1.setAttribute('hidden', true);
+        currPlayer.setAttribute('hidden', true);
       };
     }
 
-    // Function for downloading the second torrent
+    // Download Statistics
 
   }, {
-    key: 'startDownloadingSecond',
-    value: function startDownloadingSecond(magnetURI) {
-      this.isPlay2Playing = true;
-      var $play2 = this.$play2;
-      var $play3 = this.$play3;
+    key: 'onProgress',
+    value: function onProgress(torrent) {
+      // let $numPeers = this.$numPeers.bind(this);
+      // let $uploadSpeed = this.$uploadSpeed.bind(this);
+      // let $downloadSpeed = this.$downloadSpeed.bind(this);
 
-      this.client.add(magnetURI, function (torrent) {
+      var $numPeers = document.querySelector('#numPeers');
+      var $uploadSpeed = document.querySelector('#uploadSpeed');
+      var $downloadSpeed = document.querySelector('#downloadSpeed');
+      // Peers
+      $numPeers.innerHTML = torrent.numPeers + (torrent.numPeers === 1 ? ' peer' : ' peers');
 
-        /* Look for the file that ends in .webm and render it, in the future we can
-         * add additional file types for scaling. E.g other video formats or even VR!
-         */
-        var file2 = torrent.files.find(function (file) {
-          return file.name.endsWith('.webm');
-        });
-
-        // Stream the second file, but currently invisible and not playing
-        file2.renderTo('video#player2', { autoplay: false });
-      });
-
-      // listen to when video 2 ends, immediately play the other video
-      $play2.onended = function (e) {
-        $play3.play();
-
-        $play3.removeAttribute('hidden');
-
-        $play2.setAttribute('hidden', true);
-      };
+      console.log('torrent', torrent);
+      // Speed rates
+      $downloadSpeed.innerHTML = torrent.downloadSpeed + '/s';
+      $uploadSpeed.innerHTML = torrent.uploadSpeed + '/s';
     }
+
+    // Human readable bytes util
+
   }, {
-    key: 'startDownloadingThird',
-    value: function startDownloadingThird(magnetURI) {
-      this.isPlay1Playing = this.isPlay2Playing = false;
-
-      var $play1 = this.$play1;
-      var $play3 = this.$play3;
-
-      this.client.add(magnetURI, function (torrent) {
-
-        /* Look for the file that ends in .webm and render it, in the future we can
-         * add additional file types for scaling. E.g other video formats or even VR!
-         */
-        var file3 = torrent.files.find(function (file) {
-          return file.name.endsWith('.webm');
-        });
-
-        // Stream the second file, but currently invisible and not playing
-        file3.renderTo('video#player3', { autoplay: false });
-      });
-
-      // listen to when video 3 ends, immediately play the other video
-      $play3.onended = function (e) {
-        $play1.play();
-        $play1.removeAttribute('hidden');
-
-        $play3.setAttribute('hidden', true);
-      };
+    key: 'prettyBytes',
+    value: function prettyBytes(num) {
+      var exponent = void 0,
+          unit = void 0,
+          neg = num < 0,
+          units = ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+      if (neg) num = -num;
+      if (num < 1) return (neg ? '-' : '') + num + ' B';
+      exponent = Math.min(Math.floor(Math.log(num) / Math.log(1000)), units.length - 1);
+      num = Number((num / Math.pow(1000, exponent)).toFixed(2));
+      unit = units[exponent];
+      return (neg ? '-' : '') + num + ' ' + unit;
     }
   }]);
 
   return Viewer;
 }();
 
+// export default Viewer
+
+
 module.exports = Viewer;
 
 /***/ }),
-/* 32 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9922,7 +10275,7 @@ function after(count, callback, err_cb) {
 function noop() {}
 
 /***/ }),
-/* 33 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9967,7 +10320,7 @@ module.exports = function (arraybuffer, start, end) {
 };
 
 /***/ }),
-/* 34 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10058,7 +10411,7 @@ Backoff.prototype.setJitter = function (jitter) {
 };
 
 /***/ }),
-/* 35 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10140,7 +10493,7 @@ Backoff.prototype.setJitter = function (jitter) {
 })();
 
 /***/ }),
-/* 36 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10240,22 +10593,22 @@ module.exports = function () {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 37 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-module.exports = __webpack_require__(38);
+module.exports = __webpack_require__(40);
 
 /***/ }),
-/* 38 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-module.exports = __webpack_require__(39);
+module.exports = __webpack_require__(41);
 
 /**
  * Exports parser
@@ -10266,7 +10619,7 @@ module.exports = __webpack_require__(39);
 module.exports.parser = __webpack_require__(1);
 
 /***/ }),
-/* 39 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10284,7 +10637,7 @@ var debug = __webpack_require__(6)('engine.io-client:socket');
 var index = __webpack_require__(19);
 var parser = __webpack_require__(1);
 var parseuri = __webpack_require__(21);
-var parsejson = __webpack_require__(48);
+var parsejson = __webpack_require__(50);
 var parseqs = __webpack_require__(10);
 
 /**
@@ -11004,7 +11357,7 @@ Socket.prototype.filterUpgrades = function (upgrades) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 40 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11243,7 +11596,7 @@ JSONPPolling.prototype.doWrite = function (data, fn) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 41 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11675,7 +12028,7 @@ function unloadHandler() {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 42 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11695,7 +12048,7 @@ var BrowserWebSocket = global.WebSocket || global.MozWebSocket;
 var NodeWebSocket;
 if (typeof window === 'undefined') {
   try {
-    NodeWebSocket = __webpack_require__(59);
+    NodeWebSocket = __webpack_require__(61);
   } catch (e) {}
 }
 
@@ -11968,7 +12321,7 @@ WS.prototype.check = function () {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 43 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12174,7 +12527,7 @@ function coerce(val) {
 }
 
 /***/ }),
-/* 44 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12200,7 +12553,7 @@ module.exports = Object.keys || function keys(obj) {
 };
 
 /***/ }),
-/* 45 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12211,7 +12564,7 @@ module.exports = Array.isArray || function (arr) {
 };
 
 /***/ }),
-/* 46 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12234,7 +12587,7 @@ try {
 }
 
 /***/ }),
-/* 47 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13169,7 +13522,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(26)(module), __webpack_require__(0)))
 
 /***/ }),
-/* 48 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13208,7 +13561,7 @@ module.exports = function parsejson(data) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 49 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13291,7 +13644,7 @@ function url(uri, loc) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 50 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13497,7 +13850,7 @@ function coerce(val) {
 }
 
 /***/ }),
-/* 51 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13511,7 +13864,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
  * Module requirements
  */
 
-var isArray = __webpack_require__(55);
+var isArray = __webpack_require__(57);
 var isBuf = __webpack_require__(25);
 
 /**
@@ -13650,7 +14003,7 @@ exports.removeBlobs = function (data, callback) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 52 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13816,7 +14169,7 @@ Emitter.prototype.hasListeners = function (event) {
 };
 
 /***/ }),
-/* 53 */
+/* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13830,7 +14183,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
  * Expose `debug()` as the module.
  */
 
-exports = module.exports = __webpack_require__(54);
+exports = module.exports = __webpack_require__(56);
 exports.log = log;
 exports.formatArgs = formatArgs;
 exports.save = save;
@@ -13975,7 +14328,7 @@ function localstorage() {
 }
 
 /***/ }),
-/* 54 */
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13993,7 +14346,7 @@ exports.coerce = coerce;
 exports.disable = disable;
 exports.enable = enable;
 exports.enabled = enabled;
-exports.humanize = __webpack_require__(56);
+exports.humanize = __webpack_require__(58);
 
 /**
  * The currently active debug mode names, and names to skip.
@@ -14178,7 +14531,7 @@ function coerce(val) {
 }
 
 /***/ }),
-/* 55 */
+/* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14189,7 +14542,7 @@ module.exports = Array.isArray || function (arr) {
 };
 
 /***/ }),
-/* 56 */
+/* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14316,7 +14669,7 @@ function plural(ms, n, name) {
 }
 
 /***/ }),
-/* 57 */
+/* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14337,7 +14690,7 @@ function toArray(list, index) {
 }
 
 /***/ }),
-/* 58 */
+/* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14582,7 +14935,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(26)(module), __webpack_require__(0)))
 
 /***/ }),
-/* 59 */
+/* 61 */
 /***/ (function(module, exports) {
 
 /* (ignored) */
