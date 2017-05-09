@@ -35,7 +35,7 @@ function socketController(server, socketLimit) {
     // callee receives offer from new client
     socket.on('offer', function (offer) {
       // get socket id to send offer to
-      const calleeSocket = getCalleeSocket(self.sockets);
+      const calleeSocket = getTargetSocket(self.sockets);
       const calleeId = calleeSocket.id;
       // get this socket's id
       const callerId = this.id;
@@ -79,7 +79,9 @@ socketController.prototype.emitNewMagnet = function(magnetURI) {
   this.io.emit('magnetURI', magnetURI);
 }
 
-function getCalleeSocket(sockets) {
+// Determines socket of chain to connect to
+// TODO: dummy func right now
+function getTargetSocket(sockets) {
   return sockets[0];
 }
 
