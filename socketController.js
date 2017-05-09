@@ -66,7 +66,7 @@ function socketController(server, socketLimit) {
       socket.to(peerId).emit('candidate', candidate);
     });
 
-    socket.on('disconnect', function(socket) {
+    socket.on('disconnect', function() {
       console.log(this.id, 'disconnected');
       self.sockets = self.sockets.filter(keptSocket => this.id !== keptSocket.id);
       console.log('Updated sockets:', self.sockets.map(socket => socket.id));
