@@ -5,13 +5,13 @@ RTCPeerConnection = RTCPeerConnection || mozRTCPeerConnection;
  * Wrapper class for RTC connection between parent and child viewers
  */
 class ViewerConnection {
-  constructor(socket, isRoot) {
+  constructor(socket, isRoot, messageHandlers = {}) {
     // ref to Viewer's socket connection
     this.socket = socket;
     // indicates whether this node is the root connecting to the server
     this.isRoot = isRoot;
     // event handlers for DataChannel messages
-    this.messageHandlers = {};
+    this.messageHandlers = messageHandlers;
 
     // reserved variables
     // RTC DataChannel
@@ -95,7 +95,7 @@ class ViewerConnection {
       // send offer along to peer
       .then(() => {
         const offer = this.RTCconn.localDescription;
-        this.sendBySocket('offer', offer);
+        this.send('offer', offer);
       })
       .catch(this.logError);
   }
@@ -112,7 +112,7 @@ class ViewerConnection {
       .then(() => {
         // console.log('Set local description with offer');
         const answer = this.RTCconn.localDescription;
-        this.sendBySocket('answer', callerId, answer);
+        this.send('answer', callerId, answer);
       })
       .catch(this.logError);
   }
@@ -142,7 +142,7 @@ class ViewerConnection {
     // console.log('Sending ICE candidates...');
     if (event.candidate) {
       // send child peer ICE candidate if has peerId
-      this.peerId && this.sendBySocket('candidate', this.peerId, event.candidate);
+      this.peerId && this.send('candidate', this.peerId, event.candidate);
     }
   }
 
@@ -195,7 +195,7 @@ class ViewerConnection {
 
     const { type, message } = msg;
 
-    console.log(`Received message of type '${type}: ${message}`);
+    // console.log(`Received message of type '${type}': ${JSON.stringify(message)}`);
     const handler = this.messageHandlers[type];
     
     // call handler if exists
@@ -207,7 +207,7 @@ class ViewerConnection {
     this.RTCconn.close();
     this.RTCconn = null;
     // tell other peer to close connection as well
-    sendBySocket('close', peerId);
+    send('close', peerId);
   }
 
   // ICE connection handler
@@ -220,12 +220,12 @@ class ViewerConnection {
     console.log('Signaling State:', this.RTCconn.signalingState);
   }
 
-  // send message on RTC connection
-  sendBySocket(event, ...args) {
+  // send message by socket.io
+  send(event, ...args) {
     this.socket.emit(event, ...args);
   }
 
   logError(err) {
-    console.log(err);
+    console.error(err);
   }
 }

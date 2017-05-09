@@ -7,7 +7,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon server.js",
-    "postinstall": "npm install bufferutil@1.2.x utf-8-validate@1.2.x"
+    "postinstall": "npm install bufferutil@1.2.x utf-8-validate@1.2.x",
+    "build": "webpack -w"
   },
   "author": "",
   "license": "ISC",

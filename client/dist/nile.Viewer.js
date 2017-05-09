@@ -9469,6 +9469,7 @@ module.exports = yeast;
 
 
 var Message = function Message(type, message) {
+  if (typeof type !== 'string') throw new Error('type must be a string');
   this.type = type;
   this.message = message;
 };
@@ -9496,6 +9497,8 @@ RTCPeerConnection = RTCPeerConnection || mozRTCPeerConnection;
 
 var ViewerConnection = function () {
   function ViewerConnection(socket, isRoot) {
+    var messageHandlers = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
     _classCallCheck(this, ViewerConnection);
 
     // ref to Viewer's socket connection
@@ -9503,7 +9506,7 @@ var ViewerConnection = function () {
     // indicates whether this node is the root connecting to the server
     this.isRoot = isRoot;
     // event handlers for DataChannel messages
-    this.messageHandlers = {};
+    this.messageHandlers = messageHandlers;
 
     // reserved variables
     // RTC DataChannel
@@ -9598,7 +9601,7 @@ var ViewerConnection = function () {
       // send offer along to peer
       .then(function () {
         var offer = _this.RTCconn.localDescription;
-        _this.sendBySocket('offer', offer);
+        _this.send('offer', offer);
       }).catch(this.logError);
     }
 
@@ -9623,7 +9626,7 @@ var ViewerConnection = function () {
       .then(function () {
         // console.log('Set local description with offer');
         var answer = _this2.RTCconn.localDescription;
-        _this2.sendBySocket('answer', callerId, answer);
+        _this2.send('answer', callerId, answer);
       }).catch(this.logError);
     }
   }, {
@@ -9658,7 +9661,7 @@ var ViewerConnection = function () {
       // console.log('Sending ICE candidates...');
       if (event.candidate) {
         // send child peer ICE candidate if has peerId
-        this.peerId && this.sendBySocket('candidate', this.peerId, event.candidate);
+        this.peerId && this.send('candidate', this.peerId, event.candidate);
       }
     }
 
@@ -9723,8 +9726,8 @@ var ViewerConnection = function () {
       var type = msg.type,
           message = msg.message;
 
+      // console.log(`Received message of type '${type}': ${JSON.stringify(message)}`);
 
-      console.log('Received message of type \'' + type + ': ' + message);
       var handler = this.messageHandlers[type];
 
       // call handler if exists
@@ -9739,7 +9742,7 @@ var ViewerConnection = function () {
       this.RTCconn.close();
       this.RTCconn = null;
       // tell other peer to close connection as well
-      sendBySocket('close', peerId);
+      send('close', peerId);
     }
 
     // ICE connection handler
@@ -9758,11 +9761,11 @@ var ViewerConnection = function () {
       console.log('Signaling State:', this.RTCconn.signalingState);
     }
 
-    // send message on RTC connection
+    // send message by socket.io
 
   }, {
-    key: 'sendBySocket',
-    value: function sendBySocket(event) {
+    key: 'send',
+    value: function send(event) {
       var _socket;
 
       for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
@@ -9774,7 +9777,7 @@ var ViewerConnection = function () {
   }, {
     key: 'logError',
     value: function logError(err) {
-      console.log(err);
+      console.error(err);
     }
   }]);
 
@@ -9933,8 +9936,6 @@ var Message = __webpack_require__(28);
 /**
  * Viewer class concerned with streaming video from torrents
  * and managing WebSocket connection to server
- * 
- * TODO: separate WebSocket concerns from torrent streaming
  */
 
 var Viewer = function () {
@@ -9961,10 +9962,16 @@ var Viewer = function () {
     this.isPlay2Playing = false;
     this.firstIteration = 0;
     this.socket = _socket2.default.connect();
+
     // limit of child clients per client
     this.childLimit = 1;
     // indicates whether this node is the root connecting to the server
     this.isRoot = true;
+    // handlers for both events in socket.io and messages using RTC DataChannel
+    this.eventHandlers = {
+      magnet: this._magnetURIHandler.bind(this),
+      offer: this.receiveOffer.bind(this)
+    };
 
     // progress trackers
     this.$numPeers = document.querySelector('#numPeers');
@@ -9987,34 +9994,29 @@ var Viewer = function () {
 
       // document.createElement('video');
       this.socket.on('connect', function () {
-        console.log('working');
+        console.log('Socket connected');
       });
 
       // start playing next in video tag trio
-      this.socket.on('magnetURI', this._magnetURIHandler.bind(this));
+      this.socket.on('magnetURI', this.eventHandlers.magnet);
 
       // if sockets are full, get torrent info from server thru WebRTC
-      this.socket.on('full', function (msg, disconnect) {
-        // addText(msg);
-        if (disconnect) {
-          // establish that it's a child of some parent client
-          _this.isRoot = false;
+      // use socket to signal w/ last client then disconnect
+      this.socket.on('full', function () {
+        // establish that it's a child of some parent client
+        _this.isRoot = false;
 
-          // make it a child of server-connected client
-          console.log('Sockets full, creating WebRTC connection...');
+        // make it a child of server-connected client
+        console.log('Sockets full, creating WebRTC connection...');
 
-          // create new WebRTC connection to connect to a parent
-          // will disconnect once WebRTC connection established
-          _this.connToParent = new _viewerConnection2.default(_this.socket, _this.isRoot);
+        // create new WebRTC connection to connect to a parent
+        // will disconnect once WebRTC connection established
+        _this.connToParent = new _viewerConnection2.default(_this.socket, _this.isRoot, _this.eventHandlers);
 
-          // add DataChannel magnet message handler
-          _this.connToParent.addMessageHandler('magnet', _this._magnetURIHandler.bind(_this));
+        console.log('Starting WebRTC signaling...');
 
-          console.log('Starting WebRTC signaling...');
-
-          // initiate data channel
-          _this.connToParent.initDataChannel();
-        }
+        // initiate data channel
+        _this.connToParent.initDataChannel();
       });
 
       /**
@@ -10049,21 +10051,37 @@ var Viewer = function () {
     }
 
     // Callee: receive offer from new child peer
-    // this.socket 'offer' handler
+    // this.socket and DataChannel 'offer' handler
 
   }, {
     key: 'receiveOffer',
-    value: function receiveOffer(callerId, offer) {
-      console.log('Receiving offer at socket', this.socket.id);
+    value: function receiveOffer(_ref) {
+      var callerId = _ref.callerId,
+          offer = _ref.offer;
 
-      // create child connection
-      this.connToChild = new _viewerConnection2.default(this.socket, this.isRoot);
+      // console.log('Receiving offer...');
 
-      // set peer id for child connection
-      this.connToChild.setPeerId(callerId);
+      // tell new client to join at child instead, if exists
+      if (this.connToChild) {
+        // offer message - tell last client in chain is adding new client
+        var offerMsg = new Message('offer', { callerId: callerId, offer: offer });
+        // send to child client
+        this.connToChild.sendMessage(JSON.stringify(offerMsg));
+      } else {
+        // TODO: if socket disconnected, reopen it to signal w/ joining client
+        if (this.socket.disconnected) {
+          this.socket.open();
+        }
 
-      // connection processes offer/sdp info
-      this.connToChild.respondToOffer(callerId, offer);
+        // create child connection
+        this.connToChild = new _viewerConnection2.default(this.socket, this.isRoot);
+
+        // set peer id for child connection
+        this.connToChild.setPeerId(callerId);
+
+        // connection processes offer/sdp info
+        this.connToChild.respondToOffer(callerId, offer);
+      }
     }
 
     // Callee: as a parent/caller, receive answer from child/callee
@@ -10071,8 +10089,11 @@ var Viewer = function () {
 
   }, {
     key: 'receiveAnswer',
-    value: function receiveAnswer(calleeId, answer) {
-      console.log('Receiving answer from offer...');
+    value: function receiveAnswer(_ref2) {
+      var calleeId = _ref2.calleeId,
+          answer = _ref2.answer;
+
+      // console.log('Receiving answer from offer...');
 
       // set peer id for parent connection
       this.connToParent.setPeerId(calleeId);
@@ -10087,7 +10108,7 @@ var Viewer = function () {
   }, {
     key: 'handleNewIceCandidate',
     value: function handleNewIceCandidate(candidate) {
-      console.log('Receiving ICE candidates...');
+      // console.log('Receiving ICE candidates...');
       var iceCandidate = new RTCIceCandidate(candidate);
 
       // add ICE candidate from caller (parent)
@@ -10109,7 +10130,7 @@ var Viewer = function () {
       var $play2 = this.$play2;
       var onProgress = this.onProgress;
 
-      console.log('first Iteration', firstIteration);
+      // console.log('first Iteration', firstIteration)
 
       this.isPlay1Playing = true;
 

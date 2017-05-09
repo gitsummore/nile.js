@@ -1,10 +1,10 @@
 // store refs to connected clients' RTC connections
 const clientRTCConns = {};
 
-function socketController(server, clientLimit) {
+function socketController(server, socketLimit) {
   /**
    * server: Node Server
-   * clientLimit: # of socket.io connections to keep
+   * socketLimit: # of socket.io connections to keep
    */
   this.io = require('socket.io')(server);
   // will store socket connections to Viewers
@@ -14,21 +14,16 @@ function socketController(server, clientLimit) {
     console.log('New connection:', socket.id);
 
     // check # of clients
+    // kick socket off client if full
     const checkClientNum = (err, clients) => {
       if (err) throw err;
 
-      let msg, disconnect;
-      if (clients.length <= clientLimit) {
-        msg = 'Connected to the server'
-        disconnect = false;
+      if (clients.length <= socketLimit) {
         // keep socket connection
         this.sockets.push(socket);
-        // console.log('New sockets:', this.sockets.map(socket => socket.id));
       } else {
-        msg = 'Go connect using webRTC!';
-        disconnect = true;
+        socket.emit('full');
       }
-      socket.emit('full', msg, disconnect);
     }
 
     this.io.sockets.clients(checkClientNum);
@@ -48,7 +43,10 @@ function socketController(server, clientLimit) {
       // emit to root of client chain
       // callee socket's id maintained throughout signaling
       console.log('Emitting offer to callee:', calleeId);
-      socket.to(calleeId).emit('offer', this.id, offer);
+      socket.to(calleeId).emit('offer', {
+        callerId: this.id, 
+        offer,
+      });
     });
 
     // caller receives answer from callee
@@ -56,7 +54,10 @@ function socketController(server, clientLimit) {
       // emit this (callee) socket's id and answer to root of client chain
       // callee socket's id maintained throughout signaling
       console.log('Emitting answer to caller:', callerId);
-      socket.to(callerId).emit('answer', this.id, answer);
+      socket.to(callerId).emit('answer', {
+        callerId: this.id,
+        answer,
+      });
     });
 
     // send peers in a WebRTC connection new ICE candidates
@@ -67,7 +68,7 @@ function socketController(server, clientLimit) {
 
     socket.on('disconnect', function(socket) {
       console.log(this.id, 'disconnected');
-      // TODO: properly remove socket from this.sockets
+      // TODO: properly remove socket from this.sockets, NEED proper disconnection
       self.sockets = self.sockets.filter(keptSocket => socket.id !== keptSocket.id);
       // console.log('Removed sockets:', self.sockets.map(socket => socket.id));
     });

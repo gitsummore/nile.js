@@ -12,8 +12,6 @@ import ViewerConnection from './viewerConnection';
 /**
  * Viewer class concerned with streaming video from torrents
  * and managing WebSocket connection to server
- * 
- * TODO: separate WebSocket concerns from torrent streaming
  */
 
 class Viewer {
@@ -39,10 +37,16 @@ class Viewer {
     this.isPlay2Playing = false;
     this.firstIteration = 0;
     this.socket = io.connect();
+
     // limit of child clients per client
     this.childLimit = 1;
     // indicates whether this node is the root connecting to the server
     this.isRoot = true;
+    // handlers for both events in socket.io and messages using RTC DataChannel
+    this.eventHandlers = {
+      magnet: this._magnetURIHandler.bind(this),
+      offer: this.receiveOffer.bind(this),
+    };
 
     // progress trackers
     this.$numPeers = document.querySelector('#numPeers')
@@ -61,34 +65,29 @@ class Viewer {
   setUpInitialConnection() {
     // document.createElement('video');
     this.socket.on('connect', () => {
-      console.log('working');
+      console.log('Socket connected');
     });
 
     // start playing next in video tag trio
-    this.socket.on('magnetURI', this._magnetURIHandler.bind(this));
+    this.socket.on('magnetURI', this.eventHandlers.magnet);
 
     // if sockets are full, get torrent info from server thru WebRTC
-    this.socket.on('full', (msg, disconnect) => {
-      // addText(msg);
-      if (disconnect) {
-        // establish that it's a child of some parent client
-        this.isRoot = false;
+    // use socket to signal w/ last client then disconnect
+    this.socket.on('full', () => {
+      // establish that it's a child of some parent client
+      this.isRoot = false;
 
-        // make it a child of server-connected client
-        console.log('Sockets full, creating WebRTC connection...');
+      // make it a child of server-connected client
+      console.log('Sockets full, creating WebRTC connection...');
 
-        // create new WebRTC connection to connect to a parent
-        // will disconnect once WebRTC connection established
-        this.connToParent = new ViewerConnection(this.socket, this.isRoot);
+      // create new WebRTC connection to connect to a parent
+      // will disconnect once WebRTC connection established
+      this.connToParent = new ViewerConnection(this.socket, this.isRoot, this.eventHandlers);
 
-        // add DataChannel magnet message handler
-        this.connToParent.addMessageHandler('magnet', this._magnetURIHandler.bind(this));
+      console.log('Starting WebRTC signaling...');
 
-        console.log('Starting WebRTC signaling...');
-
-        // initiate data channel
-        this.connToParent.initDataChannel();
-      }
+      // initiate data channel
+      this.connToParent.initDataChannel();
     });
 
     /**
@@ -122,24 +121,37 @@ class Viewer {
   }
 
   // Callee: receive offer from new child peer
-  // this.socket 'offer' handler
-  receiveOffer(callerId, offer) {
-    console.log('Receiving offer at socket', this.socket.id);
+  // this.socket and DataChannel 'offer' handler
+  receiveOffer({ callerId, offer }) {
+    // console.log('Receiving offer...');
 
-    // create child connection
-    this.connToChild = new ViewerConnection(this.socket, this.isRoot);
+    // tell new client to join at child instead, if exists
+    if (this.connToChild) {
+      // offer message - tell last client in chain is adding new client
+      const offerMsg = new Message('offer', { callerId, offer });
+      // send to child client
+      this.connToChild.sendMessage(JSON.stringify(offerMsg));
+    } else {
+      // TODO: if socket disconnected, reopen it to signal w/ joining client
+      if (this.socket.disconnected) {
+        this.socket.open();
+      }
 
-    // set peer id for child connection
-    this.connToChild.setPeerId(callerId);
+      // create child connection
+      this.connToChild = new ViewerConnection(this.socket, this.isRoot);
 
-    // connection processes offer/sdp info
-    this.connToChild.respondToOffer(callerId, offer);
+      // set peer id for child connection
+      this.connToChild.setPeerId(callerId);
+
+      // connection processes offer/sdp info
+      this.connToChild.respondToOffer(callerId, offer);
+    }
   }
 
   // Callee: as a parent/caller, receive answer from child/callee
   // this.socket 'answer' handler
-  receiveAnswer(calleeId, answer) {
-    console.log('Receiving answer from offer...');
+  receiveAnswer({ calleeId, answer }) {
+    // console.log('Receiving answer from offer...');
 
     // set peer id for parent connection
     this.connToParent.setPeerId(calleeId);
@@ -151,7 +163,7 @@ class Viewer {
   // Callee: receive an ICE candidate from caller
   // this.socket ICE candidate handler
   handleNewIceCandidate(candidate) {
-    console.log('Receiving ICE candidates...');
+    // console.log('Receiving ICE candidates...');
     const iceCandidate = new RTCIceCandidate(candidate);
 
     // add ICE candidate from caller (parent)
@@ -170,7 +182,7 @@ class Viewer {
     let $play2 = this.$play2;
     let onProgress = this.onProgress;
 
-    console.log('first Iteration', firstIteration)
+    // console.log('first Iteration', firstIteration)
 
     this.isPlay1Playing = true;
 
