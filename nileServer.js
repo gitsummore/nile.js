@@ -7,18 +7,19 @@ const bodyParser = require('body-parser')
 // const WebTorrent = require('webtorrent');
 const socketController = require('./socketController');
 
-/**
- * receives Node HTTP Server instance
- * used as such:
- *   app.post('uploadfile', nileServer(server));
- */
+// takes in Node Server instance and returns Express Router
 module.exports = function nileServer(server) {
   // Pass server instance to use socket controller
-  const socket = new socketController(server);
-  // returns Express middleware function to apply to a developer-provided POST endpoint
-  return function emitMagnetUri(req, res, next) {
-    console.log('working')
+
+  const socket = new socketController(server, 1);
+
+  // create nile.js mini-app through express Router
+  const nileServer = express.Router();
+
+  // endpoint for receiving magnet URI from Broadcaster
+  nileServer.post('/magnet', (req, res, next) => {
     socket.emitNewMagnet(req.body.magnetURI);
     res.sendStatus(200);
-  }
+  });
+  return nileServer;
 }

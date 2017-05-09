@@ -2966,8 +2966,8 @@ var Broadcaster = function () {
     value: function sendMagnetToServer(magnetURI) {
       // send to server
       var xhr = new XMLHttpRequest();
-      console.log('working');
-      xhr.open('POST', '/uploadfile', true);
+
+      xhr.open('POST', '/magnet', true);
 
       xhr.onreadystatechange = function () {
         if (this.status === 200) {

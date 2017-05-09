@@ -25,5 +25,10 @@ const server = app.listen(port, () => {
 app.use(express.static(path.join(__dirname, 'client')));
 
 // Routes
+<<<<<<< HEAD
 app.post('/uploadfile', nileServer(server));
 
+=======
+const nileHandler = nileServer(server);
+app.use('/', nileHandler);
+>>>>>>> a5ed4468bfeecfbaa0705771310048cb21ad33a1
