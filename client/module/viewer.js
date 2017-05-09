@@ -159,7 +159,6 @@ class Viewer {
 
     this.isPlay1Playing = true;
 
-
     this.client.add(magnetURI, function (torrent) {
 
       /* Look for the file that ends in .webm and render it, in the future we can
