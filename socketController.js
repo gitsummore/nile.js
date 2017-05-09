@@ -43,7 +43,10 @@ function socketController(server, socketLimit) {
       // emit to root of client chain
       // callee socket's id maintained throughout signaling
       console.log('Emitting offer to callee:', calleeId);
-      socket.to(calleeId).emit('offer', this.id, offer);
+      socket.to(calleeId).emit('offer', {
+        callerId: this.id, 
+        offer,
+      });
     });
 
     // caller receives answer from callee
@@ -51,7 +54,10 @@ function socketController(server, socketLimit) {
       // emit this (callee) socket's id and answer to root of client chain
       // callee socket's id maintained throughout signaling
       console.log('Emitting answer to caller:', callerId);
-      socket.to(callerId).emit('answer', this.id, answer);
+      socket.to(callerId).emit('answer', {
+        callerId: this.id,
+        answer,
+      });
     });
 
     // send peers in a WebRTC connection new ICE candidates

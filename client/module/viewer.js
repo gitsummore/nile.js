@@ -8,8 +8,6 @@
 /**
  * Viewer class concerned with streaming video from torrents
  * and managing WebSocket connection to server
- * 
- * TODO: separate WebSocket concerns from torrent streaming
  */
 class Viewer {
   constructor(
@@ -26,6 +24,7 @@ class Viewer {
     this.isPlay2Playing = false;
     this.firstIteration = 0;
     this.socket = io.connect();
+
     // limit of child clients per client
     this.childLimit = 1;
     // indicates whether this node is the root connecting to the server
@@ -33,7 +32,7 @@ class Viewer {
     // handlers for both events in socket.io and messages using RTC DataChannel
     this.eventHandlers = {
       magnet: this._magnetURIHandler.bind(this),
-      join: this.receiveOffer.bind(this),
+      offer: this.receiveOffer.bind(this),
     };
 
     /**
@@ -48,7 +47,7 @@ class Viewer {
   setUpInitialConnection() {
     // document.createElement('video');
     this.socket.on('connect', () => {
-      console.log('working');
+      console.log('Socket connected');
     });
 
     // start playing next in video tag trio
@@ -78,11 +77,11 @@ class Viewer {
      */
 
     // Callee: receives offer for a connection
-    this.socket.on('offer', this.eventHandlers.offer);
+    this.socket.on('offer', this.receiveOffer.bind(this));
     // Caller: receives answer after sending offer
-    this.socket.on('answer', this.eventHandlers.answer);
+    this.socket.on('answer', this.receiveAnswer.bind(this));
     // Both peers: add new ICE candidates as they come in
-    this.socket.on('candidate', this.eventHandlers.candidate);
+    this.socket.on('candidate', this.handleNewIceCandidate.bind(this));
 
     // this.socket.on('disconnect', () => {});
   }
@@ -104,17 +103,22 @@ class Viewer {
   }
 
   // Callee: receive offer from new child peer
-  // this.socket 'offer' handler
-  receiveOffer(callerId, offer) {
-    console.log('Receiving offer at socket', this.socket.id);
+  // this.socket and DataChannel 'offer' handler
+  receiveOffer({ callerId, offer }) {
+    // console.log('Receiving offer...');
 
     // tell new client to join at child instead, if exists
     if (this.connToChild) {
-      // child message - tell child client that chain is adding n
-      const childMsg = new Message('join', { callerId, offer });
+      // offer message - tell last client in chain is adding new client
+      const offerMsg = new Message('offer', { callerId, offer });
       // send to child client
-      this.connToChild.sendMessage(JSON.stringify(childMsg));
+      this.connToChild.sendMessage(JSON.stringify(offerMsg));
     } else {
+      // TODO: if socket disconnected, reopen it to signal w/ joining client
+      if (this.socket.disconnected) {
+        this.socket.open();
+      }
+
       // create child connection
       this.connToChild = new ViewerConnection(this.socket, this.isRoot);
 
@@ -128,8 +132,8 @@ class Viewer {
 
   // Callee: as a parent/caller, receive answer from child/callee
   // this.socket 'answer' handler
-  receiveAnswer(calleeId, answer) {
-    console.log('Receiving answer from offer...');
+  receiveAnswer({ calleeId, answer }) {
+    // console.log('Receiving answer from offer...');
 
     // set peer id for parent connection
     this.connToParent.setPeerId(calleeId);
@@ -141,7 +145,7 @@ class Viewer {
   // Callee: receive an ICE candidate from caller
   // this.socket ICE candidate handler
   handleNewIceCandidate(candidate) {
-    console.log('Receiving ICE candidates...');
+    // console.log('Receiving ICE candidates...');
     const iceCandidate = new RTCIceCandidate(candidate);
 
     // add ICE candidate from caller (parent)
@@ -159,7 +163,7 @@ class Viewer {
     let $play1 = this.$play1;
     let $play2 = this.$play2;
 
-    console.log('first Iteration', firstIteration)
+    // console.log('first Iteration', firstIteration)
 
     this.isPlay1Playing = true;
 
@@ -244,7 +248,6 @@ class Viewer {
     // listen to when video 3 ends, immediately play the other video
     $play3.onended = function (e) {
       $play1.play();
-      console.log('am i working?')
       $play1.removeAttribute('hidden');
 
       $play3.setAttribute('hidden', true);

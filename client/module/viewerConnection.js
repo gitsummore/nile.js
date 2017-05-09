@@ -195,7 +195,7 @@ class ViewerConnection {
 
     const { type, message } = msg;
 
-    console.log(`Received message of type '${type}: ${message}`);
+    // console.log(`Received message of type '${type}': ${JSON.stringify(message)}`);
     const handler = this.messageHandlers[type];
     
     // call handler if exists
@@ -220,12 +220,12 @@ class ViewerConnection {
     console.log('Signaling State:', this.RTCconn.signalingState);
   }
 
-  // send message by socket.io or RTC connection
+  // send message by socket.io
   send(event, ...args) {
     this.socket.emit(event, ...args);
   }
 
   logError(err) {
-    console.log(err);
+    console.error(err);
   }
 }
