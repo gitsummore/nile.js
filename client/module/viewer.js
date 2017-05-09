@@ -1,6 +1,9 @@
 // Install this.socket.io-client
 // io object exposed from injected this.socket.io.js
 
+const io = require('socket.io-client');
+const WebTorrent = require('./webtorrent.min.js');
+
 // import io from 'socket.io-client';
 // import ViewerConnection from './viewerConnection';
 // import Message from './message';
@@ -11,6 +14,7 @@
  * 
  * TODO: separate WebSocket concerns from torrent streaming
  */
+
 class Viewer {
   constructor(
     ID_of_NodeToRenderVideo // location on the DOM where the live feed will be rendered
@@ -155,7 +159,6 @@ class Viewer {
 
     this.isPlay1Playing = true;
 
-
     this.client.add(magnetURI, function (torrent) {
 
       /* Look for the file that ends in .webm and render it, in the future we can
@@ -244,8 +247,4 @@ class Viewer {
   }
 }
 
-// export default Viewer
-
-
-
-
+module.exports = Viewer

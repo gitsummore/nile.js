@@ -12,21 +12,28 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "body-parser": "^1.17.1",
-    "create-torrent": "^3.29.1",
     "express": "^4.15.2",
     "formidable": "^1.1.1",
     "fs": "0.0.1-security",
     "mime": "^1.3.4",
+    "msr": "^1.3.4",
+    "path": "^0.12.7",
     "socket.io": "^1.7.3",
     "socket.io-client": "^1.7.3",
     "url": "^0.11.0",
     "util": "^0.10.3",
-    "webtorrent": "^0.98.18",
-    "webtorrent-hybrid": "^1.0.6"
+    "webtorrent": "^0.98.18"
   },
   "devDependencies": {
+    "babel-core": "^6.24.1",
+    "babel-loader": "^7.0.0",
+    "babel-plugin-add-module-exports": "^0.2.1",
+    "babel-preset-es2015": "^6.24.1",
+    "body-parser": "^1.17.1",
+    "css-loader": "^0.28.0",
     "nodemon": "^1.11.0",
-    "webpack": "^2.4.1"
+    "style-loader": "^0.17.0",
+    "webpack": "^2.4.1",
+    "webpack-dev-server": "^2.4.5"
   }
 }
