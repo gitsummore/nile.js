@@ -68,9 +68,8 @@ function socketController(server, socketLimit) {
 
     socket.on('disconnect', function(socket) {
       console.log(this.id, 'disconnected');
-      // TODO: properly remove socket from this.sockets, NEED proper disconnection
-      self.sockets = self.sockets.filter(keptSocket => socket.id !== keptSocket.id);
-      // console.log('Removed sockets:', self.sockets.map(socket => socket.id));
+      self.sockets = self.sockets.filter(keptSocket => this.id !== keptSocket.id);
+      console.log('Updated sockets:', self.sockets.map(socket => socket.id));
     });
   });
 }
