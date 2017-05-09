@@ -2,8 +2,9 @@
 // io object exposed from injected this.socket.io.js
 
 // const io = require('socket.io-client');
+
+// Have to require WebTorrent and not import, or there is a fs error from node.js
 const WebTorrent = require('./webtorrent.min.js');
-// import * as WebTorrent from './webtorrent.min.js'
 import io from 'socket.io-client';
 import ViewerConnection from './viewerConnection';
 import Message from './message';
@@ -23,9 +24,17 @@ class Viewer {
     this.client = new WebTorrent()
     // grab DOM elements where the torrent video will be rendered too
     this.ID_of_NodeToRenderVideo = ID_of_NodeToRenderVideo;
+
+    // video tag ID from html page
     this.$play1 = document.getElementById('player1');
     this.$play2 = document.getElementById('player2');
     this.$play3 = document.getElementById('player3');
+
+    // magnetURI's recieved from the broadcaster
+    this.magnetURI1;
+    this.magnetURI2;
+    this.magnetURI3;
+
     this.isPlay1Playing = false;
     this.isPlay2Playing = false;
     this.firstIteration = 0;
@@ -34,6 +43,11 @@ class Viewer {
     this.childLimit = 1;
     // indicates whether this node is the root connecting to the server
     this.isRoot = true;
+
+    // progress trackers
+    this.$numPeers = document.querySelector('#numPeers')
+    this.$uploadSpeed = document.querySelector('#uploadSpeed')
+    this.$downloadSpeed = document.querySelector('#downloadSpeed')
 
     /**
      * WebRTC Connections b/w clients
@@ -154,13 +168,22 @@ class Viewer {
     let firstIteration = this.firstIteration;
     let $play1 = this.$play1;
     let $play2 = this.$play2;
+    let onProgress = this.onProgress;
 
     console.log('first Iteration', firstIteration)
 
     this.isPlay1Playing = true;
 
-    this.client.add(magnetURI, function (torrent) {
+    // removes first torrent 
+    if (this.magnetURI1) {
+      this.client.remove(this.magnetURI1, () => {
+        console.log('first magnet removed')
+      })
+    }
 
+    this.magnetURI1 = magnetURI;
+
+    this.client.add(magnetURI, function (torrent) {
       /* Look for the file that ends in .webm and render it, in the future we can
        * add additional file types for scaling. E.g other video formats or even VR!
        */
@@ -175,6 +198,9 @@ class Viewer {
       } else {
         file1.renderTo('video#player1', { autoplay: false })
       }
+
+      // Trigger statistics refresh
+      setInterval(onProgress.bind(this)(torrent), 500);
     })
 
     // listen to when video 1 ends, immediately play the other video
@@ -193,6 +219,14 @@ class Viewer {
     let $play2 = this.$play2;
     let $play3 = this.$play3;
 
+    // removes first torrent 
+    if (this.magnetURI2) {
+      this.client.remove(this.magnetURI2, () => {
+        console.log('second magnet removed')
+      })
+    }
+
+    this.magnetURI2 = magnetURI;
 
     this.client.add(magnetURI, function (torrent) {
 
@@ -223,6 +257,15 @@ class Viewer {
     let $play1 = this.$play1;
     let $play3 = this.$play3;
 
+    // removes first torrent 
+    if (this.magnetURI3) {
+      this.client.remove(this.magnetURI3, () => {
+        console.log('third magnet removed')
+      })
+    }
+
+    this.magnetURI3 = magnetURI;
+
     this.client.add(magnetURI, function (torrent) {
 
       /* Look for the file that ends in .webm and render it, in the future we can
@@ -239,12 +282,41 @@ class Viewer {
     // listen to when video 3 ends, immediately play the other video
     $play3.onended = function (e) {
       $play1.play();
-      console.log('am i working?')
       $play1.removeAttribute('hidden');
 
       $play3.setAttribute('hidden', true);
     }
   }
+
+  // Download Statistics
+  onProgress(torrent) {
+    // let $numPeers = this.$numPeers.bind(this);
+    // let $uploadSpeed = this.$uploadSpeed.bind(this);
+    // let $downloadSpeed = this.$downloadSpeed.bind(this);
+
+    let $numPeers = document.querySelector('#numPeers')
+    let $uploadSpeed = document.querySelector('#uploadSpeed')
+    let $downloadSpeed = document.querySelector('#downloadSpeed')
+    // Peers
+    $numPeers.innerHTML = torrent.numPeers + (torrent.numPeers === 1 ? ' peer' : ' peers');
+
+    console.log(torrent.uploadSpeed);
+    // Speed rates
+    $downloadSpeed.innerHTML = torrent.downloadSpeed + '/s'
+    $uploadSpeed.innerHTML = torrent.uploadSpeed + '/s'
+  }
+
+  // Human readable bytes util
+  prettyBytes(num) {
+    let exponent, unit, neg = num < 0, units = ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    if (neg) num = -num;
+    if (num < 1) return (neg ? '-' : '') + num + ' B';
+    exponent = Math.min(Math.floor(Math.log(num) / Math.log(1000)), units.length - 1);
+    num = Number((num / Math.pow(1000, exponent)).toFixed(2));
+    unit = units[exponent];
+    return (neg ? '-' : '') + num + ' ' + unit;
+  }
 }
 
+// export default Viewer
 module.exports = Viewer

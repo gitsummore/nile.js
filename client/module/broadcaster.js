@@ -22,26 +22,18 @@ class Broadcaster {
     const sendMagnetToServer = this.sendMagnetToServer;
     console.log(sendMagnetToServer)
     let videoStream = null;
-    let video = document.getElementById(`${this.videoNodeIDForPlayback}`);
-
-    // will hold
-    let videoFile;
+    let $video = document.getElementById(`${this.videoNodeIDForPlayback}`);
 
     // allows you to see yourself while recording
     let createSrc = (window.URL) ? window.URL.createObjectURL : function (stream) { return stream };
 
     // creates a new instance of torrent so that user is able to seed the video/webm file
     let broadcaster = new WebTorrent();
-    // let broadcaster2 = new WebTorrent();
-    // let broadcaster3 = new WebTorrent();
     let magnetURI1;
     let magnetURI2;
     let magnetURI3;
     let _wasLastBroadcaster_1 = false;
     let _wasLastBroadcaster_2 = false;
-    let worker1 = undefined;
-    let worker2 = undefined;
-    let worker3 = undefined;
 
     // when pressing the play button, start recording
     document.getElementById(`${this.startStreamID}`).addEventListener('click', function () {
@@ -94,7 +86,7 @@ class Broadcaster {
                 console.log('magnet removed')
               });
             }
-            
+
             // start seeding the new torrent
             broadcaster.seed(file, function (torrent) {
               magnetURI2 = torrent.magnetURI;
@@ -109,7 +101,7 @@ class Broadcaster {
                 console.log('magnet removed')
               });
             }
-            
+
             // start seeding the new torrent
             broadcaster.seed(file, function (torrent) {
               magnetURI1 = torrent.magnetURI;
@@ -121,12 +113,17 @@ class Broadcaster {
           }
         };
 
+        // check for if an error occurs, if it does, garbage collection and return error
+        broadcaster.on('error', function (err) {
+          console.log('webtorrents has encountered an error', err)
+        })
+
         // retrieve the devices that are being used to record
         videoStream = stream.getTracks();
 
-        // // play back the recording to the broadcaster
-        video.src = createSrc(stream);
-        video.play();
+        // play back the recording to the broadcaster
+        $video.src = createSrc(stream);
+        $video.play();
       }
 
       function onMediaError(e) {
@@ -137,7 +134,7 @@ class Broadcaster {
     // when the user pauses the video, stop the stream and send data to server
     document.getElementById(`${this.stopStreamID}`).addEventListener('click', function () {
       // Pause the video
-      video.pause();
+      $video.pause();
 
       // stops the the audio and video from recording
       videoStream.forEach((stream) => stream.stop());
@@ -164,4 +161,5 @@ class Broadcaster {
   }
 }
 
+// export default Broadcaster
 module.exports = Broadcaster
