@@ -1,24 +1,29 @@
-// limit of initial clients to have socket connections w/
-const CLIENT_LIMIT = 1;
-
 // store refs to connected clients' RTC connections
 const clientRTCConns = {};
 
-function socketController(server) {
-  const io = this.io = require('socket.io')(server);
+function socketController(server, clientLimit) {
+  /**
+   * server: Node Server
+   * clientLimit: # of socket.io connections to keep
+   */
+  this.io = require('socket.io')(server);
+  // will store socket connections to Viewers
+  this.sockets = []; 
 
-  io.on('connection', function (socket) {
-    console.log('New connection');
+  this.io.on('connection', (socket) => {
+    console.log('New connection:', socket.id);
 
     // check # of clients
-    function clientHandler (err, clients) {
+    const checkClientNum = (err, clients) => {
       if (err) throw err;
 
       let msg, disconnect;
-      if (clients.length <= CLIENT_LIMIT) {
-        // msg = 'Have a socket!';
+      if (clients.length <= clientLimit) {
         msg = 'Connected to the server'
         disconnect = false;
+        // keep socket connection
+        this.sockets.push(socket);
+        // console.log('New sockets:', this.sockets.map(socket => socket.id));
       } else {
         msg = 'Go connect using webRTC!';
         disconnect = true;
@@ -26,29 +31,55 @@ function socketController(server) {
       socket.emit('full', msg, disconnect);
     }
 
-    io.sockets.clients(clientHandler);
+    this.io.sockets.clients(checkClientNum);
 
-    socket.on('message', function (msgStr) {
-      // parse stringified message
-      const msg = JSON.parse(msgStr);
-    });
+    // variable to bind socketController context in socket handlers
+    // so that 'this' in socket handlers can access socket
+    const self = this;
 
-    // TODO: WebRTC signaling handlers
-    // TODO: find way to emit to specific socket (i.e. caller/callee clients)
+    // callee receives offer from new client
     socket.on('offer', function (offer) {
-    });
-    // socket.on('answer')
-    // socket.on('candidate')
+      // get socket id to send offer to
+      const calleeSocket = getCalleeSocket(self.sockets);
+      const calleeId = calleeSocket.id;
+      // get this socket's id
+      const callerId = this.id;
 
-    socket.on('disconnect', function (socket) {
-      console.log('Disconnected');
+      // emit to root of client chain
+      // callee socket's id maintained throughout signaling
+      console.log('Emitting offer to callee:', calleeId);
+      socket.to(calleeId).emit('offer', this.id, offer);
+    });
+
+    // caller receives answer from callee
+    socket.on('answer', function (callerId, answer) {
+      // emit this (callee) socket's id and answer to root of client chain
+      // callee socket's id maintained throughout signaling
+      console.log('Emitting answer to caller:', callerId);
+      socket.to(callerId).emit('answer', this.id, answer);
+    });
+
+    // send peers in a WebRTC connection new ICE candidates
+    socket.on('candidate', (peerId, candidate) => {
+      console.log('Emitting candidate to peer:', peerId);
+      socket.to(peerId).emit('candidate', candidate);
+    });
+
+    socket.on('disconnect', function(socket) {
+      console.log(this.id, 'disconnected');
+      // TODO: properly remove socket from this.sockets
+      self.sockets = self.sockets.filter(keptSocket => socket.id !== keptSocket.id);
+      // console.log('Removed sockets:', self.sockets.map(socket => socket.id));
     });
   });
 }
 
 socketController.prototype.emitNewMagnet = function(magnetURI) {
-  console.log('hello')
   this.io.emit('magnetURI', magnetURI);
+}
+
+function getCalleeSocket(sockets) {
+  return sockets[0];
 }
 
 module.exports = socketController;

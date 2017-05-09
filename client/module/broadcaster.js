@@ -1,5 +1,7 @@
-// import WebTorrent from 'webtorrent';
-// import MediaStreamRecorder from 'mediastreamrecorder'
+// import * as WebTorrent from 'webtorrent';
+// import * as MediaStreamRecorder from 'msr';
+const WebTorrent = require('./webtorrent.min.js');
+const MediaStreamRecorder = require('msr');
 
 class Broadcaster {
   constructor(
@@ -18,6 +20,7 @@ class Broadcaster {
     // interval to record video at (in ms)
     const _recordInterval = this.recordInterval;
     const sendMagnetToServer = this.sendMagnetToServer;
+    console.log(sendMagnetToServer)
     let videoStream = null;
     let video = document.getElementById(`${this.videoNodeIDForPlayback}`);
 
@@ -149,7 +152,7 @@ class Broadcaster {
     // send to server
     let xhr = new XMLHttpRequest();
 
-    xhr.open('POST', '/uploadfile', true);
+    xhr.open('POST', '/magnet', true);
 
     xhr.onreadystatechange = function () {
       if (this.status === 200) {
@@ -160,9 +163,8 @@ class Broadcaster {
     }
 
     xhr.setRequestHeader("Content-type", "application/json");
-
     xhr.send(JSON.stringify({ 'magnetURI': magnetURI }));
   }
 }
 
-// export default Broadcaster
+module.exports = Broadcaster

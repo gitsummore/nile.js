@@ -5,71 +5,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Webtorrent Live Video Broadcaster</title>
-  <style>
-    body {
-      max-width: 500px;
-      margin: 2em auto;
-      font-size: 20px;
-      background-image: url('http://hdwallpaperbackgrounds.net/wp-content/uploads/2015/10/Beautiful-Nile-River-HD-Wallpaper.jpg')
-    }
 
+  <link rel="stylesheet" href="broadcaster.css">
 
-
-    h1 {
-      text-align: center;
-    }
-
-
-
-    .buttons-wrapper {
-      text-align: center;
-    }
-
-
-
-    .hidden {
-      display: none;
-    }
-
-
-
-    #video {
-      display: block;
-      width: 100%;
-    }
-
-
-    .button-demo {
-      width: 280px;
-      margin: 20px;
-      font-size: 30px;
-      font-weight: bold;
-      padding: 20px;
-      opacity: 0.5;
-      border-radius: 20px;
-    }
-
-
-
-    .author {
-      display: block;
-      margin-top: 1em;
-    }
-  </style>
 </head>
 
 <body>
   <video id="video" autoplay="autoplay" controls="true"></video>
   <div class="buttons-wrapper">
-    <button id="button-play-gum" class="button-demo" href="#">Record</button>
-    <button id="button-stop-gum" class="button-demo" href="#">Stop</button>
+
+    <button id="button-play-gum" class="button-demo" href="#">Start Streaming</button>
+    <button id="button-stop-gum" class="button-demo" href="#">Stop Streaming</button>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/webtorrent/latest/webtorrent.min.js"></script>
-  <script src="https://cdn.webrtc-experiment.com/MediaStreamRecorder.js">
-
-  </script>
-  <script src="./../module/broadcaster.js"></script>
+  <!--<script src="https://cdn.jsdelivr.net/webtorrent/latest/webtorrent.min.js"></script>-->
+  <!--<script src="https://cdn.webrtc-experiment.com/MediaStreamRecorder.js"> </script>-->
+  <!--<script src="./../module/broadcaster.js"></script>-->
+  <!--<script src="http://localhost:8000/./../socket.io/socket.io.js"></script>-->
+  <script src="./../dist/nile.Broadcaster.js"></script>
   <script src="broadcaster.js"></script>
 </body>
 
