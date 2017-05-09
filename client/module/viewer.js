@@ -28,14 +28,6 @@ class Viewer {
     this.$play2 = document.getElementById('player2');
     this.$play3 = document.getElementById('player3');
 
-    // magnetURI's recieved from the broadcaster
-    this.magnetURI1;
-    this.magnetURI2;
-    this.magnetURI3;
-
-    this.isPlay1Playing = false;
-    this.isPlay2Playing = false;
-    this.firstIteration = 0;
     this.socket = io.connect();
 
     // limit of child clients per client
@@ -60,6 +52,16 @@ class Viewer {
      * child - farther away from server
      */
     this.connToParent, this.connToChild;
+
+    this.torrentInfo = {
+      'magnetURI1': 0,
+      'magnetURI2': 0,
+      'magnetURI3': 0,
+      'isPlay1Playing': false,
+      'isPlay1Playing': false,
+      'firstIteration': 0
+    }
+
   }
 
   setUpInitialConnection() {
@@ -107,12 +109,12 @@ class Viewer {
   _magnetURIHandler(magnetURI) {
     console.log('Got magnet');
     // begin downloading the torrents and render them to page, alternate between three torrents
-    if (this.isPlay1Playing && this.isPlay2Playing) {
-      this.startDownloadingThird(magnetURI);
-    } else if (this.isPlay1Playing) {
-      this.startDownloadingSecond(magnetURI);
+    if (this.torrentInfo['isPlay1Playing'] && this.torrentInfo['isPlay2Playing']) {
+      this.startDownloading(magnetURI, this.$play3, this.$play1, 'firstIteration', true, true, 'magnetURI3', 'video#player3', '3');
+    } else if (this.torrentInfo['isPlay1Playing']) {
+      this.startDownloading(magnetURI, this.$play2, this.$play3, 'firstIteration', true, false, 'magnetURI2', 'video#player2', '2');
     } else {
-      this.startDownloadingFirst(magnetURI);
+      this.startDownloading(magnetURI, this.$play1, this.$play2, 'firstIteration', false, false, 'magnetURI1', 'video#player1', '1');
     }
 
     // broadcast magnet URI to next child
@@ -175,130 +177,78 @@ class Viewer {
   // and then it will either run the first download or the second download, torrent ID must be different
 
   // Function for downloading the torrent
-  startDownloadingFirst(magnetURI) {
-    this.firstIteration += 1;
-    let firstIteration = this.firstIteration;
+  startDownloading(
+    magnetURI,
+    currPlayer,
+    nextPlayer,
+    firstIteration,
+    isPlay1Playing,
+    isPlay2Playing,
+    prevMagnetURI,
+    renderTo,
+    curr) {
+
     let $play1 = this.$play1;
     let $play2 = this.$play2;
-    let onProgress = this.onProgress;
+    let $play3 = this.$play3;
 
+    console.log('this video is playing', curr);
+    // let onProgress = this.onProgress;
+    this.torrentInfo[firstIteration] += 1;
+    console.log(this.torrentInfo[firstIteration]);
+
+    let first = this.torrentInfo[firstIteration]
     // console.log('first Iteration', firstIteration)
+    if (!isPlay1Playing) {
+      console.log('play1 playing')
+      this.torrentInfo['isPlay1Playing'] = true;
+    } else if (!isPlay2Playing) {
+      console.log('play2 playing')
+      this.torrentInfo['isPlay2Playing'] = true;
+    } else {
+      console.log('play3 playing')
+      this.torrentInfo['isPlay1Playing'] = false;
+      this.torrentInfo['isPlay2Playing'] = false;
+    }
 
-    this.isPlay1Playing = true;
-
-    // removes first torrent 
-    if (this.magnetURI1) {
-      this.client.remove(this.magnetURI1, () => {
-        console.log('first magnet removed')
+    // removes torrent 
+    if (this.torrentInfo[prevMagnetURI]) {
+      this.client.remove(this.torrentInfo[prevMagnetURI], () => {
+        console.log('Magnet Removed')
       })
     }
 
-    this.magnetURI1 = magnetURI;
+    this.torrentInfo[prevMagnetURI] = magnetURI;
 
     this.client.add(magnetURI, function (torrent) {
       /* Look for the file that ends in .webm and render it, in the future we can
        * add additional file types for scaling. E.g other video formats or even VR!
        */
-      let file1 = torrent.files.find(function (file) {
+      let file = torrent.files.find(function (file) {
         return file.name.endsWith('.webm')
       })
 
       // Stream the file in the browser
-      if (firstIteration === 1) {
-        window.setTimeout(() => { file1.renderTo('video#player1') }, 4000);
-        firstIteration += 1;
+      if (first === 1) {
+        window.setTimeout(() => { file.renderTo(renderTo) }, 6000);
       } else {
-        file1.renderTo('video#player1', { autoplay: false })
+        file.renderTo(renderTo, { autoplay: false })
       }
 
       // Trigger statistics refresh
-      setInterval(onProgress.bind(this)(torrent), 500);
+      // setInterval(onProgress.bind(this)(torrent), 500);
     })
 
-    // listen to when video 1 ends, immediately play the other video
-    $play1.onended = function (e) {
-      $play2.play();
+    // listen to when video ends, immediately play the other video
+    currPlayer.onended = function () {
+      nextPlayer.play();
 
-      $play2.removeAttribute('hidden');
+      nextPlayer.removeAttribute('hidden');
 
-      $play1.setAttribute('hidden', true);
+      currPlayer.setAttribute('hidden', true);
     };
   }
 
-  // Function for downloading the second torrent
-  startDownloadingSecond(magnetURI) {
-    this.isPlay2Playing = true;
-    let $play2 = this.$play2;
-    let $play3 = this.$play3;
-
-    // removes first torrent 
-    if (this.magnetURI2) {
-      this.client.remove(this.magnetURI2, () => {
-        console.log('second magnet removed')
-      })
-    }
-
-    this.magnetURI2 = magnetURI;
-
-    this.client.add(magnetURI, function (torrent) {
-
-      /* Look for the file that ends in .webm and render it, in the future we can
-       * add additional file types for scaling. E.g other video formats or even VR!
-       */
-      let file2 = torrent.files.find(function (file) {
-        return file.name.endsWith('.webm')
-      })
-
-      // Stream the second file, but currently invisible and not playing
-      file2.renderTo('video#player2', { autoplay: false })
-    })
-
-    // listen to when video 2 ends, immediately play the other video
-    $play2.onended = function (e) {
-      $play3.play();
-
-      $play3.removeAttribute('hidden');
-
-      $play2.setAttribute('hidden', true);
-    };
-  }
-
-  startDownloadingThird(magnetURI) {
-    this.isPlay1Playing = this.isPlay2Playing = false;
-
-    let $play1 = this.$play1;
-    let $play3 = this.$play3;
-
-    // removes first torrent 
-    if (this.magnetURI3) {
-      this.client.remove(this.magnetURI3, () => {
-        console.log('third magnet removed')
-      })
-    }
-
-    this.magnetURI3 = magnetURI;
-
-    this.client.add(magnetURI, function (torrent) {
-
-      /* Look for the file that ends in .webm and render it, in the future we can
-       * add additional file types for scaling. E.g other video formats or even VR!
-       */
-      let file3 = torrent.files.find(function (file) {
-        return file.name.endsWith('.webm')
-      })
-
-      // Stream the second file, but currently invisible and not playing
-      file3.renderTo('video#player3', { autoplay: false })
-    })
-
-    // listen to when video 3 ends, immediately play the other video
-    $play3.onended = function (e) {
-      $play1.play();
-      $play1.removeAttribute('hidden');
-
-      $play3.setAttribute('hidden', true);
-    }
-  }
 
   // Download Statistics
   onProgress(torrent) {
