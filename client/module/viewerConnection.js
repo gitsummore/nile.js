@@ -175,7 +175,7 @@ class ViewerConnection {
 
     if (state === 'open') {
       // disconnect socket.io connection if not the root client
-      if (!this.isRoot) {
+      if (!this.isRoot && this.socket.connected) {
         console.log('RTC connection succeeded! Disconnecting socket...');
         this.socket.disconnect();
       }

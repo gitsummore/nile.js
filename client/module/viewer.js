@@ -142,7 +142,7 @@ class Viewer {
       // send to child client
       this.connToChild.sendMessage(JSON.stringify(offerMsg));
     } else {
-      // TODO: if socket disconnected, reopen it to signal w/ joining client
+      // if socket disconnected, reopen it to signal w/ joining client
       if (this.socket.disconnected) {
         this.socket.open();
       }

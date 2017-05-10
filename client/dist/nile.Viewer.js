@@ -9714,7 +9714,7 @@ var ViewerConnection = function () {
 
       if (state === 'open') {
         // disconnect socket.io connection if not the root client
-        if (!this.isRoot) {
+        if (!this.isRoot && this.socket.connected) {
           console.log('RTC connection succeeded! Disconnecting socket...');
           this.socket.disconnect();
         }
@@ -10105,7 +10105,7 @@ var Viewer = function () {
         // send to child client
         this.connToChild.sendMessage(JSON.stringify(offerMsg));
       } else {
-        // TODO: if socket disconnected, reopen it to signal w/ joining client
+        // if socket disconnected, reopen it to signal w/ joining client
         if (this.socket.disconnected) {
           this.socket.open();
         }
