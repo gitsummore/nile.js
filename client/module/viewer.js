@@ -16,14 +16,14 @@ import ViewerConnection from './viewerConnection';
 class Viewer {
   constructor(
     ID_of_NodeToRenderVideo, // location on the DOM where the live feed will be rendered
-    turnServers, // array of TURN servers to use in WebRTC signaling
+    iceServers, // array of ICE servers to use in WebRTC signaling
   ) {
     // initiate new torrent connection
     this.client = new WebTorrent()
     // grab DOM elements where the torrent video will be rendered to
     this.ID_of_NodeToRenderVideo = ID_of_NodeToRenderVideo;
-    // store list of TURN servers
-    this.turnServers = turnServers;
+    // store list of ICE servers
+    this.iceServers = iceServers;
 
     // video tag ID from html page
     this.$play1 = document.getElementById('player1');
@@ -53,7 +53,8 @@ class Viewer {
      * parent - client that's closer to server
      * child - farther away from server
      */
-    this.connToParent, this.connToChild;
+    this.connToParent = null;
+    this.connToChild = null;
 
     this.torrentInfo = {
       'magnetURI1': 0,
@@ -84,13 +85,18 @@ class Viewer {
       // make it a child of server-connected client
       console.log('Sockets full, creating WebRTC connection...');
 
+      const parentDisconnHandler = () => {
+        this.connToParent = null;
+      };
+
       // create new WebRTC connection to connect to a parent
       // will disconnect once WebRTC connection established
       this.connToParent = new ViewerConnection(
         this.socket,
         this.isRoot,
         this.eventHandlers,
-        this.turnServers
+        this.iceServers,
+        parentDisconnHandler
       );
 
       console.log('Starting WebRTC signaling...');
@@ -143,12 +149,18 @@ class Viewer {
         this.socket.open();
       }
 
+      // clear connection when it disconnects
+      const childDisconnHandler = () => {
+        this.connToChild = null;
+      };
+
       // create child connection
       this.connToChild = new ViewerConnection(
         this.socket,
         this.isRoot,
         {},
-        this.turnServers
+        this.iceServers,
+        childDisconnHandler
       );
 
       // set peer id for child connection

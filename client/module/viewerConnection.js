@@ -7,13 +7,21 @@ import Message from './message';
  * Wrapper class for RTC connection between parent and child viewers
  */
 class ViewerConnection {
-  constructor(socket, isRoot, messageHandlers = {}, turnServers = []) {
+  constructor(
+    socket,
+    isRoot,
+    messageHandlers = {},
+    iceServers = [],
+    disconnHandler
+  ) {
     // ref to Viewer's socket connection
     this.socket = socket;
     // indicates whether this node is the root connecting to the server
     this.isRoot = isRoot;
     // event handlers for DataChannel messages
     this.messageHandlers = messageHandlers;
+    // function provided by Viewer class to run when ICE disconnects
+    this.disconnHandler = disconnHandler;
 
     // reserved variables
     // RTC DataChannel
@@ -31,9 +39,15 @@ class ViewerConnection {
         { url: 'stun:stun3.l.google.com:19302' },
         { url: 'stun:stun4.l.google.com:19302' },
         // user-provided TURN servers go here
-        ...turnServers
+        ...iceServers
       ]
     });
+
+    // adding unload listener to check for client disconnections
+    const byeToNeighbors = (event) => {
+      this.sendMessage('disconnecting');
+    };
+    window.addEventListener('unload', byeToNeighbors);
 
     /**
      * Useful diagrams for WebRTC signaling process:
@@ -169,6 +183,7 @@ class ViewerConnection {
     this._setupDataChannel();
   }
 
+  // DataChannel status handler
   _handleChannelStatusChange(event) {
     if (!this.channel) return;
 
@@ -177,7 +192,7 @@ class ViewerConnection {
     console.log('Channel status:', state);
 
     // tell next client to reconnect w/ this client's parent, depending on isRoot
-    this.sendMessage(state, {});
+    this.sendMessage(state);
 
     if (state === 'open') {
       // disconnect socket.io connection if not the root client
@@ -223,6 +238,10 @@ class ViewerConnection {
   _iceConnectionStateHandler(event) {
     const connState = this.RTCconn.iceConnectionState;
     console.log('ICE Connection State:', connState);
+
+    if (connState === 'disconnected') {
+      this.disconnHandler();
+    }
   }
 
   // Signaling state handler
