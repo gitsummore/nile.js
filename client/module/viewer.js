@@ -1,8 +1,6 @@
 // Install this.socket.io-client
 // io object exposed from injected this.socket.io.js
 
-// const io = require('socket.io-client');
-
 // Have to require WebTorrent and not import, or there is a fs error from node.js
 import WebTorrent from './webtorrent.min.js';
 import Message from './message';
@@ -17,6 +15,7 @@ import ViewerConnection from './viewerConnection';
 class Viewer {
   constructor(
     ID_of_NodeToRenderVideo, // location on the DOM where the live feed will be rendered
+    bootstrapInterval, // bootstrap phase, delay interval between the broadcaster and viewer
     turnServers, // array of TURN servers to use in WebRTC signaling
   ) {
     // initiate new torrent connection
@@ -25,11 +24,6 @@ class Viewer {
     this.ID_of_NodeToRenderVideo = ID_of_NodeToRenderVideo;
     // store list of TURN servers
     this.turnServers = turnServers;
-
-    // video tag ID from html page
-    this.$play1 = document.getElementById('player1');
-    this.$play2 = document.getElementById('player2');
-    this.$play3 = document.getElementById('player3');
 
     this.socket = io.connect();
 
@@ -48,6 +42,13 @@ class Viewer {
     this.$uploadSpeed = document.querySelector('#uploadSpeed')
     this.$downloadSpeed = document.querySelector('#downloadSpeed')
 
+    // create the video players on the document
+    this.createVideos();
+
+    // video tag ID from html page
+    this.$play1 = document.getElementById('player1');
+    this.$play2 = document.getElementById('player2');
+    this.$play3 = document.getElementById('player3');
     /**
      * WebRTC Connections b/w clients
      * 
@@ -118,11 +119,11 @@ class Viewer {
     console.log('Got magnet');
     // begin downloading the torrents and render them to page, alternate between three torrents
     if (this.torrentInfo['isPlay1Playing'] && this.torrentInfo['isPlay2Playing']) {
-      this.startDownloading(magnetURI, this.$play3, this.$play1, 'firstIteration', true, true, 'magnetURI3', 'video#player3', '3');
+      this.startStreaming(magnetURI, this.$play3, this.$play1, 'firstIteration', true, true, 'magnetURI3', 'video#player3');
     } else if (this.torrentInfo['isPlay1Playing']) {
-      this.startDownloading(magnetURI, this.$play2, this.$play3, 'firstIteration', true, false, 'magnetURI2', 'video#player2', '2');
+      this.startStreaming(magnetURI, this.$play2, this.$play3, 'firstIteration', true, false, 'magnetURI2', 'video#player2');
     } else {
-      this.startDownloading(magnetURI, this.$play1, this.$play2, 'firstIteration', false, false, 'magnetURI1', 'video#player1', '1');
+      this.startStreaming(magnetURI, this.$play1, this.$play2, 'firstIteration', false, false, 'magnetURI1', 'video#player1');
     }
 
     // broadcast magnet URI to next child
@@ -190,7 +191,7 @@ class Viewer {
   // and then it will either run the first download or the second download, torrent ID must be different
 
   // Function for downloading the torrent
-  startDownloading(
+  startStreaming(
     magnetURI,
     currPlayer,
     nextPlayer,
@@ -198,14 +199,12 @@ class Viewer {
     isPlay1Playing,
     isPlay2Playing,
     prevMagnetURI,
-    renderTo,
-    curr) {
+    renderTo) {
 
     let $play1 = this.$play1;
     let $play2 = this.$play2;
     let $play3 = this.$play3;
 
-    console.log('this video is playing', curr);
     // let onProgress = this.onProgress;
     this.torrentInfo[firstIteration] += 1;
     console.log(this.torrentInfo[firstIteration]);
@@ -262,6 +261,22 @@ class Viewer {
     };
   }
 
+  // create the video elements that will be appended to the DOM
+  createVideos() {
+    let players = document.createElement('div');
+    let play1 = document.createElement('video');
+    let play2 = document.createElement('video');
+    let play3 = document.createElement('video');
+    play1.setAttribute('id','player1');
+    play2.setAttribute('id','player2');
+    play3.setAttribute('id','player3');
+    play2.setAttribute('hidden', true);
+    play3.setAttribute('hidden', true);
+    players.appendChild(play1);
+    players.appendChild(play2);
+    players.appendChild(play3);
+    document.getElementById(this.ID_of_NodeToRenderVideo).appendChild(players);
+  }
 
   // Download Statistics
   onProgress(torrent) {

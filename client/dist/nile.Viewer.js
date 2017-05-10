@@ -9937,8 +9937,6 @@ exports.Socket = __webpack_require__(25);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); // Install this.socket.io-client
 // io object exposed from injected this.socket.io.js
 
-// const io = require('socket.io-client');
-
 // Have to require WebTorrent and not import, or there is a fs error from node.js
 
 
@@ -9971,6 +9969,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var Viewer = function () {
   function Viewer(ID_of_NodeToRenderVideo, // location on the DOM where the live feed will be rendered
+  bootstrapInterval, // bootstrap phase, delay interval between the broadcaster and viewer
   turnServers) // array of TURN servers to use in WebRTC signaling
   {
     var _torrentInfo;
@@ -9983,11 +9982,6 @@ var Viewer = function () {
     this.ID_of_NodeToRenderVideo = ID_of_NodeToRenderVideo;
     // store list of TURN servers
     this.turnServers = turnServers;
-
-    // video tag ID from html page
-    this.$play1 = document.getElementById('player1');
-    this.$play2 = document.getElementById('player2');
-    this.$play3 = document.getElementById('player3');
 
     this.socket = _socket2.default.connect();
 
@@ -10006,6 +10000,13 @@ var Viewer = function () {
     this.$uploadSpeed = document.querySelector('#uploadSpeed');
     this.$downloadSpeed = document.querySelector('#downloadSpeed');
 
+    // create the video players on the document
+    this.createVideos();
+
+    // video tag ID from html page
+    this.$play1 = document.getElementById('player1');
+    this.$play2 = document.getElementById('player2');
+    this.$play3 = document.getElementById('player3');
     /**
      * WebRTC Connections b/w clients
      * 
@@ -10073,11 +10074,11 @@ var Viewer = function () {
       console.log('Got magnet');
       // begin downloading the torrents and render them to page, alternate between three torrents
       if (this.torrentInfo['isPlay1Playing'] && this.torrentInfo['isPlay2Playing']) {
-        this.startDownloading(magnetURI, this.$play3, this.$play1, 'firstIteration', true, true, 'magnetURI3', 'video#player3', '3');
+        this.startStreaming(magnetURI, this.$play3, this.$play1, 'firstIteration', true, true, 'magnetURI3', 'video#player3');
       } else if (this.torrentInfo['isPlay1Playing']) {
-        this.startDownloading(magnetURI, this.$play2, this.$play3, 'firstIteration', true, false, 'magnetURI2', 'video#player2', '2');
+        this.startStreaming(magnetURI, this.$play2, this.$play3, 'firstIteration', true, false, 'magnetURI2', 'video#player2');
       } else {
-        this.startDownloading(magnetURI, this.$play1, this.$play2, 'firstIteration', false, false, 'magnetURI1', 'video#player1', '1');
+        this.startStreaming(magnetURI, this.$play1, this.$play2, 'firstIteration', false, false, 'magnetURI1', 'video#player1');
       }
 
       // broadcast magnet URI to next child
@@ -10157,14 +10158,13 @@ var Viewer = function () {
     // Function for downloading the torrent
 
   }, {
-    key: 'startDownloading',
-    value: function startDownloading(magnetURI, currPlayer, nextPlayer, firstIteration, isPlay1Playing, isPlay2Playing, prevMagnetURI, renderTo, curr) {
+    key: 'startStreaming',
+    value: function startStreaming(magnetURI, currPlayer, nextPlayer, firstIteration, isPlay1Playing, isPlay2Playing, prevMagnetURI, renderTo) {
 
       var $play1 = this.$play1;
       var $play2 = this.$play2;
       var $play3 = this.$play3;
 
-      console.log('this video is playing', curr);
       // let onProgress = this.onProgress;
       this.torrentInfo[firstIteration] += 1;
       console.log(this.torrentInfo[firstIteration]);
@@ -10221,6 +10221,26 @@ var Viewer = function () {
 
         currPlayer.setAttribute('hidden', true);
       };
+    }
+
+    // create the video elements that will be appended to the DOM
+
+  }, {
+    key: 'createVideos',
+    value: function createVideos() {
+      var players = document.createElement('div');
+      var play1 = document.createElement('video');
+      var play2 = document.createElement('video');
+      var play3 = document.createElement('video');
+      play1.setAttribute('id', 'player1');
+      play2.setAttribute('id', 'player2');
+      play3.setAttribute('id', 'player3');
+      play2.setAttribute('hidden', true);
+      play3.setAttribute('hidden', true);
+      players.appendChild(play1);
+      players.appendChild(play2);
+      players.appendChild(play3);
+      document.getElementById(this.ID_of_NodeToRenderVideo).appendChild(players);
     }
 
     // Download Statistics
