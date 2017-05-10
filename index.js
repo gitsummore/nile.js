@@ -1,5 +1,5 @@
-import Broadcaster from './client/dist/nile.Broadcaster.js';
-import Viewer from './client/dist/nile.Viewer.js';
+const Broadcaster = require('./client/dist/nile.Broadcaster.js');
+const Viewer = require('./client/dist/nile.Viewer.js');
 
 module.exports = {
   Broadcaster,
