@@ -11,12 +11,15 @@ const socketController = require('./socketController');
 const socketLimit = 1;
 
 // takes in Node Server instance and returns Express Router
-module.exports = function nileServer(server) {
+module.exports = function createNileServer(server) {
   // Pass server instance to use socket controller
   const socket = new socketController(server, socketLimit);
 
   // create nile.js mini-app through express Router
   const nileServer = express.Router();
+
+  // parse request body
+  nileServer.use(bodyParser.json());
 
   // endpoint for receiving magnet URI from Broadcaster
   nileServer.post('/magnet', (req, res, next) => {
