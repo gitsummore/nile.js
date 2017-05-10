@@ -2923,9 +2923,7 @@ var Broadcaster = function () {
     value: function startSeeding(file, currMagnet, castNum) {
       var _this = this;
 
-      // const sendMagnetToServer = this.sendMagnetToServer.bind(this);
-      console.log('torents', this.torrentInfo);
-
+      // remove the torrent if it is currently seeding
       if (this.torrentInfo[currMagnet]) {
         this.broadcaster.remove(this.torrentInfo[currMagnet], function () {
           console.log('magnet ' + castNum + ' removed');
