@@ -111,11 +111,11 @@ class Viewer {
     console.log('Got magnet');
     // begin downloading the torrents and render them to page, alternate between three torrents
     if (this.torrentInfo['isPlay1Playing'] && this.torrentInfo['isPlay2Playing']) {
-      this.startDownloading(magnetURI, this.$play3, this.$play1, 'firstIteration', true, true, 'magnetURI3', 'video#player3', '3');
+      this.startStreaming(magnetURI, this.$play3, this.$play1, 'firstIteration', true, true, 'magnetURI3', 'video#player3');
     } else if (this.torrentInfo['isPlay1Playing']) {
-      this.startDownloading(magnetURI, this.$play2, this.$play3, 'firstIteration', true, false, 'magnetURI2', 'video#player2', '2');
+      this.startStreaming(magnetURI, this.$play2, this.$play3, 'firstIteration', true, false, 'magnetURI2', 'video#player2');
     } else {
-      this.startDownloading(magnetURI, this.$play1, this.$play2, 'firstIteration', false, false, 'magnetURI1', 'video#player1', '1');
+      this.startStreaming(magnetURI, this.$play1, this.$play2, 'firstIteration', false, false, 'magnetURI1', 'video#player1');
     }
 
     // broadcast magnet URI to next child
@@ -178,7 +178,7 @@ class Viewer {
   // and then it will either run the first download or the second download, torrent ID must be different
 
   // Function for downloading the torrent
-  startDownloading(
+  startStreaming(
     magnetURI,
     currPlayer,
     nextPlayer,
@@ -186,14 +186,12 @@ class Viewer {
     isPlay1Playing,
     isPlay2Playing,
     prevMagnetURI,
-    renderTo,
-    curr) {
+    renderTo) {
 
     let $play1 = this.$play1;
     let $play2 = this.$play2;
     let $play3 = this.$play3;
 
-    console.log('this video is playing', curr);
     // let onProgress = this.onProgress;
     this.torrentInfo[firstIteration] += 1;
     console.log(this.torrentInfo[firstIteration]);
