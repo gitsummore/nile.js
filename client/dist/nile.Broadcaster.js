@@ -2812,14 +2812,14 @@ var MediaStreamRecorder = __webpack_require__(30);
 
 var Broadcaster = function () {
   function Broadcaster(recordInterval, // the Interval that the webcam recording should seed each segment of the video
-  videoNodeIDForPlayback, // The id of the video node in the html where the broadcaster can see their own recording
+  ID_of_NodeToRenderVideo, // The id where the video node is being appended to
   startStreamID, // The id of the button node that BEGINS the recording/live streaming
   stopStreamID // The id of the button node that ENDS the recording/live streaming
   ) {
     _classCallCheck(this, Broadcaster);
 
     this.recordInterval = recordInterval; // interval to record video at (in ms)
-    this.videoNodeIDForPlayback = videoNodeIDForPlayback;
+    this.ID_of_NodeToRenderVideo = ID_of_NodeToRenderVideo;
     this.startStreamID = startStreamID;
     this.stopStreamID = stopStreamID;
     this.broadcaster = new WebTorrent();
@@ -2827,7 +2827,10 @@ var Broadcaster = function () {
 
     this.wasLastBroadcaster1 = false;
     this.wasLastBroadcaster2 = false;
-    this.$video = document.getElementById('' + this.videoNodeIDForPlayback);
+
+    this.createBroadcast();
+
+    this.$video = document.getElementById('broadcaster');
 
     this.torrentInfo = {
       'magnetURI1': 0,
@@ -2962,6 +2965,13 @@ var Broadcaster = function () {
       };
       xhr.setRequestHeader("Content-type", "application/json");
       xhr.send(JSON.stringify({ 'magnetURI': magnetURI }));
+    }
+  }, {
+    key: 'createBroadcast',
+    value: function createBroadcast() {
+      var video = document.createElement('video');
+      video.setAttribute('id', 'broadcaster');
+      document.getElementById(this.ID_of_NodeToRenderVideo).appendChild(video);
     }
   }]);
 
