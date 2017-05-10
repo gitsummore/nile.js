@@ -2,8 +2,8 @@
 // io object exposed from injected this.socket.io.js
 
 // Have to require WebTorrent and not import, or there is a fs error from node.js
-const WebTorrent = require('./webtorrent.min.js');
-const Message = require('./message');
+import WebTorrent from './webtorrent.min.js';
+import Message from './message';
 import io from 'socket.io-client';
 import ViewerConnection from './viewerConnection';
 
@@ -15,12 +15,15 @@ import ViewerConnection from './viewerConnection';
 class Viewer {
   constructor(
     ID_of_NodeToRenderVideo, // location on the DOM where the live feed will be rendered
-    bootstrapInterval // bootstrap phase, delay interval between the broadcaster and viewer
+    bootstrapInterval, // bootstrap phase, delay interval between the broadcaster and viewer
+    turnServers, // array of TURN servers to use in WebRTC signaling
   ) {
     // initiate new torrent connection
     this.client = new WebTorrent()
-    // grab DOM elements where the torrent video will be rendered too
+    // grab DOM elements where the torrent video will be rendered to
     this.ID_of_NodeToRenderVideo = ID_of_NodeToRenderVideo;
+    // store list of TURN servers
+    this.turnServers = turnServers;
 
     this.socket = io.connect();
 
@@ -85,7 +88,12 @@ class Viewer {
 
       // create new WebRTC connection to connect to a parent
       // will disconnect once WebRTC connection established
-      this.connToParent = new ViewerConnection(this.socket, this.isRoot, this.eventHandlers);
+      this.connToParent = new ViewerConnection(
+        this.socket,
+        this.isRoot,
+        this.eventHandlers,
+        this.turnServers
+      );
 
       console.log('Starting WebRTC signaling...');
 
@@ -135,13 +143,18 @@ class Viewer {
       // send to child client
       this.connToChild.sendMessage(JSON.stringify(offerMsg));
     } else {
-      // TODO: if socket disconnected, reopen it to signal w/ joining client
+      // if socket disconnected, reopen it to signal w/ joining client
       if (this.socket.disconnected) {
         this.socket.open();
       }
 
       // create child connection
-      this.connToChild = new ViewerConnection(this.socket, this.isRoot);
+      this.connToChild = new ViewerConnection(
+        this.socket,
+        this.isRoot,
+        {},
+        this.turnServers
+      );
 
       // set peer id for child connection
       this.connToChild.setPeerId(callerId);

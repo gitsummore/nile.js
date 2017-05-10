@@ -9468,8 +9468,12 @@ module.exports = yeast;
 "use strict";
 
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 var Message = function Message(type, message) {
   if (typeof type !== 'string') throw new Error('type must be a string');
+  if ((typeof message === 'undefined' ? 'undefined' : _typeof(message)) !== 'object') throw new Error('message must be an object');
+
   this.type = type;
   this.message = message;
 };
@@ -9484,7 +9488,19 @@ module.exports = Message;
 "use strict";
 
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _message = __webpack_require__(28);
+
+var _message2 = _interopRequireDefault(_message);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -9494,10 +9510,10 @@ RTCPeerConnection = RTCPeerConnection || mozRTCPeerConnection;
 /**
  * Wrapper class for RTC connection between parent and child viewers
  */
-
 var ViewerConnection = function () {
   function ViewerConnection(socket, isRoot) {
     var messageHandlers = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+    var turnServers = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : [];
 
     _classCallCheck(this, ViewerConnection);
 
@@ -9518,7 +9534,7 @@ var ViewerConnection = function () {
     this.RTCconn = new RTCPeerConnection({
       iceServers: [
       // STUN servers
-      { url: 'stun:stun.l.google.com:19302' }, { url: 'stun:stun1.l.google.com:19302' }, { url: 'stun:stun2.l.google.com:19302' }, { url: 'stun:stun3.l.google.com:19302' }, { url: 'stun:stun4.l.google.com:19302' }]
+      { url: 'stun:stun.l.google.com:19302' }, { url: 'stun:stun1.l.google.com:19302' }, { url: 'stun:stun2.l.google.com:19302' }, { url: 'stun:stun3.l.google.com:19302' }, { url: 'stun:stun4.l.google.com:19302' }].concat(_toConsumableArray(turnServers))
     });
 
     /**
@@ -9601,7 +9617,7 @@ var ViewerConnection = function () {
       // send offer along to peer
       .then(function () {
         var offer = _this.RTCconn.localDescription;
-        _this.send('offer', offer);
+        _this.sendBySocket('offer', offer);
       }).catch(this.logError);
     }
 
@@ -9626,7 +9642,7 @@ var ViewerConnection = function () {
       .then(function () {
         // console.log('Set local description with offer');
         var answer = _this2.RTCconn.localDescription;
-        _this2.send('answer', callerId, answer);
+        _this2.sendBySocket('answer', callerId, answer);
       }).catch(this.logError);
     }
   }, {
@@ -9661,7 +9677,7 @@ var ViewerConnection = function () {
       // console.log('Sending ICE candidates...');
       if (event.candidate) {
         // send child peer ICE candidate if has peerId
-        this.peerId && this.send('candidate', this.peerId, event.candidate);
+        this.peerId && this.sendBySocket('candidate', this.peerId, event.candidate);
       }
     }
 
@@ -9696,15 +9712,21 @@ var ViewerConnection = function () {
 
       console.log('Channel status:', state);
 
+      // message to signal reconnection
+      var stateMsg = new _message2.default(state, {});
+
+      // tell next client to reconnect w/ this client's parent, depending on isRoot
+      this.sendMessage(JSON.stringify(stateMsg));
+
       if (state === 'open') {
         // disconnect socket.io connection if not the root client
-        if (!this.isRoot) {
+        if (!this.isRoot && this.socket.connected) {
           console.log('RTC connection succeeded! Disconnecting socket...');
           this.socket.disconnect();
         }
       }
-      // if closed
-      else {}
+      // tell neighboring clients to reconnect before this client disconnects
+      else if (state === 'closing') {}
     }
 
     // Add an event handler for a certain type of DataChannel Message
@@ -9726,8 +9748,8 @@ var ViewerConnection = function () {
       var type = msg.type,
           message = msg.message;
 
-      // console.log(`Received message of type '${type}': ${JSON.stringify(message)}`);
 
+      console.log('Received message of type \'' + type + '\'');
       var handler = this.messageHandlers[type];
 
       // call handler if exists
@@ -9742,7 +9764,7 @@ var ViewerConnection = function () {
       this.RTCconn.close();
       this.RTCconn = null;
       // tell other peer to close connection as well
-      send('close', peerId);
+      sendBySocket('close', peerId);
     }
 
     // ICE connection handler
@@ -9764,8 +9786,8 @@ var ViewerConnection = function () {
     // send message by socket.io
 
   }, {
-    key: 'send',
-    value: function send(event) {
+    key: 'sendBySocket',
+    value: function sendBySocket(event) {
       var _socket;
 
       for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
@@ -9783,6 +9805,8 @@ var ViewerConnection = function () {
 
   return ViewerConnection;
 }();
+
+exports.default = ViewerConnection;
 
 /***/ }),
 /* 30 */,
@@ -9910,7 +9934,19 @@ exports.Socket = __webpack_require__(24);
 "use strict";
 
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); // Install this.socket.io-client
+// io object exposed from injected this.socket.io.js
+
+// Have to require WebTorrent and not import, or there is a fs error from node.js
+
+
+var _webtorrentMin = __webpack_require__(4);
+
+var _webtorrentMin2 = _interopRequireDefault(_webtorrentMin);
+
+var _message = __webpack_require__(28);
+
+var _message2 = _interopRequireDefault(_message);
 
 var _socket = __webpack_require__(31);
 
@@ -9926,13 +9962,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-// Install this.socket.io-client
-// io object exposed from injected this.socket.io.js
-
-// Have to require WebTorrent and not import, or there is a fs error from node.js
-var WebTorrent = __webpack_require__(4);
-var Message = __webpack_require__(28);
-
 /**
  * Viewer class concerned with streaming video from torrents
  * and managing WebSocket connection to server
@@ -9940,16 +9969,19 @@ var Message = __webpack_require__(28);
 
 var Viewer = function () {
   function Viewer(ID_of_NodeToRenderVideo, // location on the DOM where the live feed will be rendered
-  bootstrapInterval // bootstrap phase, delay interval between the broadcaster and viewer
-  ) {
+  bootstrapInterval, // bootstrap phase, delay interval between the broadcaster and viewer
+  turnServers) // array of TURN servers to use in WebRTC signaling
+  {
     var _torrentInfo;
 
     _classCallCheck(this, Viewer);
 
     // initiate new torrent connection
-    this.client = new WebTorrent();
-    // grab DOM elements where the torrent video will be rendered too
+    this.client = new _webtorrentMin2.default();
+    // grab DOM elements where the torrent video will be rendered to
     this.ID_of_NodeToRenderVideo = ID_of_NodeToRenderVideo;
+    // store list of TURN servers
+    this.turnServers = turnServers;
 
     this.socket = _socket2.default.connect();
 
@@ -10015,7 +10047,7 @@ var Viewer = function () {
 
         // create new WebRTC connection to connect to a parent
         // will disconnect once WebRTC connection established
-        _this.connToParent = new _viewerConnection2.default(_this.socket, _this.isRoot, _this.eventHandlers);
+        _this.connToParent = new _viewerConnection2.default(_this.socket, _this.isRoot, _this.eventHandlers, _this.turnServers);
 
         console.log('Starting WebRTC signaling...');
 
@@ -10050,7 +10082,7 @@ var Viewer = function () {
       }
 
       // broadcast magnet URI to next child
-      var magnetMsg = new Message('magnet', magnetURI);
+      var magnetMsg = new _message2.default('magnet', magnetURI);
       this.connToChild && this.connToChild.sendMessage(JSON.stringify(magnetMsg));
     }
 
@@ -10068,17 +10100,17 @@ var Viewer = function () {
       // tell new client to join at child instead, if exists
       if (this.connToChild) {
         // offer message - tell last client in chain is adding new client
-        var offerMsg = new Message('offer', { callerId: callerId, offer: offer });
+        var offerMsg = new _message2.default('offer', { callerId: callerId, offer: offer });
         // send to child client
         this.connToChild.sendMessage(JSON.stringify(offerMsg));
       } else {
-        // TODO: if socket disconnected, reopen it to signal w/ joining client
+        // if socket disconnected, reopen it to signal w/ joining client
         if (this.socket.disconnected) {
           this.socket.open();
         }
 
         // create child connection
-        this.connToChild = new _viewerConnection2.default(this.socket, this.isRoot);
+        this.connToChild = new _viewerConnection2.default(this.socket, this.isRoot, {}, this.turnServers);
 
         // set peer id for child connection
         this.connToChild.setPeerId(callerId);

@@ -31,5 +31,14 @@ Broadcaster posts stream's torrent magnet URIs to this endpoint
 #### /signal
 Receives WebRTC signaling information (e.g. offer, answer, ICE candidates) to send to connecting peer.
 ### Client
+Two components: Viewer and Broadcaster
+#### Viewer
+2 params: HTML query selector and array of optional TURN servers for WebRTC signaling
+#### Broadcaster
+4 params:
+recordInterval - the Interval that the webcam recording should seed each segment of the video
+videoNodeIDForPlayback - The id of the video node in the html where the broadcaster can see their own recording
+startStreamID - The id of the button node that BEGINS the recording/live streaming
+stopStreamID - The id of the button node that ENDS the recording/live streamingÏ
 
 [website]: http://www.nilejs.com
