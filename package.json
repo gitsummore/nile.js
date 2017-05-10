@@ -1,6 +1,6 @@
 {
   "name": "nile.js",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "A tool for scalable peer-to-peer video streaming using WebTorrent",
   "main": "index.js",
   "repository": "gitsummore/nile.js",
@@ -11,10 +11,12 @@
     "build": "webpack -w"
   },
   "author": "nile.js",
-  "licenses": [{
-    "type": "MIT",
-    "url": "https://github.com/gitsummore/nile.js/blob/master/LICENSE.md"
-  }],
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/gitsummore/nile.js/blob/master/LICENSE.md"
+    }
+  ],
   "dependencies": {
     "express": "^4.15.2",
     "fs": "0.0.1-security",
