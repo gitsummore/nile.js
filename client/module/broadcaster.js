@@ -24,6 +24,9 @@ class Broadcaster {
     let videoStream = null;
     let $video = document.getElementById(`${this.videoNodeIDForPlayback}`);
 
+    // // set recorder
+    // this.$video.defaultMuted = true;
+
     // allows you to see yourself while recording
     let createSrc = (window.URL) ? window.URL.createObjectURL : function (stream) { return stream };
 
