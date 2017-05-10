@@ -39,5 +39,4 @@
     "webpack-dev-server": "^2.4.5"
   },
   "keywords": ["webtorrent", "peer", "live", "streaming", "webRTC", "websocket"]
-  // "unpkg": "" // will minify files and upload to CDN. In the unpkg field you can define the default file, which get served if someone includes https://unpkg.com/package.
 }
