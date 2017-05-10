@@ -11,7 +11,7 @@ class ViewerConnection {
     socket,
     isRoot,
     messageHandlers = {},
-    iceServers = [],
+    addedIceServers = [],
     disconnHandler
   ) {
     // ref to Viewer's socket connection
@@ -32,14 +32,14 @@ class ViewerConnection {
     // set up wrapped WebRTCConnection
     this.RTCconn = new RTCPeerConnection({
       iceServers: [
-        // STUN servers
+        // Default STUN servers
         { url: 'stun:stun.l.google.com:19302' },
         { url: 'stun:stun1.l.google.com:19302' },
         { url: 'stun:stun2.l.google.com:19302' },
         { url: 'stun:stun3.l.google.com:19302' },
         { url: 'stun:stun4.l.google.com:19302' },
         // user-provided TURN servers go here
-        ...iceServers
+        ...addedIceServers
       ]
     });
 
