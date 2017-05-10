@@ -45,5 +45,6 @@
     "streaming",
     "webRTC",
     "websocket"
-  ]
+  ],
+  "unpkg": "index.js"
 }
