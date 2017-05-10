@@ -46,5 +46,5 @@
     "webRTC",
     "websocket"
   ],
-  "unpkg": "index.js"
+  "unpkg": "./client/dist"
 }
