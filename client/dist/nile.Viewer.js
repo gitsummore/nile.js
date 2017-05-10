@@ -9929,8 +9929,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 // Install this.socket.io-client
 // io object exposed from injected this.socket.io.js
 
-// const io = require('socket.io-client');
-
 // Have to require WebTorrent and not import, or there is a fs error from node.js
 var WebTorrent = __webpack_require__(4);
 var Message = __webpack_require__(28);
@@ -9941,7 +9939,8 @@ var Message = __webpack_require__(28);
  */
 
 var Viewer = function () {
-  function Viewer(ID_of_NodeToRenderVideo // location on the DOM where the live feed will be rendered
+  function Viewer(ID_of_NodeToRenderVideo, // location on the DOM where the live feed will be rendered
+  bootstrapInterval // bootstrap phase, delay interval between the broadcaster and viewer
   ) {
     var _torrentInfo;
 
@@ -9951,11 +9950,6 @@ var Viewer = function () {
     this.client = new WebTorrent();
     // grab DOM elements where the torrent video will be rendered too
     this.ID_of_NodeToRenderVideo = ID_of_NodeToRenderVideo;
-
-    // video tag ID from html page
-    this.$play1 = document.getElementById('player1');
-    this.$play2 = document.getElementById('player2');
-    this.$play3 = document.getElementById('player3');
 
     this.socket = _socket2.default.connect();
 
@@ -9974,6 +9968,13 @@ var Viewer = function () {
     this.$uploadSpeed = document.querySelector('#uploadSpeed');
     this.$downloadSpeed = document.querySelector('#downloadSpeed');
 
+    // create the video players on the document
+    this.createVideos();
+
+    // video tag ID from html page
+    this.$play1 = document.getElementById('player1');
+    this.$play2 = document.getElementById('player2');
+    this.$play3 = document.getElementById('player3');
     /**
      * WebRTC Connections b/w clients
      * 
@@ -10189,6 +10190,26 @@ var Viewer = function () {
 
         currPlayer.setAttribute('hidden', true);
       };
+    }
+
+    // create the video elements that will be appended to the DOM
+
+  }, {
+    key: 'createVideos',
+    value: function createVideos() {
+      var players = document.createElement('div');
+      var play1 = document.createElement('video');
+      var play2 = document.createElement('video');
+      var play3 = document.createElement('video');
+      play1.setAttribute('id', 'player1');
+      play2.setAttribute('id', 'player2');
+      play3.setAttribute('id', 'player3');
+      play2.setAttribute('hidden', true);
+      play3.setAttribute('hidden', true);
+      players.appendChild(play1);
+      players.appendChild(play2);
+      players.appendChild(play3);
+      document.getElementById(this.ID_of_NodeToRenderVideo).appendChild(players);
     }
 
     // Download Statistics

@@ -1,8 +1,6 @@
 // Install this.socket.io-client
 // io object exposed from injected this.socket.io.js
 
-// const io = require('socket.io-client');
-
 // Have to require WebTorrent and not import, or there is a fs error from node.js
 const WebTorrent = require('./webtorrent.min.js');
 const Message = require('./message');
@@ -16,17 +14,13 @@ import ViewerConnection from './viewerConnection';
 
 class Viewer {
   constructor(
-    ID_of_NodeToRenderVideo // location on the DOM where the live feed will be rendered
+    ID_of_NodeToRenderVideo, // location on the DOM where the live feed will be rendered
+    bootstrapInterval // bootstrap phase, delay interval between the broadcaster and viewer
   ) {
     // initiate new torrent connection
     this.client = new WebTorrent()
     // grab DOM elements where the torrent video will be rendered too
     this.ID_of_NodeToRenderVideo = ID_of_NodeToRenderVideo;
-
-    // video tag ID from html page
-    this.$play1 = document.getElementById('player1');
-    this.$play2 = document.getElementById('player2');
-    this.$play3 = document.getElementById('player3');
 
     this.socket = io.connect();
 
@@ -45,6 +39,13 @@ class Viewer {
     this.$uploadSpeed = document.querySelector('#uploadSpeed')
     this.$downloadSpeed = document.querySelector('#downloadSpeed')
 
+    // create the video players on the document
+    this.createVideos();
+
+    // video tag ID from html page
+    this.$play1 = document.getElementById('player1');
+    this.$play2 = document.getElementById('player2');
+    this.$play3 = document.getElementById('player3');
     /**
      * WebRTC Connections b/w clients
      * 
@@ -249,6 +250,22 @@ class Viewer {
     };
   }
 
+  // create the video elements that will be appended to the DOM
+  createVideos() {
+    let players = document.createElement('div');
+    let play1 = document.createElement('video');
+    let play2 = document.createElement('video');
+    let play3 = document.createElement('video');
+    play1.setAttribute('id','player1');
+    play2.setAttribute('id','player2');
+    play3.setAttribute('id','player3');
+    play2.setAttribute('hidden', true);
+    play3.setAttribute('hidden', true);
+    players.appendChild(play1);
+    players.appendChild(play2);
+    players.appendChild(play3);
+    document.getElementById(this.ID_of_NodeToRenderVideo).appendChild(players);
+  }
 
   // Download Statistics
   onProgress(torrent) {
