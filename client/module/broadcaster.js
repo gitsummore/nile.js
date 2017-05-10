@@ -10,19 +10,32 @@ class Broadcaster {
     startStreamID, // The id of the button node that BEGINS the recording/live streaming
     stopStreamID // The id of the button node that ENDS the recording/live streaming
   ) {
-    this.recordInterval = recordInterval;
+    this.recordInterval = recordInterval; // interval to record video at (in ms)
     this.videoNodeIDForPlayback = videoNodeIDForPlayback;
     this.startStreamID = startStreamID;
     this.stopStreamID = stopStreamID;
+    this.broadcaster = new WebTorrent();
+    this.videoStream = null;
+
+    this.wasLastBroadcaster1 = false;
+    this.wasLastBroadcaster2 = false;
+    this.$video = document.getElementById(`${this.videoNodeIDForPlayback}`);
+
+    this.torrentInfo = {
+      'magnetURI1': 0,
+      'magnetURI2': 0,
+      'magnetURI3': 0,
+    }
+
+    this.startSeeding = this.startSeeding.bind(this);
   }
 
+
   startStream() {
-    // interval to record video at (in ms)
     const _recordInterval = this.recordInterval;
-    const sendMagnetToServer = this.sendMagnetToServer;
-    console.log(sendMagnetToServer)
-    let videoStream = null;
-    let $video = document.getElementById(`${this.videoNodeIDForPlayback}`);
+    const startSeeding = this.startSeeding;
+    let videoStream = this.videoStream;
+    let $video = this.$video;
 
     // // set recorder
     // this.$video.defaultMuted = true;
@@ -31,12 +44,8 @@ class Broadcaster {
     let createSrc = (window.URL) ? window.URL.createObjectURL : function (stream) { return stream };
 
     // creates a new instance of torrent so that user is able to seed the video/webm file
-    let broadcaster = new WebTorrent();
-    let magnetURI1;
-    let magnetURI2;
-    let magnetURI3;
-    let _wasLastBroadcaster_1 = false;
-    let _wasLastBroadcaster_2 = false;
+    let wasLastBroadcaster1 = this.wasLastBroadcaster1;
+    let wasLastBroadcaster2 = this.wasLastBroadcaster1;
 
     // when pressing the play button, start recording
     document.getElementById(`${this.startStreamID}`).addEventListener('click', function () {
@@ -65,61 +74,17 @@ class Broadcaster {
           //  * make instances of webtorrent and then alternate the seeding between the two
           //  * once each seed is done, destroy the seed and initiate the next one
           // */
-          if (_wasLastBroadcaster_1 && _wasLastBroadcaster_2) {
-            if (magnetURI3) {
-              broadcaster.remove(magnetURI3, function () {
-                console.log('magnet removed')
-              });
-            }
-
-            // start seeding the new torrent
-            broadcaster.seed(file, function (torrent) {
-              magnetURI3 = torrent.magnetURI;
-              console.log('broadcaster3 is seeding ' + torrent.magnetURI)
-              sendMagnetToServer(magnetURI3);
-            });
-
-            _wasLastBroadcaster_1 = _wasLastBroadcaster_2 = false;
-
-
-          } else if (_wasLastBroadcaster_1) {
-            // if there is already a seed occuring, destroy it and re-seed
-            if (magnetURI2) {
-              broadcaster.remove(magnetURI2, function () {
-                console.log('magnet removed')
-              });
-            }
-
-            // start seeding the new torrent
-            broadcaster.seed(file, function (torrent) {
-              magnetURI2 = torrent.magnetURI;
-              console.log('broadcaster2 is seeding ' + torrent.magnetURI)
-              sendMagnetToServer(magnetURI2);
-            });
-
-            _wasLastBroadcaster_2 = true;
+          if (wasLastBroadcaster1 && wasLastBroadcaster2) {
+            startSeeding(file, 'magnetURI3', '3');
+            wasLastBroadcaster1 = wasLastBroadcaster2 = false;
+          } else if (wasLastBroadcaster1) {
+            startSeeding(file, 'magnetURI2', '2');
+            wasLastBroadcaster2 = true;
           } else {
-            if (magnetURI1) {
-              broadcaster.remove(magnetURI1, function () {
-                console.log('magnet removed')
-              });
-            }
-
-            // start seeding the new torrent
-            broadcaster.seed(file, function (torrent) {
-              magnetURI1 = torrent.magnetURI;
-              console.log('broadcaster3 is seeding ' + torrent.magnetURI)
-              sendMagnetToServer(magnetURI1);
-            });
-
-            _wasLastBroadcaster_1 = true;
+            startSeeding(file, 'magnetURI1', '1');
+            wasLastBroadcaster1 = true;
           }
         };
-
-        // check for if an error occurs, if it does, garbage collection and return error
-        broadcaster.on('error', function (err) {
-          console.log('webtorrents has encountered an error', err)
-        })
 
         // retrieve the devices that are being used to record
         videoStream = stream.getTracks();
@@ -144,6 +109,27 @@ class Broadcaster {
     });
   }
 
+  startSeeding(file, currMagnet, castNum) {
+    // remove the torrent if it is currently seeding
+    if (this.torrentInfo[currMagnet]) {
+      this.broadcaster.remove(this.torrentInfo[currMagnet], () => {
+        console.log(`magnet ${castNum} removed`)
+      });
+    }
+
+    // start seeding the new torrent
+    this.broadcaster.seed(file, (torrent) => {
+      this.torrentInfo[currMagnet] = torrent.magnetURI;
+      console.log(`broadcaster ${castNum} is seeding `, torrent.magnetURI)
+      this.sendMagnetToServer(torrent.magnetURI);
+    });
+
+    // check for if an error occurs, if it does, garbage collection and return error
+    this.broadcaster.on('error', function (err) {
+      console.log('webtorrents has encountered an error', err)
+    })
+  }
+
   // send magnet to server
   sendMagnetToServer(magnetURI) {
     // send to server
@@ -158,7 +144,6 @@ class Broadcaster {
         console.log('Emit Failed')
       }
     }
-
     xhr.setRequestHeader("Content-type", "application/json");
     xhr.send(JSON.stringify({ 'magnetURI': magnetURI }));
   }
