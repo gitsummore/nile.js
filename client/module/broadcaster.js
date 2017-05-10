@@ -107,9 +107,7 @@ class Broadcaster {
   }
 
   startSeeding(file, currMagnet, castNum) {
-    // const sendMagnetToServer = this.sendMagnetToServer.bind(this);
-    console.log('torents', this.torrentInfo);
-
+    // remove the torrent if it is currently seeding
     if (this.torrentInfo[currMagnet]) {
       this.broadcaster.remove(this.torrentInfo[currMagnet], () => {
         console.log(`magnet ${castNum} removed`)

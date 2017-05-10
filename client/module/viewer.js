@@ -66,6 +66,7 @@ class Viewer {
       'firstIteration': 0
     }
 
+    this.onProgress = this.onProgress.bind(this);
   }
 
   setUpInitialConnection() {
@@ -201,16 +202,16 @@ class Viewer {
     prevMagnetURI,
     renderTo) {
 
-    let $play1 = this.$play1;
-    let $play2 = this.$play2;
-    let $play3 = this.$play3;
+    const $play1 = this.$play1;
+    const $play2 = this.$play2;
+    const $play3 = this.$play3;
 
-    // let onProgress = this.onProgress;
+    const onProgress = this.onProgress;
     this.torrentInfo[firstIteration] += 1;
     console.log(this.torrentInfo[firstIteration]);
 
     let first = this.torrentInfo[firstIteration]
-    // console.log('first Iteration', firstIteration)
+
     if (!isPlay1Playing) {
       console.log('play1 playing')
       this.torrentInfo['isPlay1Playing'] = true;
@@ -248,11 +249,12 @@ class Viewer {
       }
 
       // Trigger statistics refresh
-      // setInterval(onProgress.bind(this)(torrent), 500);
+      setInterval(onProgress(torrent), 500);
     })
 
     // listen to when video ends, immediately play the other video
     currPlayer.onended = function () {
+      currPlayer.pause();
       nextPlayer.play();
 
       nextPlayer.removeAttribute('hidden');
@@ -283,7 +285,7 @@ class Viewer {
     // let $numPeers = this.$numPeers.bind(this);
     // let $uploadSpeed = this.$uploadSpeed.bind(this);
     // let $downloadSpeed = this.$downloadSpeed.bind(this);
-
+    console.log('i am working?')
     let $numPeers = document.querySelector('#numPeers')
     let $uploadSpeed = document.querySelector('#uploadSpeed')
     let $downloadSpeed = document.querySelector('#downloadSpeed')
