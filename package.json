@@ -1,6 +1,6 @@
 {
   "name": "nile.js",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "A tool for scalable peer-to-peer video streaming using WebTorrent",
   "main": "index.js",
   "repository": "gitsummore/nile.js",
@@ -38,5 +38,12 @@
     "webpack": "^2.4.1",
     "webpack-dev-server": "^2.4.5"
   },
-  "keywords": ["webtorrent", "peer", "live", "streaming", "webRTC", "websocket"]
+  "keywords": [
+    "webtorrent",
+    "peer",
+    "live",
+    "streaming",
+    "webRTC",
+    "websocket"
+  ]
 }
