@@ -4,6 +4,10 @@
   "description": "A tool for scalable peer-to-peer video streaming using WebTorrent",
   "main": "index.js",
   "repository": "gitsummore/nile.js",
+  "bugs": {
+    "url": "https://github.com/gitsummore/nile.js/issues"
+  },
+  "homepage": "http://nilejs.com/",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon server.js",
@@ -11,12 +15,7 @@
     "build": "webpack -w"
   },
   "author": "nile.js",
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "https://github.com/gitsummore/nile.js/blob/master/LICENSE.md"
-    }
-  ],
+  "license": "MIT",
   "dependencies": {
     "express": "^4.15.2",
     "fs": "0.0.1-security",
@@ -38,5 +37,7 @@
     "style-loader": "^0.17.0",
     "webpack": "^2.4.1",
     "webpack-dev-server": "^2.4.5"
-  }
+  },
+  "keywords": ["webtorrent", "peer", "live", "streaming", "webRTC", "websocket"]
+  // "unpkg": "" // will minify files and upload to CDN. In the unpkg field you can define the default file, which get served if someone includes https://unpkg.com/package.
 }
