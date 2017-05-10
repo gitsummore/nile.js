@@ -5,7 +5,6 @@
 
 // Have to require WebTorrent and not import, or there is a fs error from node.js
 import WebTorrent from './webtorrent.min.js';
-import Message from './message';
 import io from 'socket.io-client';
 import ViewerConnection from './viewerConnection';
 
@@ -126,8 +125,7 @@ class Viewer {
     }
 
     // broadcast magnet URI to next child
-    const magnetMsg = new Message('magnet', magnetURI);
-    this.connToChild && this.connToChild.sendMessage(JSON.stringify(magnetMsg));
+    this.connToChild && this.connToChild.sendMessage('magnet', magnetURI);
   }
 
   // Callee: receive offer from new child peer
@@ -137,10 +135,8 @@ class Viewer {
 
     // tell new client to join at child instead, if exists
     if (this.connToChild) {
-      // offer message - tell last client in chain is adding new client
-      const offerMsg = new Message('offer', { callerId, offer });
-      // send to child client
-      this.connToChild.sendMessage(JSON.stringify(offerMsg));
+      // send message w/ offer to child client
+      this.connToChild.sendMessage('offer', { callerId, offer });
     } else {
       // if socket disconnected, reopen it to signal w/ joining client
       if (this.socket.disconnected) {
