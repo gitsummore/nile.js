@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "dist";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 33);
+/******/ 	return __webpack_require__(__webpack_require__.s = 34);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -117,15 +117,15 @@ module.exports = g;
  * Module dependencies.
  */
 
-var keys = __webpack_require__(46);
+var keys = __webpack_require__(49);
 var hasBinary = __webpack_require__(19);
-var sliceBuffer = __webpack_require__(35);
-var after = __webpack_require__(34);
-var utf8 = __webpack_require__(60);
+var sliceBuffer = __webpack_require__(36);
+var after = __webpack_require__(35);
+var utf8 = __webpack_require__(62);
 
 var base64encoder;
 if (global && global.ArrayBuffer) {
-  base64encoder = __webpack_require__(37);
+  base64encoder = __webpack_require__(38);
 }
 
 /**
@@ -183,7 +183,7 @@ var err = { type: 'error', data: 'parser error' };
  * Create a blob api even for blob builder when vendor prefixes exist
  */
 
-var Blob = __webpack_require__(38);
+var Blob = __webpack_require__(39);
 
 /**
  * Encodes a packet.
@@ -728,171 +728,6 @@ exports.decodePayloadAsBinary = function (data, binaryType, callback) {
 "use strict";
 
 
-/**
- * Expose `Emitter`.
- */
-
-if (true) {
-  module.exports = Emitter;
-}
-
-/**
- * Initialize a new `Emitter`.
- *
- * @api public
- */
-
-function Emitter(obj) {
-  if (obj) return mixin(obj);
-};
-
-/**
- * Mixin the emitter properties.
- *
- * @param {Object} obj
- * @return {Object}
- * @api private
- */
-
-function mixin(obj) {
-  for (var key in Emitter.prototype) {
-    obj[key] = Emitter.prototype[key];
-  }
-  return obj;
-}
-
-/**
- * Listen on the given `event` with `fn`.
- *
- * @param {String} event
- * @param {Function} fn
- * @return {Emitter}
- * @api public
- */
-
-Emitter.prototype.on = Emitter.prototype.addEventListener = function (event, fn) {
-  this._callbacks = this._callbacks || {};
-  (this._callbacks['$' + event] = this._callbacks['$' + event] || []).push(fn);
-  return this;
-};
-
-/**
- * Adds an `event` listener that will be invoked a single
- * time then automatically removed.
- *
- * @param {String} event
- * @param {Function} fn
- * @return {Emitter}
- * @api public
- */
-
-Emitter.prototype.once = function (event, fn) {
-  function on() {
-    this.off(event, on);
-    fn.apply(this, arguments);
-  }
-
-  on.fn = fn;
-  this.on(event, on);
-  return this;
-};
-
-/**
- * Remove the given callback for `event` or all
- * registered callbacks.
- *
- * @param {String} event
- * @param {Function} fn
- * @return {Emitter}
- * @api public
- */
-
-Emitter.prototype.off = Emitter.prototype.removeListener = Emitter.prototype.removeAllListeners = Emitter.prototype.removeEventListener = function (event, fn) {
-  this._callbacks = this._callbacks || {};
-
-  // all
-  if (0 == arguments.length) {
-    this._callbacks = {};
-    return this;
-  }
-
-  // specific event
-  var callbacks = this._callbacks['$' + event];
-  if (!callbacks) return this;
-
-  // remove all handlers
-  if (1 == arguments.length) {
-    delete this._callbacks['$' + event];
-    return this;
-  }
-
-  // remove specific handler
-  var cb;
-  for (var i = 0; i < callbacks.length; i++) {
-    cb = callbacks[i];
-    if (cb === fn || cb.fn === fn) {
-      callbacks.splice(i, 1);
-      break;
-    }
-  }
-  return this;
-};
-
-/**
- * Emit `event` with the given args.
- *
- * @param {String} event
- * @param {Mixed} ...
- * @return {Emitter}
- */
-
-Emitter.prototype.emit = function (event) {
-  this._callbacks = this._callbacks || {};
-  var args = [].slice.call(arguments, 1),
-      callbacks = this._callbacks['$' + event];
-
-  if (callbacks) {
-    callbacks = callbacks.slice(0);
-    for (var i = 0, len = callbacks.length; i < len; ++i) {
-      callbacks[i].apply(this, args);
-    }
-  }
-
-  return this;
-};
-
-/**
- * Return array of callbacks for `event`.
- *
- * @param {String} event
- * @return {Array}
- * @api public
- */
-
-Emitter.prototype.listeners = function (event) {
-  this._callbacks = this._callbacks || {};
-  return this._callbacks['$' + event] || [];
-};
-
-/**
- * Check if this emitter has `event` handlers.
- *
- * @param {String} event
- * @return {Boolean}
- * @api public
- */
-
-Emitter.prototype.hasListeners = function (event) {
-  return !!this.listeners(event).length;
-};
-
-/***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -1080,7 +915,7 @@ process.umask = function () {
 };
 
 /***/ }),
-/* 4 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6420,7 +6255,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0), __webpack_require__(13).setImmediate))
 
 /***/ }),
-/* 5 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6432,6 +6267,175 @@ module.exports = function (a, b) {
   a.prototype = new fn();
   a.prototype.constructor = a;
 };
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(process) {
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+/**
+ * This is the web browser implementation of `debug()`.
+ *
+ * Expose `debug()` as the module.
+ */
+
+exports = module.exports = __webpack_require__(48);
+exports.log = log;
+exports.formatArgs = formatArgs;
+exports.save = save;
+exports.load = load;
+exports.useColors = useColors;
+exports.storage = 'undefined' != typeof chrome && 'undefined' != typeof chrome.storage ? chrome.storage.local : localstorage();
+
+/**
+ * Colors.
+ */
+
+exports.colors = ['lightseagreen', 'forestgreen', 'goldenrod', 'dodgerblue', 'darkorchid', 'crimson'];
+
+/**
+ * Currently only WebKit-based Web Inspectors, Firefox >= v31,
+ * and the Firebug extension (any Firefox version) are known
+ * to support "%c" CSS customizations.
+ *
+ * TODO: add a `localStorage` variable to explicitly enable/disable colors
+ */
+
+function useColors() {
+  // is webkit? http://stackoverflow.com/a/16459606/376773
+  // document is undefined in react-native: https://github.com/facebook/react-native/pull/1632
+  return typeof document !== 'undefined' && 'WebkitAppearance' in document.documentElement.style ||
+  // is firebug? http://stackoverflow.com/a/398120/376773
+  window.console && (console.firebug || console.exception && console.table) ||
+  // is firefox >= v31?
+  // https://developer.mozilla.org/en-US/docs/Tools/Web_Console#Styling_messages
+  navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31;
+}
+
+/**
+ * Map %j to `JSON.stringify()`, since no Web Inspectors do that by default.
+ */
+
+exports.formatters.j = function (v) {
+  try {
+    return JSON.stringify(v);
+  } catch (err) {
+    return '[UnexpectedJSONParseError]: ' + err.message;
+  }
+};
+
+/**
+ * Colorize log arguments if enabled.
+ *
+ * @api public
+ */
+
+function formatArgs() {
+  var args = arguments;
+  var useColors = this.useColors;
+
+  args[0] = (useColors ? '%c' : '') + this.namespace + (useColors ? ' %c' : ' ') + args[0] + (useColors ? '%c ' : ' ') + '+' + exports.humanize(this.diff);
+
+  if (!useColors) return args;
+
+  var c = 'color: ' + this.color;
+  args = [args[0], c, 'color: inherit'].concat(Array.prototype.slice.call(args, 1));
+
+  // the final "%c" is somewhat tricky, because there could be other
+  // arguments passed either before or after the %c, so we need to
+  // figure out the correct index to insert the CSS into
+  var index = 0;
+  var lastC = 0;
+  args[0].replace(/%[a-z%]/g, function (match) {
+    if ('%%' === match) return;
+    index++;
+    if ('%c' === match) {
+      // we only are interested in the *last* %c
+      // (the user may have provided their own)
+      lastC = index;
+    }
+  });
+
+  args.splice(lastC, 0, c);
+  return args;
+}
+
+/**
+ * Invokes `console.log()` when available.
+ * No-op when `console.log` is not a "function".
+ *
+ * @api public
+ */
+
+function log() {
+  // this hackery is required for IE8/9, where
+  // the `console.log` function doesn't have 'apply'
+  return 'object' === (typeof console === 'undefined' ? 'undefined' : _typeof(console)) && console.log && Function.prototype.apply.call(console.log, console, arguments);
+}
+
+/**
+ * Save `namespaces`.
+ *
+ * @param {String} namespaces
+ * @api private
+ */
+
+function save(namespaces) {
+  try {
+    if (null == namespaces) {
+      exports.storage.removeItem('debug');
+    } else {
+      exports.storage.debug = namespaces;
+    }
+  } catch (e) {}
+}
+
+/**
+ * Load `namespaces`.
+ *
+ * @return {String} returns the previously persisted debug modes
+ * @api private
+ */
+
+function load() {
+  var r;
+  try {
+    return exports.storage.debug;
+  } catch (e) {}
+
+  // If debug isn't set in LS, and we're in Electron, try to load $DEBUG
+  if (typeof process !== 'undefined' && 'env' in process) {
+    return process.env.DEBUG;
+  }
+}
+
+/**
+ * Enable namespaces listed in `localStorage.debug` initially.
+ */
+
+exports.enable(load());
+
+/**
+ * Localstorage attempts to return the localstorage.
+ *
+ * This is necessary because safari throws
+ * when a user disables cookies/localstorage
+ * and you attempt to access it.
+ *
+ * @return {LocalStorage}
+ * @api private
+ */
+
+function localstorage() {
+  try {
+    return window.localStorage;
+  } catch (e) {}
+}
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
 /***/ }),
 /* 6 */
@@ -6448,7 +6452,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
  * Expose `debug()` as the module.
  */
 
-exports = module.exports = __webpack_require__(45);
+exports = module.exports = __webpack_require__(55);
 exports.log = log;
 exports.formatArgs = formatArgs;
 exports.save = save;
@@ -6600,179 +6604,10 @@ function localstorage() {
     return window.localStorage;
   } catch (e) {}
 }
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
 /***/ }),
 /* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(process) {
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-/**
- * This is the web browser implementation of `debug()`.
- *
- * Expose `debug()` as the module.
- */
-
-exports = module.exports = __webpack_require__(52);
-exports.log = log;
-exports.formatArgs = formatArgs;
-exports.save = save;
-exports.load = load;
-exports.useColors = useColors;
-exports.storage = 'undefined' != typeof chrome && 'undefined' != typeof chrome.storage ? chrome.storage.local : localstorage();
-
-/**
- * Colors.
- */
-
-exports.colors = ['lightseagreen', 'forestgreen', 'goldenrod', 'dodgerblue', 'darkorchid', 'crimson'];
-
-/**
- * Currently only WebKit-based Web Inspectors, Firefox >= v31,
- * and the Firebug extension (any Firefox version) are known
- * to support "%c" CSS customizations.
- *
- * TODO: add a `localStorage` variable to explicitly enable/disable colors
- */
-
-function useColors() {
-  // is webkit? http://stackoverflow.com/a/16459606/376773
-  // document is undefined in react-native: https://github.com/facebook/react-native/pull/1632
-  return typeof document !== 'undefined' && 'WebkitAppearance' in document.documentElement.style ||
-  // is firebug? http://stackoverflow.com/a/398120/376773
-  window.console && (console.firebug || console.exception && console.table) ||
-  // is firefox >= v31?
-  // https://developer.mozilla.org/en-US/docs/Tools/Web_Console#Styling_messages
-  navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31;
-}
-
-/**
- * Map %j to `JSON.stringify()`, since no Web Inspectors do that by default.
- */
-
-exports.formatters.j = function (v) {
-  try {
-    return JSON.stringify(v);
-  } catch (err) {
-    return '[UnexpectedJSONParseError]: ' + err.message;
-  }
-};
-
-/**
- * Colorize log arguments if enabled.
- *
- * @api public
- */
-
-function formatArgs() {
-  var args = arguments;
-  var useColors = this.useColors;
-
-  args[0] = (useColors ? '%c' : '') + this.namespace + (useColors ? ' %c' : ' ') + args[0] + (useColors ? '%c ' : ' ') + '+' + exports.humanize(this.diff);
-
-  if (!useColors) return args;
-
-  var c = 'color: ' + this.color;
-  args = [args[0], c, 'color: inherit'].concat(Array.prototype.slice.call(args, 1));
-
-  // the final "%c" is somewhat tricky, because there could be other
-  // arguments passed either before or after the %c, so we need to
-  // figure out the correct index to insert the CSS into
-  var index = 0;
-  var lastC = 0;
-  args[0].replace(/%[a-z%]/g, function (match) {
-    if ('%%' === match) return;
-    index++;
-    if ('%c' === match) {
-      // we only are interested in the *last* %c
-      // (the user may have provided their own)
-      lastC = index;
-    }
-  });
-
-  args.splice(lastC, 0, c);
-  return args;
-}
-
-/**
- * Invokes `console.log()` when available.
- * No-op when `console.log` is not a "function".
- *
- * @api public
- */
-
-function log() {
-  // this hackery is required for IE8/9, where
-  // the `console.log` function doesn't have 'apply'
-  return 'object' === (typeof console === 'undefined' ? 'undefined' : _typeof(console)) && console.log && Function.prototype.apply.call(console.log, console, arguments);
-}
-
-/**
- * Save `namespaces`.
- *
- * @param {String} namespaces
- * @api private
- */
-
-function save(namespaces) {
-  try {
-    if (null == namespaces) {
-      exports.storage.removeItem('debug');
-    } else {
-      exports.storage.debug = namespaces;
-    }
-  } catch (e) {}
-}
-
-/**
- * Load `namespaces`.
- *
- * @return {String} returns the previously persisted debug modes
- * @api private
- */
-
-function load() {
-  var r;
-  try {
-    return exports.storage.debug;
-  } catch (e) {}
-
-  // If debug isn't set in LS, and we're in Electron, try to load $DEBUG
-  if (typeof process !== 'undefined' && 'env' in process) {
-    return process.env.DEBUG;
-  }
-}
-
-/**
- * Enable namespaces listed in `localStorage.debug` initially.
- */
-
-exports.enable(load());
-
-/**
- * Localstorage attempts to return the localstorage.
- *
- * This is necessary because safari throws
- * when a user disables cookies/localstorage
- * and you attempt to access it.
- *
- * @return {LocalStorage}
- * @api private
- */
-
-function localstorage() {
-  try {
-    return window.localStorage;
-  } catch (e) {}
-}
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
-
-/***/ }),
-/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6783,7 +6618,7 @@ function localstorage() {
  */
 
 var parser = __webpack_require__(1);
-var Emitter = __webpack_require__(2);
+var Emitter = __webpack_require__(9);
 
 /**
  * Module exports.
@@ -6937,7 +6772,7 @@ Transport.prototype.onClose = function () {
 };
 
 /***/ }),
-/* 9 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6945,7 +6780,7 @@ Transport.prototype.onClose = function () {
 
 // browser shim for xmlhttprequest module
 
-var hasCORS = __webpack_require__(48);
+var hasCORS = __webpack_require__(51);
 
 module.exports = function (opts) {
   var xdomain = opts.xdomain;
@@ -6981,6 +6816,171 @@ module.exports = function (opts) {
   }
 };
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+/**
+ * Expose `Emitter`.
+ */
+
+if (true) {
+  module.exports = Emitter;
+}
+
+/**
+ * Initialize a new `Emitter`.
+ *
+ * @api public
+ */
+
+function Emitter(obj) {
+  if (obj) return mixin(obj);
+};
+
+/**
+ * Mixin the emitter properties.
+ *
+ * @param {Object} obj
+ * @return {Object}
+ * @api private
+ */
+
+function mixin(obj) {
+  for (var key in Emitter.prototype) {
+    obj[key] = Emitter.prototype[key];
+  }
+  return obj;
+}
+
+/**
+ * Listen on the given `event` with `fn`.
+ *
+ * @param {String} event
+ * @param {Function} fn
+ * @return {Emitter}
+ * @api public
+ */
+
+Emitter.prototype.on = Emitter.prototype.addEventListener = function (event, fn) {
+  this._callbacks = this._callbacks || {};
+  (this._callbacks['$' + event] = this._callbacks['$' + event] || []).push(fn);
+  return this;
+};
+
+/**
+ * Adds an `event` listener that will be invoked a single
+ * time then automatically removed.
+ *
+ * @param {String} event
+ * @param {Function} fn
+ * @return {Emitter}
+ * @api public
+ */
+
+Emitter.prototype.once = function (event, fn) {
+  function on() {
+    this.off(event, on);
+    fn.apply(this, arguments);
+  }
+
+  on.fn = fn;
+  this.on(event, on);
+  return this;
+};
+
+/**
+ * Remove the given callback for `event` or all
+ * registered callbacks.
+ *
+ * @param {String} event
+ * @param {Function} fn
+ * @return {Emitter}
+ * @api public
+ */
+
+Emitter.prototype.off = Emitter.prototype.removeListener = Emitter.prototype.removeAllListeners = Emitter.prototype.removeEventListener = function (event, fn) {
+  this._callbacks = this._callbacks || {};
+
+  // all
+  if (0 == arguments.length) {
+    this._callbacks = {};
+    return this;
+  }
+
+  // specific event
+  var callbacks = this._callbacks['$' + event];
+  if (!callbacks) return this;
+
+  // remove all handlers
+  if (1 == arguments.length) {
+    delete this._callbacks['$' + event];
+    return this;
+  }
+
+  // remove specific handler
+  var cb;
+  for (var i = 0; i < callbacks.length; i++) {
+    cb = callbacks[i];
+    if (cb === fn || cb.fn === fn) {
+      callbacks.splice(i, 1);
+      break;
+    }
+  }
+  return this;
+};
+
+/**
+ * Emit `event` with the given args.
+ *
+ * @param {String} event
+ * @param {Mixed} ...
+ * @return {Emitter}
+ */
+
+Emitter.prototype.emit = function (event) {
+  this._callbacks = this._callbacks || {};
+  var args = [].slice.call(arguments, 1),
+      callbacks = this._callbacks['$' + event];
+
+  if (callbacks) {
+    callbacks = callbacks.slice(0);
+    for (var i = 0, len = callbacks.length; i < len; ++i) {
+      callbacks[i].apply(this, args);
+    }
+  }
+
+  return this;
+};
+
+/**
+ * Return array of callbacks for `event`.
+ *
+ * @param {String} event
+ * @return {Array}
+ * @api public
+ */
+
+Emitter.prototype.listeners = function (event) {
+  this._callbacks = this._callbacks || {};
+  return this._callbacks['$' + event] || [];
+};
+
+/**
+ * Check if this emitter has `event` handlers.
+ *
+ * @param {String} event
+ * @return {Boolean}
+ * @api public
+ */
+
+Emitter.prototype.hasListeners = function (event) {
+  return !!this.listeners(event).length;
+};
 
 /***/ }),
 /* 10 */
@@ -7216,7 +7216,7 @@ exports.decode = function (qs) {
     attachTo.setImmediate = setImmediate;
     attachTo.clearImmediate = clearImmediate;
 })(typeof self === "undefined" ? typeof global === "undefined" ? undefined : global : self);
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0), __webpack_require__(3)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0), __webpack_require__(2)))
 
 /***/ }),
 /* 12 */
@@ -7229,11 +7229,11 @@ exports.decode = function (qs) {
  * Module dependencies.
  */
 
-var debug = __webpack_require__(55)('socket.io-parser');
-var json = __webpack_require__(49);
-var Emitter = __webpack_require__(54);
-var binary = __webpack_require__(53);
-var isBuf = __webpack_require__(26);
+var debug = __webpack_require__(57)('socket.io-parser');
+var json = __webpack_require__(52);
+var Emitter = __webpack_require__(41);
+var binary = __webpack_require__(56);
+var isBuf = __webpack_require__(27);
 
 /**
  * Protocol version.
@@ -7751,10 +7751,10 @@ module.exports = function (obj, fn) {
  * Module dependencies
  */
 
-var XMLHttpRequest = __webpack_require__(9);
-var XHR = __webpack_require__(43);
-var JSONP = __webpack_require__(42);
-var websocket = __webpack_require__(44);
+var XMLHttpRequest = __webpack_require__(8);
+var XHR = __webpack_require__(46);
+var JSONP = __webpack_require__(45);
+var websocket = __webpack_require__(47);
 
 /**
  * Export transports.
@@ -7813,12 +7813,12 @@ function polling(opts) {
  * Module dependencies.
  */
 
-var Transport = __webpack_require__(8);
+var Transport = __webpack_require__(7);
 var parseqs = __webpack_require__(10);
 var parser = __webpack_require__(1);
-var inherit = __webpack_require__(5);
-var yeast = __webpack_require__(28);
-var debug = __webpack_require__(6)('engine.io-client:polling');
+var inherit = __webpack_require__(4);
+var yeast = __webpack_require__(29);
+var debug = __webpack_require__(5)('engine.io-client:polling');
 
 /**
  * Module exports.
@@ -7831,7 +7831,7 @@ module.exports = Polling;
  */
 
 var hasXHR2 = function () {
-  var XMLHttpRequest = __webpack_require__(9);
+  var XMLHttpRequest = __webpack_require__(8);
   var xhr = new XMLHttpRequest({ xdomain: false });
   return null != xhr.responseType;
 }();
@@ -8067,7 +8067,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
  * Module requirements.
  */
 
-var isArray = __webpack_require__(47);
+var isArray = __webpack_require__(50);
 
 /**
  * Module exports.
@@ -8347,15 +8347,15 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
  * Module dependencies.
  */
 
-var eio = __webpack_require__(39);
+var eio = __webpack_require__(42);
 var Socket = __webpack_require__(25);
-var Emitter = __webpack_require__(2);
+var Emitter = __webpack_require__(26);
 var parser = __webpack_require__(12);
 var on = __webpack_require__(24);
 var bind = __webpack_require__(16);
-var debug = __webpack_require__(7)('socket.io-client:manager');
+var debug = __webpack_require__(6)('socket.io-client:manager');
 var indexOf = __webpack_require__(20);
-var Backoff = __webpack_require__(36);
+var Backoff = __webpack_require__(37);
 
 /**
  * IE6+ hasOwnProperty
@@ -8945,11 +8945,11 @@ function on(obj, ev, fn) {
  */
 
 var parser = __webpack_require__(12);
-var Emitter = __webpack_require__(2);
-var toArray = __webpack_require__(59);
+var Emitter = __webpack_require__(26);
+var toArray = __webpack_require__(61);
 var on = __webpack_require__(24);
 var bind = __webpack_require__(16);
-var debug = __webpack_require__(7)('socket.io-client:socket');
+var debug = __webpack_require__(6)('socket.io-client:socket');
 var hasBin = __webpack_require__(19);
 
 /**
@@ -9360,6 +9360,171 @@ Socket.prototype.compress = function (compress) {
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
+
+
+/**
+ * Expose `Emitter`.
+ */
+
+if (true) {
+  module.exports = Emitter;
+}
+
+/**
+ * Initialize a new `Emitter`.
+ *
+ * @api public
+ */
+
+function Emitter(obj) {
+  if (obj) return mixin(obj);
+};
+
+/**
+ * Mixin the emitter properties.
+ *
+ * @param {Object} obj
+ * @return {Object}
+ * @api private
+ */
+
+function mixin(obj) {
+  for (var key in Emitter.prototype) {
+    obj[key] = Emitter.prototype[key];
+  }
+  return obj;
+}
+
+/**
+ * Listen on the given `event` with `fn`.
+ *
+ * @param {String} event
+ * @param {Function} fn
+ * @return {Emitter}
+ * @api public
+ */
+
+Emitter.prototype.on = Emitter.prototype.addEventListener = function (event, fn) {
+  this._callbacks = this._callbacks || {};
+  (this._callbacks['$' + event] = this._callbacks['$' + event] || []).push(fn);
+  return this;
+};
+
+/**
+ * Adds an `event` listener that will be invoked a single
+ * time then automatically removed.
+ *
+ * @param {String} event
+ * @param {Function} fn
+ * @return {Emitter}
+ * @api public
+ */
+
+Emitter.prototype.once = function (event, fn) {
+  function on() {
+    this.off(event, on);
+    fn.apply(this, arguments);
+  }
+
+  on.fn = fn;
+  this.on(event, on);
+  return this;
+};
+
+/**
+ * Remove the given callback for `event` or all
+ * registered callbacks.
+ *
+ * @param {String} event
+ * @param {Function} fn
+ * @return {Emitter}
+ * @api public
+ */
+
+Emitter.prototype.off = Emitter.prototype.removeListener = Emitter.prototype.removeAllListeners = Emitter.prototype.removeEventListener = function (event, fn) {
+  this._callbacks = this._callbacks || {};
+
+  // all
+  if (0 == arguments.length) {
+    this._callbacks = {};
+    return this;
+  }
+
+  // specific event
+  var callbacks = this._callbacks['$' + event];
+  if (!callbacks) return this;
+
+  // remove all handlers
+  if (1 == arguments.length) {
+    delete this._callbacks['$' + event];
+    return this;
+  }
+
+  // remove specific handler
+  var cb;
+  for (var i = 0; i < callbacks.length; i++) {
+    cb = callbacks[i];
+    if (cb === fn || cb.fn === fn) {
+      callbacks.splice(i, 1);
+      break;
+    }
+  }
+  return this;
+};
+
+/**
+ * Emit `event` with the given args.
+ *
+ * @param {String} event
+ * @param {Mixed} ...
+ * @return {Emitter}
+ */
+
+Emitter.prototype.emit = function (event) {
+  this._callbacks = this._callbacks || {};
+  var args = [].slice.call(arguments, 1),
+      callbacks = this._callbacks['$' + event];
+
+  if (callbacks) {
+    callbacks = callbacks.slice(0);
+    for (var i = 0, len = callbacks.length; i < len; ++i) {
+      callbacks[i].apply(this, args);
+    }
+  }
+
+  return this;
+};
+
+/**
+ * Return array of callbacks for `event`.
+ *
+ * @param {String} event
+ * @return {Array}
+ * @api public
+ */
+
+Emitter.prototype.listeners = function (event) {
+  this._callbacks = this._callbacks || {};
+  return this._callbacks['$' + event] || [];
+};
+
+/**
+ * Check if this emitter has `event` handlers.
+ *
+ * @param {String} event
+ * @return {Boolean}
+ * @api public
+ */
+
+Emitter.prototype.hasListeners = function (event) {
+  return !!this.listeners(event).length;
+};
+
+/***/ }),
+/* 27 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
 /* WEBPACK VAR INJECTION */(function(global) {
 
 module.exports = isBuf;
@@ -9376,7 +9541,7 @@ function isBuf(obj) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9406,7 +9571,7 @@ module.exports = function (module) {
 };
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9480,7 +9645,7 @@ yeast.decode = decode;
 module.exports = yeast;
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9491,10 +9656,14 @@ Object.defineProperty(exports, "__esModule", {
 });
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+// for dev purposes: setting PeerConnection to ColdBrew RTC
+
 
 var _message = __webpack_require__(15);
 
 var _message2 = _interopRequireDefault(_message);
+
+var _rtc = __webpack_require__(40);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -9508,6 +9677,7 @@ RTCPeerConnection = RTCPeerConnection || mozRTCPeerConnection;
 /**
  * Wrapper class for RTC connection between parent and child viewers
  */
+
 var ViewerConnection = function () {
   function ViewerConnection(socket, isRoot) {
     var messageHandlers = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
@@ -9529,7 +9699,8 @@ var ViewerConnection = function () {
     this.peerId;
 
     // set up wrapped WebRTCConnection
-    this.RTCconn = new RTCPeerConnection({
+    this.RTCconn = (0, _rtc.coldBrewRTC)({
+      // this.RTCconn = new RTCPeerConnection({
       iceServers: [
       // STUN servers
       { url: 'stun:stun.l.google.com:19302' }, { url: 'stun:stun1.l.google.com:19302' }, { url: 'stun:stun2.l.google.com:19302' }, { url: 'stun:stun3.l.google.com:19302' }, { url: 'stun:stun4.l.google.com:19302' }].concat(_toConsumableArray(turnServers))
@@ -9807,8 +9978,8 @@ var ViewerConnection = function () {
 exports.default = ViewerConnection;
 
 /***/ }),
-/* 30 */,
-/* 31 */
+/* 31 */,
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9820,10 +9991,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
  * Module dependencies.
  */
 
-var url = __webpack_require__(51);
+var url = __webpack_require__(54);
 var parser = __webpack_require__(12);
 var Manager = __webpack_require__(23);
-var debug = __webpack_require__(7)('socket.io-client');
+var debug = __webpack_require__(6)('socket.io-client');
 
 /**
  * Module exports.
@@ -9925,8 +10096,8 @@ exports.Manager = __webpack_require__(23);
 exports.Socket = __webpack_require__(25);
 
 /***/ }),
-/* 32 */,
-/* 33 */
+/* 33 */,
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9938,7 +10109,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 // Have to require WebTorrent and not import, or there is a fs error from node.js
 
 
-var _webtorrentMin = __webpack_require__(4);
+var _webtorrentMin = __webpack_require__(3);
 
 var _webtorrentMin2 = _interopRequireDefault(_webtorrentMin);
 
@@ -9946,11 +10117,11 @@ var _message = __webpack_require__(15);
 
 var _message2 = _interopRequireDefault(_message);
 
-var _socket = __webpack_require__(31);
+var _socket = __webpack_require__(32);
 
 var _socket2 = _interopRequireDefault(_socket);
 
-var _viewerConnection = __webpack_require__(29);
+var _viewerConnection = __webpack_require__(30);
 
 var _viewerConnection2 = _interopRequireDefault(_viewerConnection);
 
@@ -10292,7 +10463,7 @@ var Viewer = function () {
 module.exports = Viewer;
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10328,7 +10499,7 @@ function after(count, callback, err_cb) {
 function noop() {}
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10373,7 +10544,7 @@ module.exports = function (arraybuffer, start, end) {
 };
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10464,7 +10635,7 @@ Backoff.prototype.setJitter = function (jitter) {
 };
 
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10546,7 +10717,7 @@ Backoff.prototype.setJitter = function (jitter) {
 })();
 
 /***/ }),
-/* 38 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10646,22 +10817,443 @@ module.exports = function () {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 39 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = __webpack_require__(40);
-
-/***/ }),
 /* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-module.exports = __webpack_require__(41);
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
+
+function _possibleConstructorReturn(self, call) {
+  if (!self) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  }return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+}
+
+function _inherits(subClass, superClass) {
+  if (typeof superClass !== "function" && superClass !== null) {
+    throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
+  }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+}
+
+/* eslint no-undef: 0 */
+/* eslint no-unused-vars: 0 */
+/* eslint prefer-arrow-callback: 0 */
+/* eslint func-names: 0 */
+/* eslint no-use-before-define: 0 */
+/* eslint no-param-reassign: 0 */
+/* eslint no-shadow: 0 */
+
+if (window.coldBrewData) {
+  throw new ColdBrewError('Cannot capture RTC events, window.coldBrewData property already exists');
+}
+
+// Attach a coldBrewData object to the window object to keep a record of the
+// events that fire on the RTCPeerConnection object
+window.coldBrewData = {
+  RTCEvents: [],
+  RTCDataChannelEvents: [],
+  socketEvents: {
+    outgoing: [],
+    incoming: []
+  },
+  peerConnections: {},
+  sockets: {}
+};
+
+// An array of all of the events that fire on the RTCPeerConnection object
+var RTC_PEER_CONNECTION_EVENTS = ['addstream', 'connectionstatechange', 'datachannel', 'icecandidate', 'iceconnectionstatechange', 'icegatheringstatechange', 'identityresult', 'idpassertionerror', 'idpvalidationerror', 'negotiationneeded', 'peeridentity', 'removestream', 'signalingstatechange', 'track'];
+
+var RTC_DATA_CHANNEL_EVENTS = ['bufferedamountlow', 'close', 'error', 'message', 'open'];
+
+/**
+ * coldBrewRTC - Factory function that creates and returns an RTCPeerCOnnection
+ * object. The RTCPeerConnection object's behavior is augmented to
+ * enable it to push any events that fire on it into an array attached
+ * to the window object.
+ *
+ * @param  {type} servers        description
+ * @param  {type} options        description
+ * @param  {type} coldBrewConfig description
+ * @return {type}                description
+ */
+function coldBrewRTC(servers, options, coldBrewConfig, dataChannelConfig) {
+  if (coldBrewConfig && coldBrewConfig.production) {
+    return new RTCPeerConnection(servers, options);
+  }
+
+  // setup config for RTCPeerConnection
+  coldBrewConfig = coldBrewConfig || {};
+
+  var listeners = coldBrewConfig.listeners || RTC_PEER_CONNECTION_EVENTS;
+  var label = coldBrewConfig.label || null;
+  validateListeners(listeners);
+
+  // setup config for dataChannelConfig
+  dataChannelConfig = dataChannelConfig || {};
+
+  var dataListeners = dataChannelConfig.listeners || RTC_DATA_CHANNEL_EVENTS;
+  validateDataListeners(dataListeners);
+
+  // Create peer connection
+  var peerConnection = new RTCPeerConnection(servers, options);
+  addEventLogListeners(peerConnection, listeners, label);
+  addDataListenersOnChannelCreation(peerConnection, dataListeners);
+  addDataListenersOnDataChannelEvent(peerConnection, dataListeners);
+
+  return peerConnection;
+
+  function validateListeners(listeners) {
+    var valid = listeners.every(function (listener) {
+      return RTC_PEER_CONNECTION_EVENTS.includes(listener);
+    });
+
+    if (!valid) {
+      throw new ColdBrewError('Invalid event names passed in to coldBrewRTC');
+    }
+  }
+
+  function validateDataListeners(dataListeners) {
+    var valid = dataListeners.every(function (listener) {
+      return RTC_DATA_CHANNEL_EVENTS.includes(listener);
+    });
+
+    if (!valid) {
+      throw new ColdBrewError('Invalid data channel event names passed in to coldBrewRTC');
+    }
+  }
+
+  function addEventLogListeners(peerConnection, listeners) {
+    var label = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+
+    if (label) {
+      window.coldBrewData.peerConnections[label] = [];
+    }
+
+    listeners.forEach(function (listener) {
+      peerConnection.addEventListener(listener, function (event) {
+        window.coldBrewData.RTCEvents.push(event);
+        if (label) {
+          window.coldBrewData.peerConnections[label].push(event);
+        }
+      });
+    });
+  }
+
+  function addDataListenersOnChannelCreation(peerConnection, dataListeners) {
+    var createDataChannel = peerConnection.createDataChannel.bind(peerConnection);
+
+    peerConnection.createDataChannel = function () {
+      var newDataChannel = createDataChannel.apply(undefined, arguments);
+      dataListeners.forEach(function (listener) {
+        newDataChannel.addEventListener(listener, function (event) {
+          window.coldBrewData.RTCDataChannelEvents.push(event);
+        });
+      });
+
+      return newDataChannel;
+    };
+  }
+
+  function addDataListenersOnDataChannelEvent(peerConnection, dataListeners) {
+    Object.defineProperty(peerConnection, 'ondatachannel', {
+      set: function set(func) {
+        peerConnection.addEventListener('datachannel', function (e) {
+          var datachannel = e.channel;
+          dataListeners.forEach(function (listener) {
+            datachannel.addEventListener(listener, function (event) {
+              window.coldBrewData.RTCDataChannelEvents.push(event);
+            });
+          });
+
+          func(e);
+        });
+      }
+    });
+  }
+}
+
+function observeSignaling(socket) {
+  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+  if (options.production === true) return socket;
+
+  return new Proxy(socket, {
+    get: function get(target, key, receiver) {
+      switch (key) {
+        case 'emit':
+          return emitAndLog(target);
+
+        case 'on':
+          return logOnReceipt(target);
+
+        default:
+          return target[key];
+      }
+    }
+  });
+
+  function emitAndLog(target) {
+    return function () {
+      // emit can be called with 1 to 3 arguments:
+      // type
+      // type, data
+      // type, callback
+      // type, data, callback
+      // Therefore, we need to parse the arguments
+      var type = arguments.length <= 0 ? undefined : arguments[0];
+
+      var data = void 0;
+      var callback = void 0;
+
+      if (arguments.length <= 1 ? undefined : arguments[1]) {
+        if (typeof (arguments.length <= 1 ? undefined : arguments[1]) === 'function') callback = arguments.length <= 1 ? undefined : arguments[1];else data = arguments.length <= 1 ? undefined : arguments[1];
+      }
+
+      if (arguments.length <= 2 ? undefined : arguments[2]) {
+        if (typeof (arguments.length <= 2 ? undefined : arguments[2]) === 'function') callback = arguments.length <= 2 ? undefined : arguments[2];
+      }
+
+      window.coldBrewData.socketEvents.outgoing.push({
+        type: type,
+        data: data,
+        callback: callback
+      });
+
+      return target.emit.apply(target, arguments);
+    };
+  }
+
+  function logOnReceipt(target) {
+    return function (type, callback) {
+      target.on(type, function () {
+        for (var _len = arguments.length, data = Array(_len), _key = 0; _key < _len; _key++) {
+          data[_key] = arguments[_key];
+        }
+
+        window.coldBrewData.socketEvents.incoming.push({
+          type: type,
+          data: data,
+          callback: callback
+        });
+
+        callback.apply(undefined, data);
+      });
+    };
+  }
+}
+
+var ColdBrewError = function (_Error) {
+  _inherits(ColdBrewError, _Error);
+
+  function ColdBrewError() {
+    _classCallCheck(this, ColdBrewError);
+
+    return _possibleConstructorReturn(this, (ColdBrewError.__proto__ || Object.getPrototypeOf(ColdBrewError)).apply(this, arguments));
+  }
+
+  return ColdBrewError;
+}(Error);
+
+if (true) {
+  module.exports = {
+    coldBrewRTC: coldBrewRTC,
+    observeSignaling: observeSignaling,
+    RTC_PEER_CONNECTION_EVENTS: RTC_PEER_CONNECTION_EVENTS,
+    RTC_DATA_CHANNEL_EVENTS: RTC_DATA_CHANNEL_EVENTS
+  };
+}
+
+/***/ }),
+/* 41 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+/**
+ * Expose `Emitter`.
+ */
+
+module.exports = Emitter;
+
+/**
+ * Initialize a new `Emitter`.
+ *
+ * @api public
+ */
+
+function Emitter(obj) {
+  if (obj) return mixin(obj);
+};
+
+/**
+ * Mixin the emitter properties.
+ *
+ * @param {Object} obj
+ * @return {Object}
+ * @api private
+ */
+
+function mixin(obj) {
+  for (var key in Emitter.prototype) {
+    obj[key] = Emitter.prototype[key];
+  }
+  return obj;
+}
+
+/**
+ * Listen on the given `event` with `fn`.
+ *
+ * @param {String} event
+ * @param {Function} fn
+ * @return {Emitter}
+ * @api public
+ */
+
+Emitter.prototype.on = Emitter.prototype.addEventListener = function (event, fn) {
+  this._callbacks = this._callbacks || {};
+  (this._callbacks[event] = this._callbacks[event] || []).push(fn);
+  return this;
+};
+
+/**
+ * Adds an `event` listener that will be invoked a single
+ * time then automatically removed.
+ *
+ * @param {String} event
+ * @param {Function} fn
+ * @return {Emitter}
+ * @api public
+ */
+
+Emitter.prototype.once = function (event, fn) {
+  var self = this;
+  this._callbacks = this._callbacks || {};
+
+  function on() {
+    self.off(event, on);
+    fn.apply(this, arguments);
+  }
+
+  on.fn = fn;
+  this.on(event, on);
+  return this;
+};
+
+/**
+ * Remove the given callback for `event` or all
+ * registered callbacks.
+ *
+ * @param {String} event
+ * @param {Function} fn
+ * @return {Emitter}
+ * @api public
+ */
+
+Emitter.prototype.off = Emitter.prototype.removeListener = Emitter.prototype.removeAllListeners = Emitter.prototype.removeEventListener = function (event, fn) {
+  this._callbacks = this._callbacks || {};
+
+  // all
+  if (0 == arguments.length) {
+    this._callbacks = {};
+    return this;
+  }
+
+  // specific event
+  var callbacks = this._callbacks[event];
+  if (!callbacks) return this;
+
+  // remove all handlers
+  if (1 == arguments.length) {
+    delete this._callbacks[event];
+    return this;
+  }
+
+  // remove specific handler
+  var cb;
+  for (var i = 0; i < callbacks.length; i++) {
+    cb = callbacks[i];
+    if (cb === fn || cb.fn === fn) {
+      callbacks.splice(i, 1);
+      break;
+    }
+  }
+  return this;
+};
+
+/**
+ * Emit `event` with the given args.
+ *
+ * @param {String} event
+ * @param {Mixed} ...
+ * @return {Emitter}
+ */
+
+Emitter.prototype.emit = function (event) {
+  this._callbacks = this._callbacks || {};
+  var args = [].slice.call(arguments, 1),
+      callbacks = this._callbacks[event];
+
+  if (callbacks) {
+    callbacks = callbacks.slice(0);
+    for (var i = 0, len = callbacks.length; i < len; ++i) {
+      callbacks[i].apply(this, args);
+    }
+  }
+
+  return this;
+};
+
+/**
+ * Return array of callbacks for `event`.
+ *
+ * @param {String} event
+ * @return {Array}
+ * @api public
+ */
+
+Emitter.prototype.listeners = function (event) {
+  this._callbacks = this._callbacks || {};
+  return this._callbacks[event] || [];
+};
+
+/**
+ * Check if this emitter has `event` handlers.
+ *
+ * @param {String} event
+ * @return {Boolean}
+ * @api public
+ */
+
+Emitter.prototype.hasListeners = function (event) {
+  return !!this.listeners(event).length;
+};
+
+/***/ }),
+/* 42 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = __webpack_require__(43);
+
+/***/ }),
+/* 43 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = __webpack_require__(44);
 
 /**
  * Exports parser
@@ -10672,7 +11264,7 @@ module.exports = __webpack_require__(41);
 module.exports.parser = __webpack_require__(1);
 
 /***/ }),
-/* 41 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10685,12 +11277,12 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
  */
 
 var transports = __webpack_require__(17);
-var Emitter = __webpack_require__(2);
-var debug = __webpack_require__(6)('engine.io-client:socket');
+var Emitter = __webpack_require__(9);
+var debug = __webpack_require__(5)('engine.io-client:socket');
 var index = __webpack_require__(20);
 var parser = __webpack_require__(1);
 var parseuri = __webpack_require__(22);
-var parsejson = __webpack_require__(50);
+var parsejson = __webpack_require__(53);
 var parseqs = __webpack_require__(10);
 
 /**
@@ -10819,7 +11411,7 @@ Socket.protocol = parser.protocol; // this is an int
  */
 
 Socket.Socket = Socket;
-Socket.Transport = __webpack_require__(8);
+Socket.Transport = __webpack_require__(7);
 Socket.transports = __webpack_require__(17);
 Socket.parser = __webpack_require__(1);
 
@@ -11410,7 +12002,7 @@ Socket.prototype.filterUpgrades = function (upgrades) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 42 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11421,7 +12013,7 @@ Socket.prototype.filterUpgrades = function (upgrades) {
  */
 
 var Polling = __webpack_require__(18);
-var inherit = __webpack_require__(5);
+var inherit = __webpack_require__(4);
 
 /**
  * Module exports.
@@ -11649,7 +12241,7 @@ JSONPPolling.prototype.doWrite = function (data, fn) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 43 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11659,11 +12251,11 @@ JSONPPolling.prototype.doWrite = function (data, fn) {
  * Module requirements.
  */
 
-var XMLHttpRequest = __webpack_require__(9);
+var XMLHttpRequest = __webpack_require__(8);
 var Polling = __webpack_require__(18);
-var Emitter = __webpack_require__(2);
-var inherit = __webpack_require__(5);
-var debug = __webpack_require__(6)('engine.io-client:polling-xhr');
+var Emitter = __webpack_require__(9);
+var inherit = __webpack_require__(4);
+var debug = __webpack_require__(5)('engine.io-client:polling-xhr');
 
 /**
  * Module exports.
@@ -12081,7 +12673,7 @@ function unloadHandler() {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 44 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12091,17 +12683,17 @@ function unloadHandler() {
  * Module dependencies.
  */
 
-var Transport = __webpack_require__(8);
+var Transport = __webpack_require__(7);
 var parser = __webpack_require__(1);
 var parseqs = __webpack_require__(10);
-var inherit = __webpack_require__(5);
-var yeast = __webpack_require__(28);
-var debug = __webpack_require__(6)('engine.io-client:websocket');
+var inherit = __webpack_require__(4);
+var yeast = __webpack_require__(29);
+var debug = __webpack_require__(5)('engine.io-client:websocket');
 var BrowserWebSocket = global.WebSocket || global.MozWebSocket;
 var NodeWebSocket;
 if (typeof window === 'undefined') {
   try {
-    NodeWebSocket = __webpack_require__(61);
+    NodeWebSocket = __webpack_require__(63);
   } catch (e) {}
 }
 
@@ -12374,7 +12966,7 @@ WS.prototype.check = function () {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 45 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12580,7 +13172,7 @@ function coerce(val) {
 }
 
 /***/ }),
-/* 46 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12606,7 +13198,7 @@ module.exports = Object.keys || function keys(obj) {
 };
 
 /***/ }),
-/* 47 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12617,7 +13209,7 @@ module.exports = Array.isArray || function (arr) {
 };
 
 /***/ }),
-/* 48 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12640,7 +13232,7 @@ try {
 }
 
 /***/ }),
-/* 49 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13572,10 +14164,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
   }
 }).call(undefined);
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(27)(module), __webpack_require__(0)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(28)(module), __webpack_require__(0)))
 
 /***/ }),
-/* 50 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13614,7 +14206,7 @@ module.exports = function parsejson(data) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 51 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13625,7 +14217,7 @@ module.exports = function parsejson(data) {
  */
 
 var parseuri = __webpack_require__(22);
-var debug = __webpack_require__(7)('socket.io-client:url');
+var debug = __webpack_require__(6)('socket.io-client:url');
 
 /**
  * Module exports.
@@ -13697,7 +14289,7 @@ function url(uri, loc) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 52 */
+/* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13903,7 +14495,7 @@ function coerce(val) {
 }
 
 /***/ }),
-/* 53 */
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13917,8 +14509,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
  * Module requirements
  */
 
-var isArray = __webpack_require__(57);
-var isBuf = __webpack_require__(26);
+var isArray = __webpack_require__(59);
+var isBuf = __webpack_require__(27);
 
 /**
  * Replaces every Buffer | ArrayBuffer in packet with a numbered placeholder.
@@ -14056,173 +14648,7 @@ exports.removeBlobs = function (data, callback) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 54 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-/**
- * Expose `Emitter`.
- */
-
-module.exports = Emitter;
-
-/**
- * Initialize a new `Emitter`.
- *
- * @api public
- */
-
-function Emitter(obj) {
-  if (obj) return mixin(obj);
-};
-
-/**
- * Mixin the emitter properties.
- *
- * @param {Object} obj
- * @return {Object}
- * @api private
- */
-
-function mixin(obj) {
-  for (var key in Emitter.prototype) {
-    obj[key] = Emitter.prototype[key];
-  }
-  return obj;
-}
-
-/**
- * Listen on the given `event` with `fn`.
- *
- * @param {String} event
- * @param {Function} fn
- * @return {Emitter}
- * @api public
- */
-
-Emitter.prototype.on = Emitter.prototype.addEventListener = function (event, fn) {
-  this._callbacks = this._callbacks || {};
-  (this._callbacks[event] = this._callbacks[event] || []).push(fn);
-  return this;
-};
-
-/**
- * Adds an `event` listener that will be invoked a single
- * time then automatically removed.
- *
- * @param {String} event
- * @param {Function} fn
- * @return {Emitter}
- * @api public
- */
-
-Emitter.prototype.once = function (event, fn) {
-  var self = this;
-  this._callbacks = this._callbacks || {};
-
-  function on() {
-    self.off(event, on);
-    fn.apply(this, arguments);
-  }
-
-  on.fn = fn;
-  this.on(event, on);
-  return this;
-};
-
-/**
- * Remove the given callback for `event` or all
- * registered callbacks.
- *
- * @param {String} event
- * @param {Function} fn
- * @return {Emitter}
- * @api public
- */
-
-Emitter.prototype.off = Emitter.prototype.removeListener = Emitter.prototype.removeAllListeners = Emitter.prototype.removeEventListener = function (event, fn) {
-  this._callbacks = this._callbacks || {};
-
-  // all
-  if (0 == arguments.length) {
-    this._callbacks = {};
-    return this;
-  }
-
-  // specific event
-  var callbacks = this._callbacks[event];
-  if (!callbacks) return this;
-
-  // remove all handlers
-  if (1 == arguments.length) {
-    delete this._callbacks[event];
-    return this;
-  }
-
-  // remove specific handler
-  var cb;
-  for (var i = 0; i < callbacks.length; i++) {
-    cb = callbacks[i];
-    if (cb === fn || cb.fn === fn) {
-      callbacks.splice(i, 1);
-      break;
-    }
-  }
-  return this;
-};
-
-/**
- * Emit `event` with the given args.
- *
- * @param {String} event
- * @param {Mixed} ...
- * @return {Emitter}
- */
-
-Emitter.prototype.emit = function (event) {
-  this._callbacks = this._callbacks || {};
-  var args = [].slice.call(arguments, 1),
-      callbacks = this._callbacks[event];
-
-  if (callbacks) {
-    callbacks = callbacks.slice(0);
-    for (var i = 0, len = callbacks.length; i < len; ++i) {
-      callbacks[i].apply(this, args);
-    }
-  }
-
-  return this;
-};
-
-/**
- * Return array of callbacks for `event`.
- *
- * @param {String} event
- * @return {Array}
- * @api public
- */
-
-Emitter.prototype.listeners = function (event) {
-  this._callbacks = this._callbacks || {};
-  return this._callbacks[event] || [];
-};
-
-/**
- * Check if this emitter has `event` handlers.
- *
- * @param {String} event
- * @return {Boolean}
- * @api public
- */
-
-Emitter.prototype.hasListeners = function (event) {
-  return !!this.listeners(event).length;
-};
-
-/***/ }),
-/* 55 */
+/* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14236,7 +14662,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
  * Expose `debug()` as the module.
  */
 
-exports = module.exports = __webpack_require__(56);
+exports = module.exports = __webpack_require__(58);
 exports.log = log;
 exports.formatArgs = formatArgs;
 exports.save = save;
@@ -14381,7 +14807,7 @@ function localstorage() {
 }
 
 /***/ }),
-/* 56 */
+/* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14399,7 +14825,7 @@ exports.coerce = coerce;
 exports.disable = disable;
 exports.enable = enable;
 exports.enabled = enabled;
-exports.humanize = __webpack_require__(58);
+exports.humanize = __webpack_require__(60);
 
 /**
  * The currently active debug mode names, and names to skip.
@@ -14584,7 +15010,7 @@ function coerce(val) {
 }
 
 /***/ }),
-/* 57 */
+/* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14595,7 +15021,7 @@ module.exports = Array.isArray || function (arr) {
 };
 
 /***/ }),
-/* 58 */
+/* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14722,7 +15148,7 @@ function plural(ms, n, name) {
 }
 
 /***/ }),
-/* 59 */
+/* 61 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14743,7 +15169,7 @@ function toArray(list, index) {
 }
 
 /***/ }),
-/* 60 */
+/* 62 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14985,10 +15411,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		root.wtf8 = wtf8;
 	}
 })(undefined);
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(27)(module), __webpack_require__(0)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(28)(module), __webpack_require__(0)))
 
 /***/ }),
-/* 61 */
+/* 63 */
 /***/ (function(module, exports) {
 
 /* (ignored) */

@@ -52,15 +52,18 @@ describe('Socket Testing Suite', function () {
     });
     socket.on('disconnect', function () {
       console.log('disconnected...');
+      done();
     });
   });
 
   describe('Testing Socket Controller', () => {
 
     it('New client should send offer to client previously connected client', (done) => {
+      this.timeout(5000);
+
       client1.get(ADDRESS);
       client2.get(ADDRESS);
-      console.log(client2);
+
       client2.waitUntilSendSignaling([
         'offer'
       ]).then((sent) => {
@@ -68,7 +71,6 @@ describe('Socket Testing Suite', function () {
           done();
         }
       }).catch((err) => {
-        console.log('THIS IS THE ERROR', err);
         done();
       });
     });
@@ -91,14 +93,13 @@ describe('Socket Testing Suite', function () {
     client1.quit();
     client2.quit.then(() => done());
 
-    if (socket.connected) {
-      console.log('disconnecting...');
-      socket.disconnect();
-    } else {
-      // There will not be a connection unless you have done() in beforeEach, socket.on('connect'...)
-      console.log('no connection to break...');
-    }
-    done();
+    // if (socket.connected) {
+    //   console.log('disconnecting...');
+    //   socket.disconnect();
+    // } else {
+    //   console.log('no connection to break...');
+    // }
+    // done();
   });
 });
 
