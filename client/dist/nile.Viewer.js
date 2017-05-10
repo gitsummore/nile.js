@@ -7698,11 +7698,9 @@ module.exports = __webpack_amd_options__;
 "use strict";
 
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
 var Message = function Message(type, message) {
   if (typeof type !== 'string') throw new Error('type must be a string');
-  if ((typeof message === 'undefined' ? 'undefined' : _typeof(message)) !== 'object') throw new Error('message must be an object');
+  // if (typeof message !== 'object') throw new Error('message must be an object');
 
   this.type = type;
   this.message = message;
@@ -10021,6 +10019,8 @@ var Viewer = function () {
       'magnetURI3': 0,
       'isPlay1Playing': false
     }, _defineProperty(_torrentInfo, 'isPlay1Playing', false), _defineProperty(_torrentInfo, 'firstIteration', 0), _torrentInfo);
+
+    this.onProgress = this.onProgress.bind(this);
   }
 
   _createClass(Viewer, [{
@@ -10165,12 +10165,12 @@ var Viewer = function () {
       var $play2 = this.$play2;
       var $play3 = this.$play3;
 
-      // let onProgress = this.onProgress;
+      var onProgress = this.onProgress;
       this.torrentInfo[firstIteration] += 1;
       console.log(this.torrentInfo[firstIteration]);
 
       var first = this.torrentInfo[firstIteration];
-      // console.log('first Iteration', firstIteration)
+
       if (!isPlay1Playing) {
         console.log('play1 playing');
         this.torrentInfo['isPlay1Playing'] = true;
@@ -10210,11 +10210,12 @@ var Viewer = function () {
         }
 
         // Trigger statistics refresh
-        // setInterval(onProgress.bind(this)(torrent), 500);
+        setInterval(onProgress(torrent), 500);
       });
 
       // listen to when video ends, immediately play the other video
       currPlayer.onended = function () {
+        currPlayer.pause();
         nextPlayer.play();
 
         nextPlayer.removeAttribute('hidden');
@@ -10251,7 +10252,7 @@ var Viewer = function () {
       // let $numPeers = this.$numPeers.bind(this);
       // let $uploadSpeed = this.$uploadSpeed.bind(this);
       // let $downloadSpeed = this.$downloadSpeed.bind(this);
-
+      console.log('i am working?');
       var $numPeers = document.querySelector('#numPeers');
       var $uploadSpeed = document.querySelector('#uploadSpeed');
       var $downloadSpeed = document.querySelector('#downloadSpeed');
