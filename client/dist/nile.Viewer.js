@@ -118,7 +118,7 @@ module.exports = g;
  */
 
 var keys = __webpack_require__(46);
-var hasBinary = __webpack_require__(18);
+var hasBinary = __webpack_require__(19);
 var sliceBuffer = __webpack_require__(35);
 var after = __webpack_require__(34);
 var utf8 = __webpack_require__(60);
@@ -7233,7 +7233,7 @@ var debug = __webpack_require__(55)('socket.io-parser');
 var json = __webpack_require__(49);
 var Emitter = __webpack_require__(54);
 var binary = __webpack_require__(53);
-var isBuf = __webpack_require__(25);
+var isBuf = __webpack_require__(26);
 
 /**
  * Protocol version.
@@ -7698,6 +7698,26 @@ module.exports = __webpack_amd_options__;
 "use strict";
 
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var Message = function Message(type, message) {
+  if (typeof type !== 'string') throw new Error('type must be a string');
+  if ((typeof message === 'undefined' ? 'undefined' : _typeof(message)) !== 'object') throw new Error('message must be an object');
+
+  this.type = type;
+  this.message = message;
+};
+
+module.exports = Message;
+// export default Message
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
 /**
  * Slice reference.
  */
@@ -7723,7 +7743,7 @@ module.exports = function (obj, fn) {
 };
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7785,7 +7805,7 @@ function polling(opts) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7799,7 +7819,7 @@ var Transport = __webpack_require__(8);
 var parseqs = __webpack_require__(10);
 var parser = __webpack_require__(1);
 var inherit = __webpack_require__(5);
-var yeast = __webpack_require__(27);
+var yeast = __webpack_require__(28);
 var debug = __webpack_require__(6)('engine.io-client:polling');
 
 /**
@@ -8037,7 +8057,7 @@ Polling.prototype.uri = function () {
 };
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8102,7 +8122,7 @@ function hasBinary(data) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8119,7 +8139,7 @@ module.exports = function (arr, obj) {
 };
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8272,7 +8292,7 @@ function plural(ms, n, name) {
 }
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8317,7 +8337,7 @@ module.exports = function parseuri(str) {
 };
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8330,13 +8350,13 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
  */
 
 var eio = __webpack_require__(39);
-var Socket = __webpack_require__(24);
+var Socket = __webpack_require__(25);
 var Emitter = __webpack_require__(2);
 var parser = __webpack_require__(12);
-var on = __webpack_require__(23);
-var bind = __webpack_require__(15);
+var on = __webpack_require__(24);
+var bind = __webpack_require__(16);
 var debug = __webpack_require__(7)('socket.io-client:manager');
-var indexOf = __webpack_require__(19);
+var indexOf = __webpack_require__(20);
 var Backoff = __webpack_require__(36);
 
 /**
@@ -8885,7 +8905,7 @@ Manager.prototype.onreconnect = function () {
 };
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8916,7 +8936,7 @@ function on(obj, ev, fn) {
 }
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8929,10 +8949,10 @@ function on(obj, ev, fn) {
 var parser = __webpack_require__(12);
 var Emitter = __webpack_require__(2);
 var toArray = __webpack_require__(59);
-var on = __webpack_require__(23);
-var bind = __webpack_require__(15);
+var on = __webpack_require__(24);
+var bind = __webpack_require__(16);
 var debug = __webpack_require__(7)('socket.io-client:socket');
-var hasBin = __webpack_require__(18);
+var hasBin = __webpack_require__(19);
 
 /**
  * Module exports.
@@ -9338,7 +9358,7 @@ Socket.prototype.compress = function (compress) {
 };
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9358,7 +9378,7 @@ function isBuf(obj) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9388,7 +9408,7 @@ module.exports = function (module) {
 };
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9462,29 +9482,23 @@ yeast.decode = decode;
 module.exports = yeast;
 
 /***/ }),
-/* 28 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var Message = function Message(type, message) {
-  if (typeof type !== 'string') throw new Error('type must be a string');
-  this.type = type;
-  this.message = message;
-};
-
-module.exports = Message;
-// export default Message
-
-/***/ }),
 /* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _message = __webpack_require__(15);
+
+var _message2 = _interopRequireDefault(_message);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -9494,7 +9508,6 @@ RTCPeerConnection = RTCPeerConnection || mozRTCPeerConnection;
 /**
  * Wrapper class for RTC connection between parent and child viewers
  */
-
 var ViewerConnection = function () {
   function ViewerConnection(socket, isRoot) {
     var messageHandlers = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
@@ -9601,7 +9614,7 @@ var ViewerConnection = function () {
       // send offer along to peer
       .then(function () {
         var offer = _this.RTCconn.localDescription;
-        _this.send('offer', offer);
+        _this.sendBySocket('offer', offer);
       }).catch(this.logError);
     }
 
@@ -9626,7 +9639,7 @@ var ViewerConnection = function () {
       .then(function () {
         // console.log('Set local description with offer');
         var answer = _this2.RTCconn.localDescription;
-        _this2.send('answer', callerId, answer);
+        _this2.sendBySocket('answer', callerId, answer);
       }).catch(this.logError);
     }
   }, {
@@ -9661,7 +9674,7 @@ var ViewerConnection = function () {
       // console.log('Sending ICE candidates...');
       if (event.candidate) {
         // send child peer ICE candidate if has peerId
-        this.peerId && this.send('candidate', this.peerId, event.candidate);
+        this.peerId && this.sendBySocket('candidate', this.peerId, event.candidate);
       }
     }
 
@@ -9703,8 +9716,16 @@ var ViewerConnection = function () {
           this.socket.disconnect();
         }
       }
-      // if closed
-      else {}
+      // tell neighboring clients to reconnect before this client disconnects
+      else if (state === 'closing') {
+          // message to signal reconnection
+          var reconnMsg = new _message2.default('reconnect', {
+            isRoot: this.isRoot
+          });
+
+          // tell next client to reconnect w/ this client's parent, depending on isRoot
+          this.sendMessage(JSON.stringify(reconnMsg));
+        }
     }
 
     // Add an event handler for a certain type of DataChannel Message
@@ -9726,8 +9747,8 @@ var ViewerConnection = function () {
       var type = msg.type,
           message = msg.message;
 
-      // console.log(`Received message of type '${type}': ${JSON.stringify(message)}`);
 
+      console.log('Received message of type \'' + type + '\'');
       var handler = this.messageHandlers[type];
 
       // call handler if exists
@@ -9742,7 +9763,7 @@ var ViewerConnection = function () {
       this.RTCconn.close();
       this.RTCconn = null;
       // tell other peer to close connection as well
-      send('close', peerId);
+      sendBySocket('close', peerId);
     }
 
     // ICE connection handler
@@ -9764,8 +9785,8 @@ var ViewerConnection = function () {
     // send message by socket.io
 
   }, {
-    key: 'send',
-    value: function send(event) {
+    key: 'sendBySocket',
+    value: function sendBySocket(event) {
       var _socket;
 
       for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
@@ -9784,6 +9805,8 @@ var ViewerConnection = function () {
   return ViewerConnection;
 }();
 
+exports.default = ViewerConnection;
+
 /***/ }),
 /* 30 */,
 /* 31 */
@@ -9800,7 +9823,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 var url = __webpack_require__(51);
 var parser = __webpack_require__(12);
-var Manager = __webpack_require__(22);
+var Manager = __webpack_require__(23);
 var debug = __webpack_require__(7)('socket.io-client');
 
 /**
@@ -9899,8 +9922,8 @@ exports.connect = lookup;
  * @api public
  */
 
-exports.Manager = __webpack_require__(22);
-exports.Socket = __webpack_require__(24);
+exports.Manager = __webpack_require__(23);
+exports.Socket = __webpack_require__(25);
 
 /***/ }),
 /* 32 */,
@@ -9910,7 +9933,21 @@ exports.Socket = __webpack_require__(24);
 "use strict";
 
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); // Install this.socket.io-client
+// io object exposed from injected this.socket.io.js
+
+// const io = require('socket.io-client');
+
+// Have to require WebTorrent and not import, or there is a fs error from node.js
+
+
+var _webtorrentMin = __webpack_require__(4);
+
+var _webtorrentMin2 = _interopRequireDefault(_webtorrentMin);
+
+var _message = __webpack_require__(15);
+
+var _message2 = _interopRequireDefault(_message);
 
 var _socket = __webpack_require__(31);
 
@@ -9926,15 +9963,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-// Install this.socket.io-client
-// io object exposed from injected this.socket.io.js
-
-// const io = require('socket.io-client');
-
-// Have to require WebTorrent and not import, or there is a fs error from node.js
-var WebTorrent = __webpack_require__(4);
-var Message = __webpack_require__(28);
-
 /**
  * Viewer class concerned with streaming video from torrents
  * and managing WebSocket connection to server
@@ -9948,7 +9976,7 @@ var Viewer = function () {
     _classCallCheck(this, Viewer);
 
     // initiate new torrent connection
-    this.client = new WebTorrent();
+    this.client = new _webtorrentMin2.default();
     // grab DOM elements where the torrent video will be rendered too
     this.ID_of_NodeToRenderVideo = ID_of_NodeToRenderVideo;
 
@@ -10049,7 +10077,7 @@ var Viewer = function () {
       }
 
       // broadcast magnet URI to next child
-      var magnetMsg = new Message('magnet', magnetURI);
+      var magnetMsg = new _message2.default('magnet', magnetURI);
       this.connToChild && this.connToChild.sendMessage(JSON.stringify(magnetMsg));
     }
 
@@ -10067,7 +10095,7 @@ var Viewer = function () {
       // tell new client to join at child instead, if exists
       if (this.connToChild) {
         // offer message - tell last client in chain is adding new client
-        var offerMsg = new Message('offer', { callerId: callerId, offer: offer });
+        var offerMsg = new _message2.default('offer', { callerId: callerId, offer: offer });
         // send to child client
         this.connToChild.sendMessage(JSON.stringify(offerMsg));
       } else {
@@ -10631,12 +10659,12 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
  * Module dependencies.
  */
 
-var transports = __webpack_require__(16);
+var transports = __webpack_require__(17);
 var Emitter = __webpack_require__(2);
 var debug = __webpack_require__(6)('engine.io-client:socket');
-var index = __webpack_require__(19);
+var index = __webpack_require__(20);
 var parser = __webpack_require__(1);
-var parseuri = __webpack_require__(21);
+var parseuri = __webpack_require__(22);
 var parsejson = __webpack_require__(50);
 var parseqs = __webpack_require__(10);
 
@@ -10767,7 +10795,7 @@ Socket.protocol = parser.protocol; // this is an int
 
 Socket.Socket = Socket;
 Socket.Transport = __webpack_require__(8);
-Socket.transports = __webpack_require__(16);
+Socket.transports = __webpack_require__(17);
 Socket.parser = __webpack_require__(1);
 
 /**
@@ -11367,7 +11395,7 @@ Socket.prototype.filterUpgrades = function (upgrades) {
  * Module requirements.
  */
 
-var Polling = __webpack_require__(17);
+var Polling = __webpack_require__(18);
 var inherit = __webpack_require__(5);
 
 /**
@@ -11607,7 +11635,7 @@ JSONPPolling.prototype.doWrite = function (data, fn) {
  */
 
 var XMLHttpRequest = __webpack_require__(9);
-var Polling = __webpack_require__(17);
+var Polling = __webpack_require__(18);
 var Emitter = __webpack_require__(2);
 var inherit = __webpack_require__(5);
 var debug = __webpack_require__(6)('engine.io-client:polling-xhr');
@@ -12042,7 +12070,7 @@ var Transport = __webpack_require__(8);
 var parser = __webpack_require__(1);
 var parseqs = __webpack_require__(10);
 var inherit = __webpack_require__(5);
-var yeast = __webpack_require__(27);
+var yeast = __webpack_require__(28);
 var debug = __webpack_require__(6)('engine.io-client:websocket');
 var BrowserWebSocket = global.WebSocket || global.MozWebSocket;
 var NodeWebSocket;
@@ -12339,7 +12367,7 @@ exports.coerce = coerce;
 exports.disable = disable;
 exports.enable = enable;
 exports.enabled = enabled;
-exports.humanize = __webpack_require__(20);
+exports.humanize = __webpack_require__(21);
 
 /**
  * The currently active debug mode names, and names to skip.
@@ -13519,7 +13547,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
   }
 }).call(undefined);
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(26)(module), __webpack_require__(0)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(27)(module), __webpack_require__(0)))
 
 /***/ }),
 /* 50 */
@@ -13571,7 +13599,7 @@ module.exports = function parsejson(data) {
  * Module dependencies.
  */
 
-var parseuri = __webpack_require__(21);
+var parseuri = __webpack_require__(22);
 var debug = __webpack_require__(7)('socket.io-client:url');
 
 /**
@@ -13662,7 +13690,7 @@ exports.coerce = coerce;
 exports.disable = disable;
 exports.enable = enable;
 exports.enabled = enabled;
-exports.humanize = __webpack_require__(20);
+exports.humanize = __webpack_require__(21);
 
 /**
  * The currently active debug mode names, and names to skip.
@@ -13865,7 +13893,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
  */
 
 var isArray = __webpack_require__(57);
-var isBuf = __webpack_require__(25);
+var isBuf = __webpack_require__(26);
 
 /**
  * Replaces every Buffer | ArrayBuffer in packet with a numbered placeholder.
@@ -14932,7 +14960,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		root.wtf8 = wtf8;
 	}
 })(undefined);
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(26)(module), __webpack_require__(0)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(27)(module), __webpack_require__(0)))
 
 /***/ }),
 /* 61 */

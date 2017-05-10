@@ -4,8 +4,8 @@
 // const io = require('socket.io-client');
 
 // Have to require WebTorrent and not import, or there is a fs error from node.js
-const WebTorrent = require('./webtorrent.min.js');
-const Message = require('./message');
+import WebTorrent from './webtorrent.min.js';
+import Message from './message';
 import io from 'socket.io-client';
 import ViewerConnection from './viewerConnection';
 

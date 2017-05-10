@@ -1,7 +1,7 @@
 // set peer connection to Mozilla PeerConnection if in Firefox
 RTCPeerConnection = RTCPeerConnection || mozRTCPeerConnection;
 
-// import Message from './message';
+import Message from './message';
 
 /**
  * Wrapper class for RTC connection between parent and child viewers
@@ -237,3 +237,5 @@ class ViewerConnection {
     console.error(err);
   }
 }
+
+export default ViewerConnection;
