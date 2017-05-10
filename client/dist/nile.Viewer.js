@@ -9500,6 +9500,8 @@ var _message2 = _interopRequireDefault(_message);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 // set peer connection to Mozilla PeerConnection if in Firefox
@@ -9511,6 +9513,7 @@ RTCPeerConnection = RTCPeerConnection || mozRTCPeerConnection;
 var ViewerConnection = function () {
   function ViewerConnection(socket, isRoot) {
     var messageHandlers = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+    var turnServers = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : [];
 
     _classCallCheck(this, ViewerConnection);
 
@@ -9531,7 +9534,7 @@ var ViewerConnection = function () {
     this.RTCconn = new RTCPeerConnection({
       iceServers: [
       // STUN servers
-      { url: 'stun:stun.l.google.com:19302' }, { url: 'stun:stun1.l.google.com:19302' }, { url: 'stun:stun2.l.google.com:19302' }, { url: 'stun:stun3.l.google.com:19302' }, { url: 'stun:stun4.l.google.com:19302' }]
+      { url: 'stun:stun.l.google.com:19302' }, { url: 'stun:stun1.l.google.com:19302' }, { url: 'stun:stun2.l.google.com:19302' }, { url: 'stun:stun3.l.google.com:19302' }, { url: 'stun:stun4.l.google.com:19302' }].concat(_toConsumableArray(turnServers))
     });
 
     /**
@@ -9969,16 +9972,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  */
 
 var Viewer = function () {
-  function Viewer(ID_of_NodeToRenderVideo // location on the DOM where the live feed will be rendered
-  ) {
+  function Viewer(ID_of_NodeToRenderVideo, // location on the DOM where the live feed will be rendered
+  turnServers) // array of TURN servers to use in WebRTC signaling
+  {
     var _torrentInfo;
 
     _classCallCheck(this, Viewer);
 
     // initiate new torrent connection
     this.client = new _webtorrentMin2.default();
-    // grab DOM elements where the torrent video will be rendered too
+    // grab DOM elements where the torrent video will be rendered to
     this.ID_of_NodeToRenderVideo = ID_of_NodeToRenderVideo;
+    // store list of TURN servers
+    this.turnServers = turnServers;
 
     // video tag ID from html page
     this.$play1 = document.getElementById('player1');
@@ -10042,7 +10048,7 @@ var Viewer = function () {
 
         // create new WebRTC connection to connect to a parent
         // will disconnect once WebRTC connection established
-        _this.connToParent = new _viewerConnection2.default(_this.socket, _this.isRoot, _this.eventHandlers);
+        _this.connToParent = new _viewerConnection2.default(_this.socket, _this.isRoot, _this.eventHandlers, _this.turnServers);
 
         console.log('Starting WebRTC signaling...');
 
@@ -10105,7 +10111,7 @@ var Viewer = function () {
         }
 
         // create child connection
-        this.connToChild = new _viewerConnection2.default(this.socket, this.isRoot);
+        this.connToChild = new _viewerConnection2.default(this.socket, this.isRoot, {}, this.turnServers);
 
         // set peer id for child connection
         this.connToChild.setPeerId(callerId);

@@ -16,12 +16,15 @@ import ViewerConnection from './viewerConnection';
 
 class Viewer {
   constructor(
-    ID_of_NodeToRenderVideo // location on the DOM where the live feed will be rendered
+    ID_of_NodeToRenderVideo, // location on the DOM where the live feed will be rendered
+    turnServers, // array of TURN servers to use in WebRTC signaling
   ) {
     // initiate new torrent connection
     this.client = new WebTorrent()
-    // grab DOM elements where the torrent video will be rendered too
+    // grab DOM elements where the torrent video will be rendered to
     this.ID_of_NodeToRenderVideo = ID_of_NodeToRenderVideo;
+    // store list of TURN servers
+    this.turnServers = turnServers;
 
     // video tag ID from html page
     this.$play1 = document.getElementById('player1');
@@ -84,7 +87,12 @@ class Viewer {
 
       // create new WebRTC connection to connect to a parent
       // will disconnect once WebRTC connection established
-      this.connToParent = new ViewerConnection(this.socket, this.isRoot, this.eventHandlers);
+      this.connToParent = new ViewerConnection(
+        this.socket,
+        this.isRoot,
+        this.eventHandlers,
+        this.turnServers
+      );
 
       console.log('Starting WebRTC signaling...');
 
@@ -140,7 +148,12 @@ class Viewer {
       }
 
       // create child connection
-      this.connToChild = new ViewerConnection(this.socket, this.isRoot);
+      this.connToChild = new ViewerConnection(
+        this.socket,
+        this.isRoot,
+        {},
+        this.turnServers
+      );
 
       // set peer id for child connection
       this.connToChild.setPeerId(callerId);

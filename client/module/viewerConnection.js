@@ -7,7 +7,7 @@ import Message from './message';
  * Wrapper class for RTC connection between parent and child viewers
  */
 class ViewerConnection {
-  constructor(socket, isRoot, messageHandlers = {}) {
+  constructor(socket, isRoot, messageHandlers = {}, turnServers = []) {
     // ref to Viewer's socket connection
     this.socket = socket;
     // indicates whether this node is the root connecting to the server
@@ -30,7 +30,8 @@ class ViewerConnection {
         { url: 'stun:stun2.l.google.com:19302' },
         { url: 'stun:stun3.l.google.com:19302' },
         { url: 'stun:stun4.l.google.com:19302' },
-        // TODO: developer-provided TURN servers go here
+        // user-provided TURN servers go here
+        ...turnServers
       ]
     });
 
