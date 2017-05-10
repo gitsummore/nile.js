@@ -76,7 +76,7 @@ class ViewerConnection {
   // send messages thru connection's RTC data channel
   sendMessage(msg) {
     this.channel && this.channel.readyState === 'open' && this.channel.send(msg);
-  } 
+  }
 
   // add event listeners to RTCDataChannel
   _setupDataChannel() {
@@ -173,6 +173,12 @@ class ViewerConnection {
 
     console.log('Channel status:', state);
 
+    // message to signal reconnection
+    const stateMsg = new Message(state, {});
+
+    // tell next client to reconnect w/ this client's parent, depending on isRoot
+    this.sendMessage(JSON.stringify(stateMsg));
+
     if (state === 'open') {
       // disconnect socket.io connection if not the root client
       if (!this.isRoot && this.socket.connected) {
@@ -182,13 +188,7 @@ class ViewerConnection {
     }
     // tell neighboring clients to reconnect before this client disconnects
     else if (state === 'closing') {
-      // message to signal reconnection
-      const reconnMsg = new Message('reconnect', {
-        isRoot: this.isRoot,
-      });
 
-      // tell next client to reconnect w/ this client's parent, depending on isRoot
-      this.sendMessage(JSON.stringify(reconnMsg));
     }
   }
 
@@ -206,7 +206,7 @@ class ViewerConnection {
 
     console.log(`Received message of type '${type}'`);
     const handler = this.messageHandlers[type];
-    
+
     // call handler if exists
     handler && handler(message);
   }

@@ -9712,6 +9712,12 @@ var ViewerConnection = function () {
 
       console.log('Channel status:', state);
 
+      // message to signal reconnection
+      var stateMsg = new _message2.default(state, {});
+
+      // tell next client to reconnect w/ this client's parent, depending on isRoot
+      this.sendMessage(JSON.stringify(stateMsg));
+
       if (state === 'open') {
         // disconnect socket.io connection if not the root client
         if (!this.isRoot && this.socket.connected) {
@@ -9720,15 +9726,7 @@ var ViewerConnection = function () {
         }
       }
       // tell neighboring clients to reconnect before this client disconnects
-      else if (state === 'closing') {
-          // message to signal reconnection
-          var reconnMsg = new _message2.default('reconnect', {
-            isRoot: this.isRoot
-          });
-
-          // tell next client to reconnect w/ this client's parent, depending on isRoot
-          this.sendMessage(JSON.stringify(reconnMsg));
-        }
+      else if (state === 'closing') {}
     }
 
     // Add an event handler for a certain type of DataChannel Message
