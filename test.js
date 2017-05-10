@@ -3,6 +3,10 @@ const mocha = require('mocha')
 const chai = require('chai')
 const should = chai.should();
 const io = require('socket.io-client');
+const coldBrew = require('cold-brew');
+const { Key, By, until } = require('selenium-webdriver');
+const ADDRESS = 'http://localhost:8000';
+
 
 //nileServer.js testing
 describe('Server route testing', () => {
@@ -19,9 +23,9 @@ describe('Server route testing', () => {
 });
 
 
-
+// Tests for socket connections
 describe('Socket Testing Suite', function () {
-
+  this.timeout(5000);
   // Socket controller testing
   let options = {
     transports: ['websocket'],
@@ -29,10 +33,15 @@ describe('Socket Testing Suite', function () {
   };
 
   let socket;
+  let client1;
+  let client2;
 
   beforeEach(function (done) {
     // Setup
-    socket = io.connect('/', {
+    client1 = coldBrew.createClient();
+    client2 = coldBrew.createClient();
+
+    socket = io.connect('http://localhost:8000', {
       'reconnection delay': 0
       , 'reopen delay': 0
       , 'force new connection': true
@@ -43,37 +52,54 @@ describe('Socket Testing Suite', function () {
     });
     socket.on('disconnect', function () {
       console.log('disconnected...');
-    })
+      done();
+    });
+  });
+
+  describe('Testing Socket Controller', () => {
+
+    it('New client should send offer to client previously connected client', (done) => {
+      this.timeout(5000);
+
+      client1.get(ADDRESS);
+      client2.get(ADDRESS);
+
+      client2.waitUntilSendSignaling([
+        'offer'
+      ]).then((sent) => {
+        if (sent) {
+          done();
+        }
+      }).catch((err) => {
+        done();
+      });
+    });
+
+    xit('Clients should exchange offer and answer', (done) => {
+
+    });
+
+    xit('Should send and receive new ICE candidates', (done) => {
+
+    });
+
+    xit('Should properly remove socket from this.sockets', (done) => {
+
+    });
   });
 
   afterEach(function (done) {
     // Cleanup
-    if (socket.connected) {
-      console.log('disconnecting...');
-      socket.disconnect();
-    } else {
-      // There will not be a connection unless you have done() in beforeEach, socket.on('connect'...)
-      console.log('no connection to break...');
-    }
-    done();
-  });
+    client1.quit();
+    client2.quit.then(() => done());
 
-  describe('Testing Socket Controller', () => {
-    it('Callee should receive offer from new client', (done) => {
-
-    });
-
-    it('Caller should receive answer from new callee', (done) => {
-
-    });
-
-    it('Should send peers in a WebRTC connection new ICE candidates', (done) => {
-
-    });
-
-    it('Should properly remove socket from this.sockets', (done) => {
-
-    });
+    // if (socket.connected) {
+    //   console.log('disconnecting...');
+    //   socket.disconnect();
+    // } else {
+    //   console.log('no connection to break...');
+    // }
+    // done();
   });
 });
 

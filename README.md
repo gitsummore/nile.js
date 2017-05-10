@@ -5,10 +5,10 @@ A tool for scalable peer-to-peer video streaming using WebTorrent.
 By using the collective power of WebTorrent, video streams get progressively stronger as more peers contribute to a torrent. With torrent, it is also possible for users to access previous parts of a stream unlike traditional WebRTC video streaming.
 
 ## About
-### Broadcaster
-This is the client component that records video from a device's camera, saving it to progressive torrent files, and sending the torrent's magnet link out to the viewing clients.
 ### Server
 This is the plug-and-play middleware that receives the torrent link from the broadcasting client and sets up the proper Socket.io connections for the viewing clients.
+### Broadcaster
+This is the client component that records video from a device's camera, saving it to progressive torrent files, and sending the torrent's magnet link out to the viewing clients.
 ### Viewer
 This is the client which views what the Broadcaster is recording. It receives a torrent magnet link and renders the video to injected video tags using WebTorrent.
 
@@ -24,12 +24,29 @@ const nileServer = require('nile.js/nileServer')(server);
 
 Now add the nile.js middleware w/ app.use:
 ```
-app.use(nileServer);
+app.use('/', nileServer);
 ```
 #### /magnet
 Broadcaster posts stream's torrent magnet URIs to this endpoint
 #### /signal
 Receives WebRTC signaling information (e.g. offer, answer, ICE candidates) to send to connecting peer.
 ### Client
+Two components: Viewer and Broadcaster
+#### Viewer
+```
+https://unpkg.com/nile.js@0.1.10/client/dist/nile.Viewer.min.js
+```
+
+2 params: HTML query selector and array of optional TURN servers for WebRTC signaling
+#### Broadcaster
+```
+https://unpkg.com/nile.js@0.1.10/client/dist/nile.Broadcaster.min.js
+```
+
+4 params:
+recordInterval - the Interval that the webcam recording should seed each segment of the video
+videoNodeIDForPlayback - The id of the video node in the html where the broadcaster can see their own recording
+startStreamID - The id of the button node that BEGINS the recording/live streaming
+stopStreamID - The id of the button node that ENDS the recording/live streamingÏ
 
 [website]: http://www.nilejs.com

@@ -35,7 +35,7 @@ function socketController(server, socketLimit) {
     // callee receives offer from new client
     socket.on('offer', function (offer) {
       // get socket id to send offer to
-      const calleeSocket = getCalleeSocket(self.sockets);
+      const calleeSocket = getTargetSocket(self.sockets);
       const calleeId = calleeSocket.id;
       // get this socket's id
       const callerId = this.id;
@@ -66,11 +66,10 @@ function socketController(server, socketLimit) {
       socket.to(peerId).emit('candidate', candidate);
     });
 
-    socket.on('disconnect', function(socket) {
+    socket.on('disconnect', function() {
       console.log(this.id, 'disconnected');
-      // TODO: properly remove socket from this.sockets, NEED proper disconnection
-      self.sockets = self.sockets.filter(keptSocket => socket.id !== keptSocket.id);
-      // console.log('Removed sockets:', self.sockets.map(socket => socket.id));
+      self.sockets = self.sockets.filter(keptSocket => this.id !== keptSocket.id);
+      console.log('Updated sockets:', self.sockets.map(socket => socket.id));
     });
   });
 }
@@ -79,7 +78,9 @@ socketController.prototype.emitNewMagnet = function(magnetURI) {
   this.io.emit('magnetURI', magnetURI);
 }
 
-function getCalleeSocket(sockets) {
+// Determines socket of chain to connect to
+// TODO: dummy func right now
+function getTargetSocket(sockets) {
   return sockets[0];
 }
 
