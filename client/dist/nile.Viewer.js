@@ -118,7 +118,7 @@ module.exports = g;
  */
 
 var keys = __webpack_require__(46);
-var hasBinary = __webpack_require__(18);
+var hasBinary = __webpack_require__(19);
 var sliceBuffer = __webpack_require__(35);
 var after = __webpack_require__(34);
 var utf8 = __webpack_require__(60);
@@ -7233,7 +7233,7 @@ var debug = __webpack_require__(55)('socket.io-parser');
 var json = __webpack_require__(49);
 var Emitter = __webpack_require__(54);
 var binary = __webpack_require__(53);
-var isBuf = __webpack_require__(25);
+var isBuf = __webpack_require__(26);
 
 /**
  * Protocol version.
@@ -7698,6 +7698,26 @@ module.exports = __webpack_amd_options__;
 "use strict";
 
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var Message = function Message(type, message) {
+  if (typeof type !== 'string') throw new Error('type must be a string');
+  if ((typeof message === 'undefined' ? 'undefined' : _typeof(message)) !== 'object') throw new Error('message must be an object');
+
+  this.type = type;
+  this.message = message;
+};
+
+module.exports = Message;
+// export default Message
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
 /**
  * Slice reference.
  */
@@ -7723,7 +7743,7 @@ module.exports = function (obj, fn) {
 };
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7785,7 +7805,7 @@ function polling(opts) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7799,7 +7819,7 @@ var Transport = __webpack_require__(8);
 var parseqs = __webpack_require__(10);
 var parser = __webpack_require__(1);
 var inherit = __webpack_require__(5);
-var yeast = __webpack_require__(27);
+var yeast = __webpack_require__(28);
 var debug = __webpack_require__(6)('engine.io-client:polling');
 
 /**
@@ -8037,7 +8057,7 @@ Polling.prototype.uri = function () {
 };
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8102,7 +8122,7 @@ function hasBinary(data) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8119,7 +8139,7 @@ module.exports = function (arr, obj) {
 };
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8272,7 +8292,7 @@ function plural(ms, n, name) {
 }
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8317,7 +8337,7 @@ module.exports = function parseuri(str) {
 };
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8330,13 +8350,13 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
  */
 
 var eio = __webpack_require__(39);
-var Socket = __webpack_require__(24);
+var Socket = __webpack_require__(25);
 var Emitter = __webpack_require__(2);
 var parser = __webpack_require__(12);
-var on = __webpack_require__(23);
-var bind = __webpack_require__(15);
+var on = __webpack_require__(24);
+var bind = __webpack_require__(16);
 var debug = __webpack_require__(7)('socket.io-client:manager');
-var indexOf = __webpack_require__(19);
+var indexOf = __webpack_require__(20);
 var Backoff = __webpack_require__(36);
 
 /**
@@ -8885,7 +8905,7 @@ Manager.prototype.onreconnect = function () {
 };
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8916,7 +8936,7 @@ function on(obj, ev, fn) {
 }
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8929,10 +8949,10 @@ function on(obj, ev, fn) {
 var parser = __webpack_require__(12);
 var Emitter = __webpack_require__(2);
 var toArray = __webpack_require__(59);
-var on = __webpack_require__(23);
-var bind = __webpack_require__(15);
+var on = __webpack_require__(24);
+var bind = __webpack_require__(16);
 var debug = __webpack_require__(7)('socket.io-client:socket');
-var hasBin = __webpack_require__(18);
+var hasBin = __webpack_require__(19);
 
 /**
  * Module exports.
@@ -9338,7 +9358,7 @@ Socket.prototype.compress = function (compress) {
 };
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9358,7 +9378,7 @@ function isBuf(obj) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9388,7 +9408,7 @@ module.exports = function (module) {
 };
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9462,26 +9482,6 @@ yeast.decode = decode;
 module.exports = yeast;
 
 /***/ }),
-/* 28 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-var Message = function Message(type, message) {
-  if (typeof type !== 'string') throw new Error('type must be a string');
-  if ((typeof message === 'undefined' ? 'undefined' : _typeof(message)) !== 'object') throw new Error('message must be an object');
-
-  this.type = type;
-  this.message = message;
-};
-
-module.exports = Message;
-// export default Message
-
-/***/ }),
 /* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -9494,7 +9494,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _message = __webpack_require__(28);
+var _message = __webpack_require__(15);
 
 var _message2 = _interopRequireDefault(_message);
 
@@ -9824,7 +9824,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 var url = __webpack_require__(51);
 var parser = __webpack_require__(12);
-var Manager = __webpack_require__(22);
+var Manager = __webpack_require__(23);
 var debug = __webpack_require__(7)('socket.io-client');
 
 /**
@@ -9923,8 +9923,8 @@ exports.connect = lookup;
  * @api public
  */
 
-exports.Manager = __webpack_require__(22);
-exports.Socket = __webpack_require__(24);
+exports.Manager = __webpack_require__(23);
+exports.Socket = __webpack_require__(25);
 
 /***/ }),
 /* 32 */,
@@ -9944,7 +9944,7 @@ var _webtorrentMin = __webpack_require__(4);
 
 var _webtorrentMin2 = _interopRequireDefault(_webtorrentMin);
 
-var _message = __webpack_require__(28);
+var _message = __webpack_require__(15);
 
 var _message2 = _interopRequireDefault(_message);
 
@@ -10683,12 +10683,12 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
  * Module dependencies.
  */
 
-var transports = __webpack_require__(16);
+var transports = __webpack_require__(17);
 var Emitter = __webpack_require__(2);
 var debug = __webpack_require__(6)('engine.io-client:socket');
-var index = __webpack_require__(19);
+var index = __webpack_require__(20);
 var parser = __webpack_require__(1);
-var parseuri = __webpack_require__(21);
+var parseuri = __webpack_require__(22);
 var parsejson = __webpack_require__(50);
 var parseqs = __webpack_require__(10);
 
@@ -10819,7 +10819,7 @@ Socket.protocol = parser.protocol; // this is an int
 
 Socket.Socket = Socket;
 Socket.Transport = __webpack_require__(8);
-Socket.transports = __webpack_require__(16);
+Socket.transports = __webpack_require__(17);
 Socket.parser = __webpack_require__(1);
 
 /**
@@ -11419,7 +11419,7 @@ Socket.prototype.filterUpgrades = function (upgrades) {
  * Module requirements.
  */
 
-var Polling = __webpack_require__(17);
+var Polling = __webpack_require__(18);
 var inherit = __webpack_require__(5);
 
 /**
@@ -11659,7 +11659,7 @@ JSONPPolling.prototype.doWrite = function (data, fn) {
  */
 
 var XMLHttpRequest = __webpack_require__(9);
-var Polling = __webpack_require__(17);
+var Polling = __webpack_require__(18);
 var Emitter = __webpack_require__(2);
 var inherit = __webpack_require__(5);
 var debug = __webpack_require__(6)('engine.io-client:polling-xhr');
@@ -12094,7 +12094,7 @@ var Transport = __webpack_require__(8);
 var parser = __webpack_require__(1);
 var parseqs = __webpack_require__(10);
 var inherit = __webpack_require__(5);
-var yeast = __webpack_require__(27);
+var yeast = __webpack_require__(28);
 var debug = __webpack_require__(6)('engine.io-client:websocket');
 var BrowserWebSocket = global.WebSocket || global.MozWebSocket;
 var NodeWebSocket;
@@ -12391,7 +12391,7 @@ exports.coerce = coerce;
 exports.disable = disable;
 exports.enable = enable;
 exports.enabled = enabled;
-exports.humanize = __webpack_require__(20);
+exports.humanize = __webpack_require__(21);
 
 /**
  * The currently active debug mode names, and names to skip.
@@ -13571,7 +13571,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
   }
 }).call(undefined);
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(26)(module), __webpack_require__(0)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(27)(module), __webpack_require__(0)))
 
 /***/ }),
 /* 50 */
@@ -13623,7 +13623,7 @@ module.exports = function parsejson(data) {
  * Module dependencies.
  */
 
-var parseuri = __webpack_require__(21);
+var parseuri = __webpack_require__(22);
 var debug = __webpack_require__(7)('socket.io-client:url');
 
 /**
@@ -13714,7 +13714,7 @@ exports.coerce = coerce;
 exports.disable = disable;
 exports.enable = enable;
 exports.enabled = enabled;
-exports.humanize = __webpack_require__(20);
+exports.humanize = __webpack_require__(21);
 
 /**
  * The currently active debug mode names, and names to skip.
@@ -13917,7 +13917,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
  */
 
 var isArray = __webpack_require__(57);
-var isBuf = __webpack_require__(25);
+var isBuf = __webpack_require__(26);
 
 /**
  * Replaces every Buffer | ArrayBuffer in packet with a numbered placeholder.
@@ -14984,7 +14984,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		root.wtf8 = wtf8;
 	}
 })(undefined);
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(26)(module), __webpack_require__(0)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(27)(module), __webpack_require__(0)))
 
 /***/ }),
 /* 61 */
