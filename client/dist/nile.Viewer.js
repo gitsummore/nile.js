@@ -9772,7 +9772,12 @@ var ViewerConnection = function () {
   }, {
     key: '_iceConnectionStateHandler',
     value: function _iceConnectionStateHandler(event) {
-      console.log('ICE Connection State:', this.RTCconn.iceConnectionState);
+      var connState = this.RTCconn.iceConnectionState;
+      console.log('ICE Connection State:', connState);
+
+      if (connState === 'disconnected') {
+        // TODO: test if this event fires before RTC connection fully closed
+      }
     }
 
     // Signaling state handler
