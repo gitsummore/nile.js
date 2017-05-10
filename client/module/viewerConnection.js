@@ -223,10 +223,6 @@ class ViewerConnection {
   _iceConnectionStateHandler(event) {
     const connState = this.RTCconn.iceConnectionState;
     console.log('ICE Connection State:', connState);
-
-    if (connState === 'disconnected') {
-      // this.channel.sendMessage()
-    }
   }
 
   // Signaling state handler
