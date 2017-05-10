@@ -1,11 +1,13 @@
 // set peer connection to Mozilla PeerConnection if in Firefox
 RTCPeerConnection = RTCPeerConnection || mozRTCPeerConnection;
 
+import Message from './message';
+
 /**
  * Wrapper class for RTC connection between parent and child viewers
  */
 class ViewerConnection {
-  constructor(socket, isRoot, messageHandlers = {}) {
+  constructor(socket, isRoot, messageHandlers = {}, turnServers = []) {
     // ref to Viewer's socket connection
     this.socket = socket;
     // indicates whether this node is the root connecting to the server
@@ -28,7 +30,8 @@ class ViewerConnection {
         { url: 'stun:stun2.l.google.com:19302' },
         { url: 'stun:stun3.l.google.com:19302' },
         { url: 'stun:stun4.l.google.com:19302' },
-        // TODO: developer-provided TURN servers go here
+        // user-provided TURN servers go here
+        ...turnServers
       ]
     });
 
@@ -73,7 +76,7 @@ class ViewerConnection {
   // send messages thru connection's RTC data channel
   sendMessage(msg) {
     this.channel && this.channel.readyState === 'open' && this.channel.send(msg);
-  } 
+  }
 
   // add event listeners to RTCDataChannel
   _setupDataChannel() {
@@ -95,7 +98,7 @@ class ViewerConnection {
       // send offer along to peer
       .then(() => {
         const offer = this.RTCconn.localDescription;
-        this.send('offer', offer);
+        this.sendBySocket('offer', offer);
       })
       .catch(this.logError);
   }
@@ -112,7 +115,7 @@ class ViewerConnection {
       .then(() => {
         // console.log('Set local description with offer');
         const answer = this.RTCconn.localDescription;
-        this.send('answer', callerId, answer);
+        this.sendBySocket('answer', callerId, answer);
       })
       .catch(this.logError);
   }
@@ -142,7 +145,7 @@ class ViewerConnection {
     // console.log('Sending ICE candidates...');
     if (event.candidate) {
       // send child peer ICE candidate if has peerId
-      this.peerId && this.send('candidate', this.peerId, event.candidate);
+      this.peerId && this.sendBySocket('candidate', this.peerId, event.candidate);
     }
   }
 
@@ -170,15 +173,21 @@ class ViewerConnection {
 
     console.log('Channel status:', state);
 
+    // message to signal reconnection
+    const stateMsg = new Message(state, {});
+
+    // tell next client to reconnect w/ this client's parent, depending on isRoot
+    this.sendMessage(JSON.stringify(stateMsg));
+
     if (state === 'open') {
       // disconnect socket.io connection if not the root client
-      if (!this.isRoot) {
+      if (!this.isRoot && this.socket.connected) {
         console.log('RTC connection succeeded! Disconnecting socket...');
         this.socket.disconnect();
       }
     }
-    // if closed
-    else {
+    // tell neighboring clients to reconnect before this client disconnects
+    else if (state === 'closing') {
 
     }
   }
@@ -195,9 +204,9 @@ class ViewerConnection {
 
     const { type, message } = msg;
 
-    // console.log(`Received message of type '${type}': ${JSON.stringify(message)}`);
+    console.log(`Received message of type '${type}'`);
     const handler = this.messageHandlers[type];
-    
+
     // call handler if exists
     handler && handler(message);
   }
@@ -207,7 +216,7 @@ class ViewerConnection {
     this.RTCconn.close();
     this.RTCconn = null;
     // tell other peer to close connection as well
-    send('close', peerId);
+    sendBySocket('close', peerId);
   }
 
   // ICE connection handler
@@ -221,7 +230,7 @@ class ViewerConnection {
   }
 
   // send message by socket.io
-  send(event, ...args) {
+  sendBySocket(event, ...args) {
     this.socket.emit(event, ...args);
   }
 
@@ -229,3 +238,5 @@ class ViewerConnection {
     console.error(err);
   }
 }
+
+export default ViewerConnection;

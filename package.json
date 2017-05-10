@@ -1,22 +1,25 @@
 {
   "name": "nile.js",
-  "version": "0.1.3",
+  "version": "0.1.10",
   "description": "A tool for scalable peer-to-peer video streaming using WebTorrent",
   "main": "index.js",
   "repository": "gitsummore/nile.js",
+  "bugs": {
+    "url": "https://github.com/gitsummore/nile.js/issues"
+  },
+  "homepage": "http://nilejs.com/",
   "scripts": {
     "test": "./node_modules/mocha/bin/mocha ./test.js",
     "start": "nodemon server.js",
     "postinstall": "npm install bufferutil@1.2.x utf-8-validate@1.2.x",
-    "build": "webpack -w"
+    "build": "webpack -w",
+    "min": "PROD_ENV=1 webpack"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "nile.js",
+  "license": "MIT",
   "dependencies": {
     "express": "^4.15.2",
-    "formidable": "^1.1.1",
     "fs": "0.0.1-security",
-    "mime": "^1.3.4",
     "msr": "^1.3.4",
     "path": "^0.12.7",
     "socket.io": "^1.7.3",
@@ -43,5 +46,14 @@
     "supertest": "^3.0.0",
     "webpack": "^2.4.1",
     "webpack-dev-server": "^2.4.5"
-  }
+  },
+  "keywords": [
+    "webtorrent",
+    "peer",
+    "live",
+    "streaming",
+    "webRTC",
+    "websocket"
+  ],
+  "unpkg": "./client/dist"
 }

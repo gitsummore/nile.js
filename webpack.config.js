@@ -1,22 +1,18 @@
 // webpack.config.js
 const webpack = require('webpack')
 const path = require('path')
-const glob = require('glob')
+
+let PROD = JSON.parse(process.env.PROD_ENV || '0');
 
 module.exports = {
-  // entry: path.resolve(__dirname, 'client/module/broadcaster.js'),
-  // entry: {
-  //   js: glob.sync(path.resolve(__dirname, 'client/module/*.js'))
-  // },
   entry: {
     Broadcaster: path.resolve(__dirname, 'client/module/broadcaster.js'),
     Viewer: path.resolve(__dirname, 'client/module/viewer.js')
   },
-  // target: 'web',
   output: {
     publicPath: 'dist',
     path: path.resolve(__dirname, 'client/dist'),
-    filename: 'nile.[name].js',
+    filename: PROD ? 'nile.[name].min.js' : 'nile.[name].js',
     library: '[name]',
     libraryTarget: 'umd',
     umdNamedDefine: true
@@ -33,18 +29,10 @@ module.exports = {
         }
       }
     ]
-  }
+  },
+  plugins: PROD ? [
+    new webpack.optimize.UglifyJsPlugin({
+      compress: { warnings: false }
+    })
+  ] : []
 }
-//   },
-//   module: {
-//     loaders: [
-//       {
-//         test: /\.js$/,
-//         include: path.resolve(__dirname, 'client'),
-//         loader: 'babel-loader',
-//       },
-//       { test: /\.css$/, include: path.resolve(__dirname, 'client'), loader: 'style-loader!css-loader' },
-//     ]
-//   }
-// }
-
