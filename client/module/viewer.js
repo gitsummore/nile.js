@@ -14,7 +14,7 @@ import ViewerConnection from './viewerConnection';
 class Viewer {
   constructor(
     ID_of_NodeToRenderVideo, // location on the DOM where the live feed will be rendered
-    addedIceServers, // array of ICE servers to use in WebRTC signaling
+    addedIceServers = [], // array of ICE servers to use in WebRTC signaling
     bootstrapInterval, // bootstrap phase, delay interval between the broadcaster and viewer
   ) {
     // initiate new torrent connection
@@ -22,7 +22,7 @@ class Viewer {
     // grab DOM elements where the torrent video will be rendered to
     this.ID_of_NodeToRenderVideo = ID_of_NodeToRenderVideo;
     // store list of ICE servers
-    this.iceServers = iceServers;
+    this.addedIceServers = addedIceServers;
 
     this.socket = io.connect();
 
@@ -31,7 +31,8 @@ class Viewer {
     // handlers for both events in socket.io and messages using RTC DataChannel
     this.eventHandlers = {
       magnet: this._magnetURIHandler.bind(this),
-      offer: this.receiveOffer.bind(this),
+      offer: this._receiveOffer.bind(this),
+      disconnecting: this._reconnectWithNeighbor.bind(this),
     };
 
     // progress trackers
@@ -65,6 +66,15 @@ class Viewer {
     }
 
     this.onProgress = this.onProgress.bind(this);
+
+    // adding unload listener to check for client disconnections
+    const reconnectNeighbors = (event) => {
+      this.connToChild.sendMessage('disconnecting', {
+        // will allow disconnected root to reassign root role to next client
+        isRoot: this.isRoot,
+      });
+    };
+    window.addEventListener('unload', reconnectNeighbors);
   }
 
   setUpInitialConnection() {
@@ -95,7 +105,7 @@ class Viewer {
         this.socket,
         this.isRoot,
         this.eventHandlers,
-        this.iceServers,
+        this.addedIceServers,
         parentDisconnHandler
       );
 
@@ -110,11 +120,11 @@ class Viewer {
      */
 
     // Callee: receives offer for a connection
-    this.socket.on('offer', this.receiveOffer.bind(this));
+    this.socket.on('offer', this._receiveOffer.bind(this));
     // Caller: receives answer after sending offer
-    this.socket.on('answer', this.receiveAnswer.bind(this));
+    this.socket.on('answer', this._receiveAnswer.bind(this));
     // Both peers: add new ICE candidates as they come in
-    this.socket.on('candidate', this.handleNewIceCandidate.bind(this));
+    this.socket.on('candidate', this._handleNewIceCandidate.bind(this));
 
     // this.socket.on('disconnect', () => {});
   }
@@ -136,7 +146,7 @@ class Viewer {
 
   // Callee: receive offer from new child peer
   // this.socket and DataChannel 'offer' handler
-  receiveOffer({ callerId, offer }) {
+  _receiveOffer({ callerId, offer }) {
     // console.log('Receiving offer...');
 
     // tell new client to join at child instead, if exists
@@ -173,7 +183,7 @@ class Viewer {
 
   // Callee: as a parent/caller, receive answer from child/callee
   // this.socket 'answer' handler
-  receiveAnswer({ calleeId, answer }) {
+  _receiveAnswer({ calleeId, answer }) {
     // console.log('Receiving answer from offer...');
 
     // set peer id for parent connection
@@ -185,12 +195,20 @@ class Viewer {
 
   // Callee: receive an ICE candidate from caller
   // this.socket ICE candidate handler
-  handleNewIceCandidate(candidate) {
+  _handleNewIceCandidate(candidate) {
     // console.log('Receiving ICE candidates...');
     const iceCandidate = new RTCIceCandidate(candidate);
 
     // add ICE candidate from caller (parent)
     this.connToParent && this.connToParent.addIceCandidate(iceCandidate);
+  }
+
+  // DataChannel handler to reconnect with next immediate client upon neighbor disconnect
+  _reconnectWithNeighbor({ isRoot }) {
+    this.isRoot = isRoot;
+
+    // reopen socket (either to keep server connection as root or temporarily for signaling)
+    this.socket.disconnected && this.socket.open();
   }
 
   // torrentId will change whenever the viewer is notified of the new magnet via websockets or WebRTC

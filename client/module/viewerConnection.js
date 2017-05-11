@@ -43,12 +43,6 @@ class ViewerConnection {
       ]
     });
 
-    // adding unload listener to check for client disconnections
-    const byeToNeighbors = (event) => {
-      this.sendMessage('disconnecting');
-    };
-    window.addEventListener('unload', byeToNeighbors);
-
     /**
      * Useful diagrams for WebRTC signaling process:
      * 
