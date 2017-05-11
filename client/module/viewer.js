@@ -59,7 +59,17 @@ class Viewer {
       'firstIteration': 0
     }
 
+    // displays torrent progress data
     this.onProgress = this.onProgress.bind(this);
+
+    // creates func to clear client connection when it disconnects
+    this._createIceDisconnHandler = (connName) => () => {
+      // have variable 
+      // close client's RTC Peer Connection
+      this[connName].closeRTC();
+      // clear connection
+      this[connName] = null;
+    };
 
     // adding document unload listener to check for client disconnections
     const reconnectNeighbors = (event) => {
@@ -99,9 +109,7 @@ class Viewer {
       // make it a child of server-connected client
       console.log('Sockets full, creating WebRTC connection...');
 
-      const parentIceDisconnHandler = () => {
-        this.connToParent = null;
-      };
+      const parentIceDisconnHandler = this._createIceDisconnHandler('connToParent');
 
       // Event handlers to pass to parent client's DataChannel connection
       const parentEventHandlers = {
@@ -171,9 +179,7 @@ class Viewer {
       }
 
       // clear connection when it disconnects
-      const childIceDisconnHandler = () => {
-        this.connToChild = null;
-      };
+      const childIceDisconnHandler = this._createIceDisconnHandler('connToChild');
 
       // event handlers to pass to child client's DataChannel connection
       const childEventHandlers = {
@@ -200,7 +206,7 @@ class Viewer {
   // Callee: as a parent/caller, receive answer from child/callee
   // this.socket 'answer' handler
   _receiveAnswer({ calleeId, answer }) {
-    // console.log('Receiving answer from offer...');
+    console.log('Receiving answer from offer from callee:', calleeId);
 
     // set peer id for parent connection
     this.connToParent.setPeerId(calleeId);
@@ -225,13 +231,17 @@ class Viewer {
     console.log('isRoot:', isRoot);
     console.log('wasConn:', wasConn);
 
-    this.isRoot = isRoot;
-
     // clear connection to end which received disconnecting message
-    this[wasConn] = null;
+    const clearConn = this._createIceDisconnHandler(wasConn);
+    clearConn();
 
-    // reopen socket if this client was the child of the disconnecting client
-    wasConn === 'connToChild' && this.socket.disconnected && this.socket.open();
+    // if receiving message from parent
+    if (wasConn === 'connToChild') {
+      // update root status
+      this.isRoot = isRoot;
+      // open socket if not already open
+      this.socket.disconnected && this.socket.open();
+    }
   }
 
   // torrentId will change whenever the viewer is notified of the new magnet via websockets or WebRTC

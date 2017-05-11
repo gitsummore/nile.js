@@ -21,6 +21,7 @@ class ViewerConnection {
     // event handlers for DataChannel messages
     this.messageHandlers = messageHandlers;
     // function provided by Viewer class to run when ICE disconnects
+    this.iceDisconnHandler = iceDisconnHandler;
 
     // reserved variables
     // RTC DataChannel
@@ -219,12 +220,9 @@ class ViewerConnection {
     handler && handler(message);
   }
 
-  // close connections and free up resources
-  closeConn() {
+  // asynchronously closes RTC Peer Connection
+  closeRTC() {
     this.RTCconn.close();
-    this.RTCconn = null;
-    // tell other peer to close connection as well
-    sendBySocket('close', peerId);
   }
 
   // ICE connection handler
@@ -233,7 +231,7 @@ class ViewerConnection {
     console.log('ICE Connection State:', connState);
 
     if (connState === 'disconnected') {
-      iceDisconnHandler && iceDisconnHandler();
+      this.iceDisconnHandler && this.iceDisconnHandler();
     }
   }
 
