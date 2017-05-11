@@ -45,7 +45,8 @@
     "live",
     "streaming",
     "webRTC",
-    "websocket"
+    "websocket",
+    "feross"
   ],
   "unpkg": "./client/dist"
 }
