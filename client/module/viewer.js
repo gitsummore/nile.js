@@ -99,9 +99,9 @@ class Viewer {
       // make it a child of server-connected client
       console.log('Sockets full, creating WebRTC connection...');
 
-      // const parentIceDisconnHandler = () => {
-      //   this.connToParent = null;
-      // };
+      const parentIceDisconnHandler = () => {
+        this.connToParent = null;
+      };
 
       // Event handlers to pass to parent client's DataChannel connection
       const parentEventHandlers = {
@@ -117,7 +117,7 @@ class Viewer {
         this.isRoot,
         parentEventHandlers,
         this.addedIceServers,
-        // parentIceDisconnHandler
+        parentIceDisconnHandler
       );
 
       console.log('Starting WebRTC signaling...');
@@ -171,9 +171,9 @@ class Viewer {
       }
 
       // clear connection when it disconnects
-      // const childIceDisconnHandler = () => {
-      //   this.connToChild = null;
-      // };
+      const childIceDisconnHandler = () => {
+        this.connToChild = null;
+      };
 
       // event handlers to pass to child client's DataChannel connection
       const childEventHandlers = {
@@ -186,7 +186,7 @@ class Viewer {
         this.isRoot,
         childEventHandlers,
         this.iceServers,
-        // childIceDisconnHandler
+        childIceDisconnHandler
       );
 
       // set peer id for child connection
@@ -224,7 +224,7 @@ class Viewer {
     console.log('Disconnecting:');
     console.log('isRoot:', isRoot);
     console.log('wasConn:', wasConn);
-    
+
     this.isRoot = isRoot;
 
     // clear connection to end which received disconnecting message

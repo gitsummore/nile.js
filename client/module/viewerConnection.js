@@ -12,6 +12,7 @@ class ViewerConnection {
     isRoot,
     messageHandlers = {},
     addedIceServers = [],
+    iceDisconnHandler
   ) {
     // ref to Viewer's socket connection
     this.socket = socket;
@@ -230,6 +231,10 @@ class ViewerConnection {
   _iceConnectionStateHandler(event) {
     const connState = this.RTCconn.iceConnectionState;
     console.log('ICE Connection State:', connState);
+
+    if (connState === 'disconnected') {
+      iceDisconnHandler && iceDisconnHandler();
+    }
   }
 
   // Signaling state handler
