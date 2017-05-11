@@ -12,7 +12,6 @@ class ViewerConnection {
     isRoot,
     messageHandlers = {},
     addedIceServers = [],
-    disconnHandler
   ) {
     // ref to Viewer's socket connection
     this.socket = socket;
@@ -21,7 +20,6 @@ class ViewerConnection {
     // event handlers for DataChannel messages
     this.messageHandlers = messageHandlers;
     // function provided by Viewer class to run when ICE disconnects
-    this.disconnHandler = disconnHandler;
 
     // reserved variables
     // RTC DataChannel
@@ -232,10 +230,6 @@ class ViewerConnection {
   _iceConnectionStateHandler(event) {
     const connState = this.RTCconn.iceConnectionState;
     console.log('ICE Connection State:', connState);
-
-    if (connState === 'disconnected') {
-      this.disconnHandler();
-    }
   }
 
   // Signaling state handler

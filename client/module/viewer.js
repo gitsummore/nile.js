@@ -28,12 +28,6 @@ class Viewer {
 
     // indicates whether this node is the root connecting to the server
     this.isRoot = true;
-    // handlers for both events in socket.io and messages using RTC DataChannel
-    this.eventHandlers = {
-      magnet: this._magnetURIHandler.bind(this),
-      offer: this._receiveOffer.bind(this),
-      disconnecting: this._reconnectWithNeighbor.bind(this),
-    };
 
     // progress trackers
     this.$numPeers = document.querySelector('#numPeers')
@@ -67,12 +61,22 @@ class Viewer {
 
     this.onProgress = this.onProgress.bind(this);
 
-    // adding unload listener to check for client disconnections
+    // adding document unload listener to check for client disconnections
     const reconnectNeighbors = (event) => {
-      this.connToChild.sendMessage('disconnecting', {
-        // will allow disconnected root to reassign root role to next client
-        isRoot: this.isRoot,
-      });
+      for (let wasConn of ['connToParent', 'connToChild']) {
+        // sending disconnecting message to each client
+        if (this[wasConn]) {
+          this[wasConn].sendMessage('disconnecting', {
+            // will allow disconnected root to reassign root role to next client
+            isRoot: this.isRoot,
+            // tells neighboring clients its relation to disconnecting client
+            wasConn,
+          });
+
+          // clear connection
+          this[wasConn] = null;
+        }
+      };
     };
     window.addEventListener('unload', reconnectNeighbors);
   }
@@ -84,7 +88,7 @@ class Viewer {
     });
 
     // start playing next in video tag trio
-    this.socket.on('magnetURI', this.eventHandlers.magnet);
+    this.socket.on('magnetURI', this._magnetURIHandler.bind(this));
 
     // if sockets are full, get torrent info from server thru WebRTC
     // use socket to signal w/ last client then disconnect
@@ -95,8 +99,15 @@ class Viewer {
       // make it a child of server-connected client
       console.log('Sockets full, creating WebRTC connection...');
 
-      const parentDisconnHandler = () => {
-        this.connToParent = null;
+      // const parentIceDisconnHandler = () => {
+      //   this.connToParent = null;
+      // };
+
+      // Event handlers to pass to parent client's DataChannel connection
+      const parentEventHandlers = {
+        magnet: this._magnetURIHandler.bind(this),
+        offer: this._receiveOffer.bind(this),
+        disconnecting: this._reconnectWithNeighbor.bind(this),
       };
 
       // create new WebRTC connection to connect to a parent
@@ -104,9 +115,9 @@ class Viewer {
       this.connToParent = new ViewerConnection(
         this.socket,
         this.isRoot,
-        this.eventHandlers,
+        parentEventHandlers,
         this.addedIceServers,
-        parentDisconnHandler
+        // parentIceDisconnHandler
       );
 
       console.log('Starting WebRTC signaling...');
@@ -145,7 +156,7 @@ class Viewer {
   }
 
   // Callee: receive offer from new child peer
-  // this.socket and DataChannel 'offer' handler
+  // Hybrid WebSockets and DataChannel 'offer' handler
   _receiveOffer({ callerId, offer }) {
     // console.log('Receiving offer...');
 
@@ -160,17 +171,22 @@ class Viewer {
       }
 
       // clear connection when it disconnects
-      const childDisconnHandler = () => {
-        this.connToChild = null;
+      // const childIceDisconnHandler = () => {
+      //   this.connToChild = null;
+      // };
+
+      // event handlers to pass to child client's DataChannel connection
+      const childEventHandlers = {
+        disconnecting: this._reconnectWithNeighbor.bind(this),
       };
 
       // create child connection
       this.connToChild = new ViewerConnection(
         this.socket,
         this.isRoot,
-        {},
+        childEventHandlers,
         this.iceServers,
-        childDisconnHandler
+        // childIceDisconnHandler
       );
 
       // set peer id for child connection
@@ -203,12 +219,19 @@ class Viewer {
     this.connToParent && this.connToParent.addIceCandidate(iceCandidate);
   }
 
-  // DataChannel handler to reconnect with next immediate client upon neighbor disconnect
-  _reconnectWithNeighbor({ isRoot }) {
+  // DataChannel handler to tell disconnecting's child to reconnect w/ chain
+  _reconnectWithNeighbor({ isRoot, wasConn }) {
+    console.log('Disconnecting:');
+    console.log('isRoot:', isRoot);
+    console.log('wasConn:', wasConn);
+    
     this.isRoot = isRoot;
 
-    // reopen socket (either to keep server connection as root or temporarily for signaling)
-    this.socket.disconnected && this.socket.open();
+    // clear connection to end which received disconnecting message
+    this[wasConn] = null;
+
+    // reopen socket if this client was the child of the disconnecting client
+    wasConn === 'connToChild' && this.socket.disconnected && this.socket.open();
   }
 
   // torrentId will change whenever the viewer is notified of the new magnet via websockets or WebRTC
@@ -293,9 +316,9 @@ class Viewer {
     let play1 = document.createElement('video');
     let play2 = document.createElement('video');
     let play3 = document.createElement('video');
-    play1.setAttribute('id','player1');
-    play2.setAttribute('id','player2');
-    play3.setAttribute('id','player3');
+    play1.setAttribute('id', 'player1');
+    play2.setAttribute('id', 'player2');
+    play3.setAttribute('id', 'player3');
     play2.setAttribute('hidden', true);
     play3.setAttribute('hidden', true);
     players.appendChild(play1);
