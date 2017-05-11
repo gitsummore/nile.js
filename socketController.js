@@ -36,17 +36,19 @@ function socketController(server, socketLimit) {
     socket.on('offer', function (offer) {
       // get socket id to send offer to
       const calleeSocket = getTargetSocket(self.sockets);
-      const calleeId = calleeSocket.id;
-      // get this socket's id
-      const callerId = this.id;
+      const calleeId = calleeSocket && calleeSocket.id;
 
       // emit to root of client chain
       // callee socket's id maintained throughout signaling
-      console.log('Emitting offer to callee:', calleeId);
-      socket.to(calleeId).emit('offer', {
-        callerId: this.id, 
-        offer,
-      });
+      if (calleeId) {
+        // get this socket's id
+        const callerId = this.id;
+        console.log('Emitting offer to callee:', calleeId);
+        socket.to(calleeId).emit('offer', {
+          callerId: this.id, 
+          offer,
+        });
+      }
     });
 
     // caller receives answer from callee
