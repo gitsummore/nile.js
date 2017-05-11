@@ -57,7 +57,7 @@ function socketController(server, socketLimit) {
       // callee socket's id maintained throughout signaling
       console.log('Emitting answer to caller:', callerId);
       socket.to(callerId).emit('answer', {
-        callerId: this.id,
+        calleeId: this.id,
         answer,
       });
     });
