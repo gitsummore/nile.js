@@ -1,10 +1,7 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
-const bodyParser = require('body-parser')
-// const formidable = require('formidable');
-// const createTorrent = require('create-torrent');
-// const WebTorrent = require('webtorrent');
+const bodyParser = require('body-parser');
 const socketController = require('./socketController');
 
 // max # of sockets to keep open
