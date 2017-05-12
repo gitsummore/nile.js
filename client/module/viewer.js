@@ -66,28 +66,30 @@ class Viewer {
     this._createIceDisconnHandler = (connName) => () => {
       // have variable 
       // close client's RTC Peer Connection
-      this[connName].closeRTC();
-      // clear connection
-      this[connName] = null;
+      console.log(connName, this[connName]);
+      if (this[connName]) {
+        this[connName].closeRTC();
+        // clear connection
+        this[connName] = null;
+      }
     };
 
-    // adding document unload listener to check for client disconnections
+    // telling neighboring clients to reconnect
     const reconnectNeighbors = (event) => {
       for (let wasConn of ['connToParent', 'connToChild']) {
         // sending disconnecting message to each client
-        if (this[wasConn]) {
-          this[wasConn].sendMessage('disconnecting', {
-            // will allow disconnected root to reassign root role to next client
-            isRoot: this.isRoot,
-            // tells neighboring clients its relation to disconnecting client
-            wasConn,
-          });
+        this[wasConn].sendMessage('disconnecting', {
+          // will allow disconnected root to reassign root role to next client
+          isRoot: this.isRoot,
+          // tells neighboring clients its relation to disconnecting client
+          wasConn,
+        });
 
-          // clear connection
-          this[wasConn] = null;
-        }
+        // clear connection
+        this[wasConn] = null;
       };
     };
+    // adding document unload listener : fires when this client's browser closes the page
     window.addEventListener('unload', reconnectNeighbors);
   }
 
@@ -109,7 +111,9 @@ class Viewer {
       // make it a child of server-connected client
       console.log('Sockets full, creating WebRTC connection...');
 
-      const parentIceDisconnHandler = this._createIceDisconnHandler('connToParent');
+      // sending ICE disconnection handler
+      // connToChild b/c this client will be a child for the parent it's connecting to
+      const iceDisconnHandlerForParent = this._createIceDisconnHandler('connToParent');
 
       // Event handlers to pass to parent client's DataChannel connection
       const parentEventHandlers = {
@@ -125,7 +129,7 @@ class Viewer {
         this.isRoot,
         parentEventHandlers,
         this.addedIceServers,
-        parentIceDisconnHandler
+        iceDisconnHandlerForParent
       );
 
       console.log('Starting WebRTC signaling...');
@@ -178,8 +182,9 @@ class Viewer {
         this.socket.open();
       }
 
-      // clear connection when it disconnects
-      const childIceDisconnHandler = this._createIceDisconnHandler('connToChild');
+      // sending ICE disconncetion handler
+      // connToChild b/c this client will be a parent for the child it's connecting to
+      const iceDisconnHandlerForChild = this._createIceDisconnHandler('connToChild');
 
       // event handlers to pass to child client's DataChannel connection
       const childEventHandlers = {
@@ -192,7 +197,7 @@ class Viewer {
         this.isRoot,
         childEventHandlers,
         this.iceServers,
-        childIceDisconnHandler
+        iceDisconnHandlerForChild
       );
 
       // set peer id for child connection
@@ -206,8 +211,6 @@ class Viewer {
   // Callee: as a parent/caller, receive answer from child/callee
   // this.socket 'answer' handler
   _receiveAnswer({ calleeId, answer }) {
-    console.log('Receiving answer from offer from callee:', calleeId);
-
     // set peer id for parent connection
     this.connToParent.setPeerId(calleeId);
 
