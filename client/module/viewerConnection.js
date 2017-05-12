@@ -1,7 +1,10 @@
+import Message from './message';
+// for dev purposes: setting PeerConnection to ColdBrew RTC
+import { coldBrewRTC } from 'cold-brew/rtc';
+
 // set peer connection to Mozilla PeerConnection if in Firefox
 RTCPeerConnection = RTCPeerConnection || mozRTCPeerConnection;
 
-import Message from './message';
 
 /**
  * Wrapper class for RTC connection between parent and child viewers
@@ -30,7 +33,8 @@ class ViewerConnection {
     this.peerId;
 
     // set up wrapped WebRTCConnection
-    this.RTCconn = new RTCPeerConnection({
+    this.RTCconn = coldBrewRTC({
+    // this.RTCconn = new RTCPeerConnection({
       iceServers: [
         // Default STUN servers
         { url: 'stun:stun.l.google.com:19302' },
