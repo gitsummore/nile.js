@@ -21,6 +21,7 @@ function socketController(server, socketLimit) {
       if (clients.length <= socketLimit) {
         // keep socket connection
         this.sockets.push(socket);
+        console.log('Added sockets:', this.sockets.map(socket => socket.id));
       } else {
         socket.emit('full');
       }
