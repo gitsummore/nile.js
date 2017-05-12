@@ -25,8 +25,8 @@ class Viewer {
     // store list of TURN servers
     this.turnServers = turnServers;
 
-    this.socket = io.connect();
-
+    // this.socket = io.connect();
+    this.socket = observeSignaling(io.connect());
     // limit of child clients per client
     this.childLimit = 1;
     // indicates whether this node is the root connecting to the server

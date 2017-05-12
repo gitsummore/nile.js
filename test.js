@@ -3,9 +3,7 @@ const mocha = require('mocha')
 const chai = require('chai')
 const should = chai.should();
 const io = require('socket.io-client');
-const coldBrew = require('cold-brew');
-const { Key, By, until } = require('selenium-webdriver');
-const ADDRESS = 'http://localhost:8000';
+const url = 'http://localhost:8000/viewer/viewer.html';
 
 
 //nileServer.js testing
@@ -25,58 +23,35 @@ describe('Server route testing', () => {
 
 // Tests for socket connections
 describe('Socket Testing Suite', function () {
-  this.timeout(5000);
-  // Socket controller testing
+
   let options = {
     transports: ['websocket'],
     'force new connection': true
   };
 
-  let socket;
   let client1;
   let client2;
 
   beforeEach(function (done) {
-    // Setup
-    client1 = coldBrew.createClient();
-    client2 = coldBrew.createClient();
+    // before runnning tests, connect first client
+    client1 = io.connect(url, options); 
 
-    socket = io.connect('http://localhost:8000', {
-      'reconnection delay': 0
-      , 'reopen delay': 0
-      , 'force new connection': true
-    });
-    socket.on('connect', function () {
-      console.log('worked...');
-      done();
-    });
-    socket.on('disconnect', function () {
-      console.log('disconnected...');
-      done();
-    });
   });
 
   describe('Testing Socket Controller', () => {
 
-    it('New client should send offer to client previously connected client', (done) => {
-      this.timeout(5000);
-
-      client1.get(ADDRESS);
-      client2.get(ADDRESS);
-
-      client2.waitUntilSendSignaling([
-        'offer'
-      ]).then((sent) => {
-        if (sent) {
-          done();
-        }
-      }).catch((err) => {
-        done();
-      });
+    xit('New client should send offer to parent client', (done) => {
+      // connect second client to initiate offer
+      // once connected, send offer to client1
+      // disconnect client2
     });
 
     xit('Clients should exchange offer and answer', (done) => {
-
+      // connect client2
+      // client2 emits offer
+      // client1 should receive offer
+      // on receiving offer, client1 should emit answer
+      // client2 should receive answer
     });
 
     xit('Should send and receive new ICE candidates', (done) => {
@@ -89,17 +64,9 @@ describe('Socket Testing Suite', function () {
   });
 
   afterEach(function (done) {
-    // Cleanup
-    client1.quit();
-    client2.quit.then(() => done());
-
-    // if (socket.connected) {
-    //   console.log('disconnecting...');
-    //   socket.disconnect();
-    // } else {
-    //   console.log('no connection to break...');
-    // }
-    // done();
+    client1.disconnect();
+    client2.disconnect();
+    done();
   });
 });
 
