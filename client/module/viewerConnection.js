@@ -124,7 +124,7 @@ class ViewerConnection {
       .then((answer) => this.RTCconn.setLocalDescription(answer))
       // send answer to caller
       .then(() => {
-        // console.log('Set local description with offer');
+        console.log('Set local description with offer');
         const answer = this.RTCconn.localDescription;
         this.sendBySocket('answer', callerId, answer);
       })
@@ -133,7 +133,7 @@ class ViewerConnection {
 
   respondToAnswer(answer) {
     this.RTCconn.setRemoteDescription(answer)
-      // .then(() => console.log('Set remote description with answer'))
+      .then(() => console.log('Set remote description with answer'))
       .catch(this.logError);
   }
 
