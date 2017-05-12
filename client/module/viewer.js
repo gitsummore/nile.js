@@ -71,6 +71,9 @@ class Viewer {
         this[connName].closeRTC();
         // clear connection
         this[connName] = null;
+
+        // open socket if not already open and if from parent
+        if (connName === 'connToParent') this.socket.disconnected && this.socket.open();
       }
     };
 
@@ -232,22 +235,16 @@ class Viewer {
     this.connToParent && this.connToParent.addIceCandidate(iceCandidate);
   }
 
-  // DataChannel handler to tell disconnecting's child to reconnect w/ chain
+  // DataChannel handler to pass root status from disconnecting parent to child
   _reconnectWithNeighbor({ isRoot, disconnector }) {
     console.log('Disconnecting:');
     console.log('isRoot:', isRoot);
     console.log('disconnector:', disconnector);
 
-    // clear connection to end which received disconnecting message
-    const clearConn = this._createIceDisconnHandler(disconnector);
-    clearConn();
-
     // if receiving disconnection message from parent
     if (disconnector === 'connToParent') {
       // update root status
       this.isRoot = isRoot;
-      // open socket if not already open
-      this.socket.disconnected && this.socket.open();
     }
   }
 
