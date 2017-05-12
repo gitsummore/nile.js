@@ -26,4 +26,5 @@ app.use(express.static(path.join(__dirname, 'client')));
 
 // Routes
 const nileHandler = nileServer(server);
+
 app.use('/', nileHandler);

@@ -67,6 +67,8 @@ class Viewer {
     }
 
     this.onProgress = this.onProgress.bind(this);
+
+    this.setUpInitialConnection();
   }
 
   setUpInitialConnection() {
