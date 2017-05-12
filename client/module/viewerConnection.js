@@ -12,7 +12,7 @@ class ViewerConnection {
     isRoot,
     messageHandlers = {},
     addedIceServers = [],
-    disconnHandler
+    iceDisconnHandler
   ) {
     // ref to Viewer's socket connection
     this.socket = socket;
@@ -21,7 +21,7 @@ class ViewerConnection {
     // event handlers for DataChannel messages
     this.messageHandlers = messageHandlers;
     // function provided by Viewer class to run when ICE disconnects
-    this.disconnHandler = disconnHandler;
+    this.iceDisconnHandler = iceDisconnHandler;
 
     // reserved variables
     // RTC DataChannel
@@ -42,12 +42,6 @@ class ViewerConnection {
         ...addedIceServers
       ]
     });
-
-    // adding unload listener to check for client disconnections
-    const byeToNeighbors = (event) => {
-      this.sendMessage('disconnecting');
-    };
-    window.addEventListener('unload', byeToNeighbors);
 
     /**
      * Useful diagrams for WebRTC signaling process:
@@ -130,7 +124,7 @@ class ViewerConnection {
       .then((answer) => this.RTCconn.setLocalDescription(answer))
       // send answer to caller
       .then(() => {
-        // console.log('Set local description with offer');
+        console.log('Set local description with offer');
         const answer = this.RTCconn.localDescription;
         this.sendBySocket('answer', callerId, answer);
       })
@@ -139,7 +133,7 @@ class ViewerConnection {
 
   respondToAnswer(answer) {
     this.RTCconn.setRemoteDescription(answer)
-      // .then(() => console.log('Set remote description with answer'))
+      .then(() => console.log('Set remote description with answer'))
       .catch(this.logError);
   }
 
@@ -226,12 +220,12 @@ class ViewerConnection {
     handler && handler(message);
   }
 
-  // close connections and free up resources
-  closeConn() {
+  // asynchronously closes RTC Peer Connection
+  closeRTC() {
+    // close DataChannel
+    this.channel.close();
+    // close RTC Peer Connection
     this.RTCconn.close();
-    this.RTCconn = null;
-    // tell other peer to close connection as well
-    sendBySocket('close', peerId);
   }
 
   // ICE connection handler
@@ -240,7 +234,7 @@ class ViewerConnection {
     console.log('ICE Connection State:', connState);
 
     if (connState === 'disconnected') {
-      this.disconnHandler();
+      this.iceDisconnHandler && this.iceDisconnHandler();
     }
   }
 
