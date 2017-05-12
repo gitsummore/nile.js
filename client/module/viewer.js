@@ -66,7 +66,7 @@ class Viewer {
     this._createIceDisconnHandler = (connName) => () => {
       // have variable 
       // close client's RTC Peer Connection
-      console.log(connName, this[connName]);
+      console.log('ICE disconnecting on:', connName);
       if (this[connName]) {
         this[connName].closeRTC();
         // clear connection
@@ -76,17 +76,21 @@ class Viewer {
 
     // telling neighboring clients to reconnect
     const reconnectNeighbors = (event) => {
-      for (let wasConn of ['connToParent', 'connToChild']) {
-        // sending disconnecting message to each client
-        this[wasConn].sendMessage('disconnecting', {
-          // will allow disconnected root to reassign root role to next client
-          isRoot: this.isRoot,
-          // tells neighboring clients its relation to disconnecting client
-          wasConn,
-        });
-
-        // clear connection
-        this[wasConn] = null;
+      // sending disconnecting message to each client
+      for (let conn of ['connToParent', 'connToChild']) {
+        if (this[conn]) {
+          // if the connection exists, use opposite connection name
+          // for example, if sending to parent on connToParent,
+          // parent would be receiving message on connToChild so we'd use connToChild
+          const oppConn = (conn === 'connToParent') ? 'connToChild' : 'connToParent';
+          // send disconnection message telling peer on other end to disable the connection between this and them
+          this[conn].sendMessage('disconnecting', {
+            // will allow disconnected root to reassign root role to next client
+            isRoot: this.isRoot,
+            // tells neighboring clients which connection to disconnect
+            disconnector: oppConn,
+          });
+        }
       };
     };
     // adding document unload listener : fires when this client's browser closes the page
@@ -229,17 +233,17 @@ class Viewer {
   }
 
   // DataChannel handler to tell disconnecting's child to reconnect w/ chain
-  _reconnectWithNeighbor({ isRoot, wasConn }) {
+  _reconnectWithNeighbor({ isRoot, disconnector }) {
     console.log('Disconnecting:');
     console.log('isRoot:', isRoot);
-    console.log('wasConn:', wasConn);
+    console.log('disconnector:', disconnector);
 
     // clear connection to end which received disconnecting message
-    const clearConn = this._createIceDisconnHandler(wasConn);
+    const clearConn = this._createIceDisconnHandler(disconnector);
     clearConn();
 
-    // if receiving message from parent
-    if (wasConn === 'connToChild') {
+    // if receiving disconnection message from parent
+    if (disconnector === 'connToParent') {
       // update root status
       this.isRoot = isRoot;
       // open socket if not already open
