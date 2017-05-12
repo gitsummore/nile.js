@@ -222,6 +222,9 @@ class ViewerConnection {
 
   // asynchronously closes RTC Peer Connection
   closeRTC() {
+    // close DataChannel
+    this.channel.close();
+    // close RTC Peer Connection
     this.RTCconn.close();
   }
 
