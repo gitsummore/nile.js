@@ -9684,7 +9684,7 @@ var ViewerConnection = function () {
     this.RTCconn = new RTCPeerConnection({
       iceServers: [
       // Default STUN servers
-      { url: 'stun:stun.l.google.com:19302' }, { url: 'stun:stun1.l.google.com:19302' }, { url: 'stun:stun3.l.google.com:19302' }, { url: 'stun:stun4.l.google.com:19302' }].concat(_toConsumableArray(addedIceServers))
+      { urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }, { urls: 'stun:stun2.l.google.com:19302' }, { urls: 'stun:stun3.l.google.com:19302' }, { urls: 'stun:stun4.l.google.com:19302' }].concat(_toConsumableArray(addedIceServers))
     });
 
     /**
@@ -10268,12 +10268,9 @@ var Viewer = function () {
     // store list of ICE servers
     this.addedIceServers = addedIceServers;
 
-    // this.socket = io.connect();
     this.socket = _socket2.default.connect();
     // limit of child clients per client
     this.childLimit = 1;
-
-    this.socket = _socket2.default.connect();
 
     // indicates whether this node is the root connecting to the server
     this.isRoot = true;

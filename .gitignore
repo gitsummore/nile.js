@@ -5,7 +5,7 @@ node_modules
 *debug.log
 
 # Bundled files
-dist/
+client/dist/
 
 # Test Torrent
 *.torrent
