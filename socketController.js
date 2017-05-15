@@ -58,12 +58,8 @@ function socketController(server, socketLimit) {
       // callee socket's id maintained throughout signaling
       console.log('Emitting answer to caller:', callerId);
       socket.to(callerId).emit('answer', {
-<<<<<<< HEAD
         // MAKE TO: calleeId: this.id,
-        callerId: this.id,
-=======
         calleeId: this.id,
->>>>>>> 6fa385ffdfd293f6d8a7237a37645c04e059d567
         answer,
       });
     });
