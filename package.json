@@ -36,6 +36,7 @@
     "babel-preset-es2015": "^6.24.1",
     "body-parser": "^1.17.1",
     "chai": "^3.5.0",
+    "cold-brew": "^1.0.36",
     "css-loader": "^0.28.0",
     "mocha": "^3.3.0",
     "nodemon": "^1.11.0",
