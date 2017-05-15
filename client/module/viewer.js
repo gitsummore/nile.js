@@ -27,12 +27,9 @@ class Viewer {
     // store list of ICE servers
     this.addedIceServers = addedIceServers;
 
-    // this.socket = io.connect();
-    this.socket = observeSignaling(io.connect());
+    this.socket = io.connect();
     // limit of child clients per client
     this.childLimit = 1;
-
-    this.socket = io.connect();
 
     // indicates whether this node is the root connecting to the server
     this.isRoot = true;
