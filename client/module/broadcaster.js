@@ -42,6 +42,9 @@ class Broadcaster {
     let videoStream = this.videoStream;
     let $video = this.$video;
 
+    // mute audio
+    this.$video.defaultMuted = true;
+
     // allows you to see yourself while recording
     let createSrc = (window.URL) ? window.URL.createObjectURL : function (stream) { return stream };
 

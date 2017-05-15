@@ -3,9 +3,7 @@ const mocha = require('mocha')
 const chai = require('chai')
 const should = chai.should();
 const io = require('socket.io-client');
-const coldBrew = require('cold-brew');
-const { Key, By, until } = require('selenium-webdriver');
-const ADDRESS = 'http://localhost:8000';
+const url = 'http://localhost:8000/viewer/viewer.html';
 
 
 //nileServer.js testing
@@ -24,82 +22,14 @@ describe('Server route testing', () => {
 
 
 // Tests for socket connections
-describe('Socket Testing Suite', function () {
-  this.timeout(5000);
-  // Socket controller testing
-  let options = {
-    transports: ['websocket'],
-    'force new connection': true
-  };
+describe('Tests for broadcaster and viewer', function () {
 
-  let socket;
-  let client1;
-  let client2;
+  describe('Clicking on broadcast should start broadcasting video', () => {
 
-  beforeEach(function (done) {
-    // Setup
-    client1 = coldBrew.createClient();
-    client2 = coldBrew.createClient();
-
-    socket = io.connect('http://localhost:8000', {
-      'reconnection delay': 0
-      , 'reopen delay': 0
-      , 'force new connection': true
-    });
-    socket.on('connect', function () {
-      console.log('worked...');
-      done();
-    });
-    socket.on('disconnect', function () {
-      console.log('disconnected...');
-      done();
-    });
   });
 
-  describe('Testing Socket Controller', () => {
+  describe('Clicking on view should start playing broadcasted video', () => {
 
-    it('New client should send offer to client previously connected client', (done) => {
-      this.timeout(5000);
-
-      client1.get(ADDRESS);
-      client2.get(ADDRESS);
-
-      client2.waitUntilSendSignaling([
-        'offer'
-      ]).then((sent) => {
-        if (sent) {
-          done();
-        }
-      }).catch((err) => {
-        done();
-      });
-    });
-
-    xit('Clients should exchange offer and answer', (done) => {
-
-    });
-
-    xit('Should send and receive new ICE candidates', (done) => {
-
-    });
-
-    xit('Should properly remove socket from this.sockets', (done) => {
-
-    });
-  });
-
-  afterEach(function (done) {
-    // Cleanup
-    client1.quit();
-    client2.quit.then(() => done());
-
-    // if (socket.connected) {
-    //   console.log('disconnecting...');
-    //   socket.disconnect();
-    // } else {
-    //   console.log('no connection to break...');
-    // }
-    // done();
   });
 });
 

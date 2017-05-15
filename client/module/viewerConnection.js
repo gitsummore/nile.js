@@ -1,6 +1,4 @@
 import Message from './message';
-// for dev purposes: setting PeerConnection to ColdBrew RTC
-import { coldBrewRTC } from 'cold-brew/rtc';
 
 // set peer connection to Mozilla PeerConnection if in Firefox
 RTCPeerConnection = RTCPeerConnection || mozRTCPeerConnection;
@@ -10,13 +8,21 @@ RTCPeerConnection = RTCPeerConnection || mozRTCPeerConnection;
  * Wrapper class for RTC connection between parent and child viewers
  */
 class ViewerConnection {
-  constructor(socket, isRoot, messageHandlers = {}, turnServers = []) {
+  constructor(
+    socket,
+    isRoot,
+    messageHandlers = {},
+    addedIceServers = [],
+    iceDisconnHandler
+  ) {
     // ref to Viewer's socket connection
     this.socket = socket;
     // indicates whether this node is the root connecting to the server
     this.isRoot = isRoot;
     // event handlers for DataChannel messages
     this.messageHandlers = messageHandlers;
+    // function provided by Viewer class to run when ICE disconnects
+    this.iceDisconnHandler = iceDisconnHandler;
 
     // reserved variables
     // RTC DataChannel
@@ -25,17 +31,16 @@ class ViewerConnection {
     this.peerId;
 
     // set up wrapped WebRTCConnection
-    this.RTCconn = coldBrewRTC({
-    // this.RTCconn = new RTCPeerConnection({
+    this.RTCconn = new RTCPeerConnection({
       iceServers: [
-        // STUN servers
+        // Default STUN servers
         { url: 'stun:stun.l.google.com:19302' },
         { url: 'stun:stun1.l.google.com:19302' },
         { url: 'stun:stun2.l.google.com:19302' },
         { url: 'stun:stun3.l.google.com:19302' },
         { url: 'stun:stun4.l.google.com:19302' },
         // user-provided TURN servers go here
-        ...turnServers
+        ...addedIceServers
       ]
     });
 
@@ -78,8 +83,11 @@ class ViewerConnection {
   }
 
   // send messages thru connection's RTC data channel
-  sendMessage(msg) {
-    this.channel && this.channel.readyState === 'open' && this.channel.send(msg);
+  sendMessage(type, msg) {
+    if (this.channel && this.channel.readyState === 'open') {
+      const messageJSON = JSON.stringify(new Message(type, msg));
+      this.channel.send(messageJSON);
+    }
   }
 
   // add event listeners to RTCDataChannel
@@ -117,7 +125,7 @@ class ViewerConnection {
       .then((answer) => this.RTCconn.setLocalDescription(answer))
       // send answer to caller
       .then(() => {
-        // console.log('Set local description with offer');
+        console.log('Set local description with offer');
         const answer = this.RTCconn.localDescription;
         this.sendBySocket('answer', callerId, answer);
       })
@@ -126,7 +134,7 @@ class ViewerConnection {
 
   respondToAnswer(answer) {
     this.RTCconn.setRemoteDescription(answer)
-      // .then(() => console.log('Set remote description with answer'))
+      .then(() => console.log('Set remote description with answer'))
       .catch(this.logError);
   }
 
@@ -170,6 +178,7 @@ class ViewerConnection {
     this._setupDataChannel();
   }
 
+  // DataChannel status handler
   _handleChannelStatusChange(event) {
     if (!this.channel) return;
 
@@ -177,11 +186,8 @@ class ViewerConnection {
 
     console.log('Channel status:', state);
 
-    // message to signal reconnection
-    const stateMsg = new Message(state, {});
-
     // tell next client to reconnect w/ this client's parent, depending on isRoot
-    this.sendMessage(JSON.stringify(stateMsg));
+    this.sendMessage(state);
 
     if (state === 'open') {
       // disconnect socket.io connection if not the root client
@@ -215,17 +221,22 @@ class ViewerConnection {
     handler && handler(message);
   }
 
-  // close connections and free up resources
-  closeConn() {
+  // asynchronously closes RTC Peer Connection
+  closeRTC() {
+    // close DataChannel
+    this.channel.close();
+    // close RTC Peer Connection
     this.RTCconn.close();
-    this.RTCconn = null;
-    // tell other peer to close connection as well
-    sendBySocket('close', peerId);
   }
 
   // ICE connection handler
   _iceConnectionStateHandler(event) {
-    console.log('ICE Connection State:', this.RTCconn.iceConnectionState);
+    const connState = this.RTCconn.iceConnectionState;
+    console.log('ICE Connection State:', connState);
+
+    if (connState === 'disconnected') {
+      this.iceDisconnHandler && this.iceDisconnHandler();
+    }
   }
 
   // Signaling state handler
