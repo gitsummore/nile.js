@@ -22,51 +22,14 @@ describe('Server route testing', () => {
 
 
 // Tests for socket connections
-describe('Socket Testing Suite', function () {
+describe('Tests for broadcaster and viewer', function () {
 
-  let options = {
-    transports: ['websocket'],
-    'force new connection': true
-  };
-
-  let client1;
-  let client2;
-
-  beforeEach(function (done) {
-    // before runnning tests, connect first client
-    client1 = io.connect(url, options); 
+  describe('Clicking on broadcast should start broadcasting video', () => {
 
   });
 
-  describe('Testing Socket Controller', () => {
+  describe('Clicking on view should start playing broadcasted video', () => {
 
-    xit('New client should send offer to parent client', (done) => {
-      // connect second client to initiate offer
-      // once connected, send offer to client1
-      // disconnect client2
-    });
-
-    xit('Clients should exchange offer and answer', (done) => {
-      // connect client2
-      // client2 emits offer
-      // client1 should receive offer
-      // on receiving offer, client1 should emit answer
-      // client2 should receive answer
-    });
-
-    xit('Should send and receive new ICE candidates', (done) => {
-
-    });
-
-    xit('Should properly remove socket from this.sockets', (done) => {
-
-    });
-  });
-
-  afterEach(function (done) {
-    client1.disconnect();
-    client2.disconnect();
-    done();
   });
 });
 

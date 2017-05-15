@@ -21,6 +21,7 @@ function socketController(server, socketLimit) {
       if (clients.length <= socketLimit) {
         // keep socket connection
         this.sockets.push(socket);
+        console.log('Added sockets:', this.sockets.map(socket => socket.id));
       } else {
         socket.emit('full');
       }
@@ -36,17 +37,19 @@ function socketController(server, socketLimit) {
     socket.on('offer', function (offer) {
       // get socket id to send offer to
       const calleeSocket = getTargetSocket(self.sockets);
-      const calleeId = calleeSocket.id;
-      // get this socket's id
-      const callerId = this.id;
+      const calleeId = calleeSocket && calleeSocket.id;
 
       // emit to root of client chain
       // callee socket's id maintained throughout signaling
-      console.log('Emitting offer to callee:', calleeId);
-      socket.to(calleeId).emit('offer', {
-        callerId: this.id, 
-        offer,
-      });
+      if (calleeId) {
+        // get this socket's id
+        const callerId = this.id;
+        console.log('Emitting offer to callee:', calleeId);
+        socket.to(calleeId).emit('offer', {
+          callerId: this.id, 
+          offer,
+        });
+      }
     });
 
     // caller receives answer from callee
@@ -55,8 +58,12 @@ function socketController(server, socketLimit) {
       // callee socket's id maintained throughout signaling
       console.log('Emitting answer to caller:', callerId);
       socket.to(callerId).emit('answer', {
+<<<<<<< HEAD
         // MAKE TO: calleeId: this.id,
         callerId: this.id,
+=======
+        calleeId: this.id,
+>>>>>>> 6fa385ffdfd293f6d8a7237a37645c04e059d567
         answer,
       });
     });
