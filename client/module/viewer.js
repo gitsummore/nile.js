@@ -28,7 +28,7 @@ class Viewer {
     this.addedIceServers = addedIceServers;
 
     // this.socket = io.connect();
-    this.socket = observeSignaling(io.connect());
+    this.socket = io.connect();
     // limit of child clients per client
     this.childLimit = 1;
 

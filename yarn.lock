@@ -2723,13 +2723,8 @@ mkdirp@0.5.1, mkdirp@0.5.x, "mkdirp@>=0.5 0", mkdirp@^0.5.0, mkdirp@^0.5.1, mkdi
     minimist "0.0.8"
 
 mocha@^3.3.0:
-<<<<<<< HEAD
-  version "3.3.0"
-  resolved "https://registry.yarnpkg.com/mocha/-/mocha-3.3.0.tgz#d29b7428d3f52c82e2e65df1ecb7064e1aabbfb5"
-=======
   version "3.4.1"
   resolved "https://registry.yarnpkg.com/mocha/-/mocha-3.4.1.tgz#a3802b4aa381934cacb38de70cf771621da8f9af"
->>>>>>> 632e9b28e527924cdaa92b67b4a382a753f2767d
   dependencies:
     browser-stdout "1.3.0"
     commander "2.9.0"
@@ -4292,11 +4287,7 @@ supertest@^3.0.0:
     methods "~1.1.2"
     superagent "^3.0.0"
 
-<<<<<<< HEAD
-supports-color@3.1.2:
-=======
 supports-color@3.1.2, supports-color@^3.1.0, supports-color@^3.1.1:
->>>>>>> 632e9b28e527924cdaa92b67b4a382a753f2767d
   version "3.1.2"
   resolved "https://registry.yarnpkg.com/supports-color/-/supports-color-3.1.2.tgz#72a262894d9d408b956ca05ff37b2ed8a6e2a2d5"
   dependencies:
@@ -4733,15 +4724,9 @@ webpack@^2.4.1:
     webpack-sources "^0.2.3"
     yargs "^6.0.0"
 
-<<<<<<< HEAD
-webrtc-adapter@^3.3.4:
-  version "3.3.4"
-  resolved "https://registry.yarnpkg.com/webrtc-adapter/-/webrtc-adapter-3.3.4.tgz#19cbb7e7674033385eec723bd7ab8f5e6a7300b5"
-=======
 webrtc-adapter@^3.4.0:
   version "3.4.0"
   resolved "https://registry.yarnpkg.com/webrtc-adapter/-/webrtc-adapter-3.4.0.tgz#4448c92ae3f1ffc95683d7912fe3b455036bd6da"
->>>>>>> 632e9b28e527924cdaa92b67b4a382a753f2767d
   dependencies:
     sdp "^1.5.0"
 
