@@ -6,6 +6,9 @@ import WebTorrent from './webtorrent.min.js';
 import io from 'socket.io-client';
 import ViewerConnection from './viewerConnection';
 
+// use WebRTC Adapter shim
+require('webrtc-adapter');
+
 /**
  * Viewer class concerned with streaming video from torrents
  * and managing WebSocket connection to server
