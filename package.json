@@ -55,8 +55,5 @@
     "websocket",
     "feross"
   ],
-  "files": [
-    "client/dist/"
-  ],
   "unpkg": "client/dist"
 }
