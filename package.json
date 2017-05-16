@@ -1,6 +1,6 @@
 {
   "name": "nile.js",
-  "version": "0.1.16",
+  "version": "0.1.17",
   "description": "A tool for scalable peer-to-peer video streaming using WebTorrent",
   "main": "index.js",
   "repository": "gitsummore/nile.js",
