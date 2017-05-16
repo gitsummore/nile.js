@@ -67,6 +67,8 @@ class Viewer {
     // displays torrent progress data
     this.onProgress = this.onProgress.bind(this);
 
+    this.setUpInitialConnection();
+    
     // creates func to clear client connection when it disconnects
     this._createIceDisconnHandler = (connName) => () => {
       // have variable 

@@ -1,6 +1,6 @@
 {
   "name": "nile.js",
-  "version": "0.1.10",
+  "version": "0.1.16",
   "description": "A tool for scalable peer-to-peer video streaming using WebTorrent",
   "main": "index.js",
   "repository": "gitsummore/nile.js",
@@ -52,7 +52,11 @@
     "live",
     "streaming",
     "webRTC",
-    "websocket"
+    "websocket",
+    "feross"
   ],
-  "unpkg": "./client/dist"
+  "files": [
+    "client/dist/"
+  ],
+  "unpkg": "client/dist"
 }

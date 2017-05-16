@@ -7,8 +7,10 @@ By using the collective power of WebTorrent, video streams get progressively str
 ## About
 ### Server
 This is the plug-and-play middleware that receives the torrent link from the broadcasting client and sets up the proper Socket.io connections for the viewing clients.
+
 ### Broadcaster
 This is the client component that records video from a device's camera, saving it to progressive torrent files, and sending the torrent's magnet link out to the viewing clients.
+
 ### Viewer
 This is the client which views what the Broadcaster is recording. It receives a torrent magnet link and renders the video to injected video tags using WebTorrent.
 
@@ -28,19 +30,23 @@ app.use('/', nileServer);
 ```
 #### /magnet
 Broadcaster posts stream's torrent magnet URIs to this endpoint
+
 #### /signal
 Receives WebRTC signaling information (e.g. offer, answer, ICE candidates) to send to connecting peer.
+
 ### Client
 Two components: Viewer and Broadcaster
+
 #### Viewer
 ```
-https://unpkg.com/nile.js@0.1.10/client/dist/nile.Viewer.min.js
+https://unpkg.com/nile.js@0.1.16/client/dist/nile.Viewer.min.js
 ```
 
 2 params: HTML query selector and array of optional TURN servers for WebRTC signaling
+
 #### Broadcaster
 ```
-https://unpkg.com/nile.js@0.1.10/client/dist/nile.Broadcaster.min.js
+https://unpkg.com/nile.js@0.1.16/client/dist/nile.Broadcaster.min.js
 ```
 
 4 params:

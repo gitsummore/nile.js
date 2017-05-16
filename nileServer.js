@@ -23,5 +23,6 @@ module.exports = function createNileServer(server) {
     socket.emitNewMagnet(req.body.magnetURI);
     res.sendStatus(200);
   });
+  
   return nileServer;
 }

@@ -1,7 +1,7 @@
 // import * as WebTorrent from 'webtorrent';
 // import * as MediaStreamRecorder from 'msr';
-const WebTorrent = require('./webtorrent.min.js');
-const MediaStreamRecorder = require('msr');
+import WebTorrent from './webtorrent.min.js';
+import MediaStreamRecorder from 'msr';
 
 class Broadcaster {
   constructor(
@@ -31,6 +31,8 @@ class Broadcaster {
     }
  
     this.startSeeding = this.startSeeding.bind(this);
+
+    this.startStream();
   }
 
 
