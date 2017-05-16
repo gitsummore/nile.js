@@ -4,8 +4,5 @@ node_modules
 # NPM
 *debug.log
 
-# Bundled files
-client/dist/
-
 # Test Torrent
 *.torrent
