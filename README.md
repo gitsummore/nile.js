@@ -39,14 +39,14 @@ Two components: Viewer and Broadcaster
 
 #### Viewer
 ```
-https://unpkg.com/nile.js@0.1.13/client/dist/nile.Viewer.min.js
+https://unpkg.com/nile.js@0.1.14/client/dist/nile.Viewer.min.js
 ```
 
 2 params: HTML query selector and array of optional TURN servers for WebRTC signaling
 
 #### Broadcaster
 ```
-https://unpkg.com/nile.js@0.1.13/client/dist/nile.Broadcaster.min.js
+https://unpkg.com/nile.js@0.1.14/client/dist/nile.Broadcaster.min.js
 ```
 
 4 params:
