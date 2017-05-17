@@ -34,13 +34,20 @@ Note that this middleware will use a "magnet" route to accept POST requests with
 ### Client
 
 #### Broadcaster
-[Unpkg Source](https://unpkg.com/nile.js@0.1.16/client/dist/nile.Broadcaster.min.js)
-
+If using a file bundler e.g. (webpack), you may import the module.
+```
+import { Broadcaster } from 'nile.js'
+```
+If you just want to test the module without bundling, it is currently being hosted on unpkg CDN. Use it as a script in your html file.
+```
+https://unpkg.com/nile.js@1.0.1/client/dist/nile.Broadcaster.min.js
+```
 __4 parameters__:
-1. *recordInterval* - the Interval that the webcam recording should seed each segment of the video
+1. *recordInterval* - The Interval that the webcam recording should seed each segment of the video (ms)
 2. *videoNodeIDForPlayback* - The id of the video node in the html where the broadcaster can see their own recording
 3. *startStreamID* - The id of the button node that BEGINS the recording/live streaming
 4. *stopStreamID* - The id of the button node that ENDS the recording/live streaming
+
 
 The Broadcaster object is used to stream video to a torrent and send the torrent link to the server and then to the network of viewers.
 
@@ -48,14 +55,31 @@ Because torrents are immutable, we approximate streaming with torrents by settin
 
 Next, pass in the ID of the video tag you'd like to view your recording playback from as well as button IDs for the starting and stopping the stream.
 
+__Example__:
+```
+const broadcaster = new Broadcaster(8000, 'video', 'button-play-gum', 'button-stop-gum');
+```
+
 #### Viewer
-[Unpkg Source](https://unpkg.com/nile.js@0.1.16/client/dist/nile.Viewer.min.js)
+If using a file bundler e.g. (webpack), you may import the module.
+```
+import { Viewer } from 'nile.js'
+```
+If you just want to test the module without bundling, it is currently being hosted on unpkg CDN. Use it as a script in your html file.
+```
+https://unpkg.com/nile.js@1.0.1/client/dist/nile.Viewer.min.js
+```
 
 __2 parameters__:
 1. *ID_of_NodeToRenderVideo* - ID of DOM element to render live feed to
-2. *addedIceServers* - array of extra WebRTC ICE servers, based on [this interface laid out by W3C](https://w3c.github.io/webrtc-pc/#dom-rtciceserver)
+2. *addedIceServers* - Array of extra WebRTC ICE servers, based on [this interface laid out by W3C](https://w3c.github.io/webrtc-pc/#dom-rtciceserver)
 
 The Viewer object receives torrent links from Socket.io or RTCDataChannel connections and progressively renders the videos from the torrents to the supplied ID, *ID_of_NodeToRenderVideo*.
+
+__Example__:
+```
+const viewer = new Viewer('videos');
+```
 
 The Viewer maintains two WebRTC connections, one to a parent (client closest to server) and a child client (farther from server). These two connections create a chain of clients that propagate server-sent torrent information down to subsequent viewers down the chain.
 
