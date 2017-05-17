@@ -18,7 +18,6 @@ class Viewer {
   constructor(
     ID_of_NodeToRenderVideo, // location on the DOM where the live feed will be rendered
     addedIceServers = [], // array of ICE servers to use in WebRTC signaling
-    bootstrapInterval, // bootstrap phase, delay interval between the broadcaster and viewer
   ) {
     // initiate new torrent connection
     this.client = new WebTorrent()
@@ -311,7 +310,6 @@ class Viewer {
 
       // Stream the file in the browser
       if (first === 1) {
-        // window.setTimeout(() => { file.renderTo(renderTo) }, 6000);
         file.renderTo(renderTo, { autoplay: true })
       } else {
         file.renderTo(renderTo, { autoplay: false })
