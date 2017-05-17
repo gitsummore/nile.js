@@ -310,7 +310,7 @@ class Viewer {
 
       // Stream the file in the browser
       if (first === 1) {
-        window.setTimeout(() => file.renderTo(renderTo, { autoplay: true }), 5000);
+        window.setTimeout(() => file.renderTo(renderTo, { autoplay: true }), 7000);
       } else {
         file.renderTo(renderTo, { autoplay: false })
       }
