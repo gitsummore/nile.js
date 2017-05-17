@@ -34,8 +34,14 @@ Note that this middleware will use a "magnet" route to accept POST requests with
 ### Client
 
 #### Broadcaster
-[Unpkg Source](https://unpkg.com/nile.js@1.0.0/client/dist/nile.Broadcaster.min.js)
-
+If using a file bundler e.g. (webpack), you may import the module.
+```
+import { Broadcaster } from 'nile.js'
+```
+If you just want to test the module without bundling, it is currently being hosted on unpkg CDN. Use it as a script in your html file.
+```
+https://unpkg.com/nile.js@1.0.1/client/dist/nile.Broadcaster.min.js
+```
 __4 parameters__:
 1. *recordInterval* - The Interval that the webcam recording should seed each segment of the video (ms)
 2. *videoNodeIDForPlayback* - The id of the video node in the html where the broadcaster can see their own recording
@@ -55,7 +61,14 @@ const broadcaster = new Broadcaster(8000, 'video', 'button-play-gum', 'button-st
 ```
 
 #### Viewer
-[Unpkg Source](https://unpkg.com/nile.js@1.0.0/client/dist/nile.Viewer.min.js)
+If using a file bundler e.g. (webpack), you may import the module.
+```
+import { Viewer } from 'nile.js'
+```
+If you just want to test the module without bundling, it is currently being hosted on unpkg CDN. Use it as a script in your html file.
+```
+https://unpkg.com/nile.js@1.0.1/client/dist/nile.Viewer.min.js
+```
 
 __2 parameters__:
 1. *ID_of_NodeToRenderVideo* - ID of DOM element to render live feed to
