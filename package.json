@@ -1,6 +1,6 @@
 {
   "name": "nile.js",
-  "version": "1.0.1",
+  "version": "1.0.10",
   "description": "A tool for scalable peer-to-peer video streaming using WebTorrent",
   "main": "index.js",
   "repository": "gitsummore/nile.js",
@@ -9,11 +9,11 @@
   },
   "homepage": "http://nilejs.com/",
   "scripts": {
-    "test": "./node_modules/mocha/bin/mocha ./test.js",
-    "start": "nodemon server.js",
+    "start": "node server.js",
     "postinstall": "npm install bufferutil@1.2.x utf-8-validate@1.2.x",
     "build": "webpack -w",
-    "min": "PROD_ENV=1 webpack"
+    "min": "PROD_ENV=1 webpack",
+    "test": "./node_modules/mocha/bin/mocha ./test.js"
   },
   "author": "nile.js",
   "license": "MIT",

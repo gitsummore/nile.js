@@ -1,0 +1,4 @@
+"postinstall": "npm install bufferutil@1.2.x utf-8-validate@1.2.x",
+"build": "webpack -w",
+"min": "PROD_ENV=1 webpack",
+"test": "./node_modules/mocha/bin/mocha ./test.js"
