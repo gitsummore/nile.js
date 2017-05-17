@@ -33,6 +33,9 @@ class Viewer {
     // indicates whether this node is the root connecting to the server
     this.isRoot = true;
 
+    // variable to start logging
+    this.logging = false;
+
     // progress trackers
     // this.$numPeers = document.querySelector('#numPeers')
     // this.$uploadSpeed = document.querySelector('#uploadSpeed')
@@ -67,11 +70,17 @@ class Viewer {
     this.onProgress = this.onProgress.bind(this);
 
     this.setUpInitialConnection();
-    
+
     // creates func to clear client connection when it disconnects
     this._createIceDisconnHandler = (connName) => () => {
       // have variable 
       // close client's RTC Peer Connection
+      if (this.logging) {
+        let log = document.createElement('li');
+        log.innerHTML = `ICE disconnecting on:, ${connName}`
+        window.setTimeout(() => document.getElementById('log').appendChild(log), 400);
+      }
+
       console.log('ICE disconnecting on:', connName);
       if (this[connName]) {
         this[connName].closeRTC();
@@ -93,6 +102,13 @@ class Viewer {
           // parent would be receiving message on connToChild so we'd use connToChild
           const oppConn = (conn === 'connToParent') ? 'connToChild' : 'connToParent';
           // send disconnection message telling peer on other end to disable the connection between this and them
+
+          if (this.logging) {
+            let log = document.createElement('li');
+            log.innerHTML = "disconnecting"
+            window.setTimeout(() => document.getElementById('log').appendChild(log), 400);
+          }
+
           this[conn].sendMessage('disconnecting', {
             // will allow disconnected root to reassign root role to next client
             isRoot: this.isRoot,
@@ -107,8 +123,14 @@ class Viewer {
   }
 
   setUpInitialConnection() {
-    // document.createElement('video');
     this.socket.on('connect', () => {
+
+      if (this.logging) {
+        let log = document.createElement('li');
+        log.innerHTML = 'Socket Connected'
+        window.setTimeout(() => document.getElementById('log').appendChild(log), 400);
+      }
+
       console.log('Socket connected');
     });
 
@@ -120,6 +142,12 @@ class Viewer {
     this.socket.on('full', () => {
       // establish that it's a child of some parent client
       this.isRoot = false;
+
+      if (this.logging) {
+        let log = document.createElement('li');
+        log.innerHTML = 'Sockets full, creating WebRTC connection...'
+        window.setTimeout(() => document.getElementById('log').appendChild(log), 400);
+      }
 
       // make it a child of server-connected client
       console.log('Sockets full, creating WebRTC connection...');
@@ -144,6 +172,12 @@ class Viewer {
         this.addedIceServers,
         iceDisconnHandlerForParent
       );
+
+      if (this.logging) {
+        let log = document.createElement('li');
+        log.innerHTML = 'Starting WebRTC signaling...'
+        window.setTimeout(() => document.getElementById('log').appendChild(log), 400);
+      }
 
       console.log('Starting WebRTC signaling...');
 
@@ -243,6 +277,19 @@ class Viewer {
 
   // DataChannel handler to pass root status from disconnecting parent to child
   _reconnectWithNeighbor({ isRoot, disconnector }) {
+
+    if (this.logging) {
+      let log0 = document.createElement('li');
+      let log1 = document.createElement('li');
+      let log2 = document.createElement('li');
+      log0.innerHTML = 'Disconnecting...'
+      log1.innerHTML = `isRoot:, ${isRoot}`
+      log2.innerHTML = `disconnector:, ${disconnector}`
+      window.setTimeout(() => document.getElementById('log').appendChild(log0), 400);
+      window.setTimeout(() => document.getElementById('log').appendChild(log1), 400);
+      window.setTimeout(() => document.getElementById('log').appendChild(log2), 400);
+    }
+
     console.log('Disconnecting:');
     console.log('isRoot:', isRoot);
     console.log('disconnector:', disconnector);
@@ -345,6 +392,11 @@ class Viewer {
     players.appendChild(play2);
     players.appendChild(play3);
     document.getElementById(this.ID_of_NodeToRenderVideo).appendChild(players);
+  }
+
+  // log start logging connections
+  startLogging() {
+    this.logging = true;
   }
 
   // Download Statistics
