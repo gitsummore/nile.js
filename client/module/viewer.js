@@ -34,9 +34,9 @@ class Viewer {
     this.isRoot = true;
 
     // progress trackers
-    this.$numPeers = document.querySelector('#numPeers')
-    this.$uploadSpeed = document.querySelector('#uploadSpeed')
-    this.$downloadSpeed = document.querySelector('#downloadSpeed')
+    // this.$numPeers = document.querySelector('#numPeers')
+    // this.$uploadSpeed = document.querySelector('#uploadSpeed')
+    // this.$downloadSpeed = document.querySelector('#downloadSpeed')
 
     // create the video players on the document
     this.createVideos();
@@ -310,13 +310,13 @@ class Viewer {
 
       // Stream the file in the browser
       if (first === 1) {
-        file.renderTo(renderTo, { autoplay: true })
+        window.setTimeout(() => file.renderTo(renderTo, { autoplay: true }), 5000);
       } else {
         file.renderTo(renderTo, { autoplay: false })
       }
 
       // Trigger statistics refresh
-      setInterval(onProgress(torrent), 500);
+      // setInterval(onProgress(torrent), 500);
     })
 
     // listen to when video ends, immediately play the other video
