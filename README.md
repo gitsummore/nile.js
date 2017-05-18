@@ -18,10 +18,15 @@ This is the client which views what the Broadcaster is recording. It receives a 
 ### Server
 Nile.js utilizes Express middleware and socket.io to receive torrent information, broadcast it to as many clients it can comfortably handle who will then send it out to the rest of the clients.
 
-To use it, require nileServer from our package and pass in the Node Server instance you're using. In Express, you can get this instance by calling app.listen:
+To use it, require nileServer from our package and pass in the Node Server instance you're using. In Express, you can get this instance by calling app.listen.
+
+You'll also need to pass in the number of WebSockets the server has to maintain. Let's use 10 for now.
+
+Here's how you would use it in your server:
 ```
 const server = app.listen(8000);
-const nileServer = require('nile.js/nileServer')(server);
+const socketLimit = 10;
+const nileServer = require('nile.js/nileServer')(server, 10);
 ```
 
 Now add the nile.js middleware w/ app.use:

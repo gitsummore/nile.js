@@ -8,7 +8,7 @@ const socketController = require('./socketController');
 const socketLimit = 1;
 
 // takes in Node Server instance and returns Express Router
-module.exports = function createNileServer(server) {
+module.exports = function createNileServer(server, socketLimit) {
   // Pass server instance to use socket controller
   const socket = new socketController(server, socketLimit);
 
