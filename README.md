@@ -45,7 +45,7 @@ import { Broadcaster } from 'nile.js'
 ```
 If you just want to test the module without bundling, it is currently being hosted on unpkg CDN. Use it as a script in your html file.
 ```
-https://unpkg.com/nile.js@1.0.10/client/dist/nile.Broadcaster.min.js
+https://unpkg.com/nile.js@1.0.11/client/dist/nile.Broadcaster.min.js
 ```
 __4 parameters__:
 1. *recordInterval* - The Interval that the webcam recording should seed each segment of the video (ms)
@@ -72,7 +72,7 @@ import { Viewer } from 'nile.js'
 ```
 If you just want to test the module without bundling, it is currently being hosted on unpkg CDN. Use it as a script in your html file.
 ```
-https://unpkg.com/nile.js@1.0.10/client/dist/nile.Viewer.min.js
+https://unpkg.com/nile.js@1.0.11/client/dist/nile.Viewer.min.js
 ```
 
 __2 parameters__:

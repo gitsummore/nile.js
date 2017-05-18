@@ -19,6 +19,11 @@ class Viewer {
     ID_of_NodeToRenderVideo, // location on the DOM where the live feed will be rendered
     addedIceServers = [], // array of ICE servers to use in WebRTC signaling
   ) {
+
+    this.total = {
+      'downloaded': 0,
+      'uploaded': 0
+    }
     // initiate new torrent connection
     this.client = new WebTorrent()
     // grab DOM elements where the torrent video will be rendered to
@@ -34,9 +39,9 @@ class Viewer {
     this.isRoot = true;
 
     // progress trackers
-    this.$numPeers = document.querySelector('#numPeers')
-    this.$uploadSpeed = document.querySelector('#uploadSpeed')
-    this.$downloadSpeed = document.querySelector('#downloadSpeed')
+    // this.$numPeers = document.querySelector('#numPeers')
+    this.$downloaded = document.querySelector('#download')
+    this.$uploaded = document.querySelector('#upoload')
 
     // create the video players on the document
     this.createVideos();
@@ -64,14 +69,15 @@ class Viewer {
     }
 
     // displays torrent progress data
-    this.onProgress = this.onProgress.bind(this);
+    // this.onProgress = this.onProgress.bind(this);
 
     this.setUpInitialConnection();
-    
+
     // creates func to clear client connection when it disconnects
     this._createIceDisconnHandler = (connName) => () => {
       // have variable 
       // close client's RTC Peer Connection
+
       console.log('ICE disconnecting on:', connName);
       if (this[connName]) {
         this[connName].closeRTC();
@@ -93,6 +99,7 @@ class Viewer {
           // parent would be receiving message on connToChild so we'd use connToChild
           const oppConn = (conn === 'connToParent') ? 'connToChild' : 'connToParent';
           // send disconnection message telling peer on other end to disable the connection between this and them
+
           this[conn].sendMessage('disconnecting', {
             // will allow disconnected root to reassign root role to next client
             isRoot: this.isRoot,
@@ -107,8 +114,8 @@ class Viewer {
   }
 
   setUpInitialConnection() {
-    // document.createElement('video');
     this.socket.on('connect', () => {
+
       console.log('Socket connected');
     });
 
@@ -243,6 +250,7 @@ class Viewer {
 
   // DataChannel handler to pass root status from disconnecting parent to child
   _reconnectWithNeighbor({ isRoot, disconnector }) {
+
     console.log('Disconnecting:');
     console.log('isRoot:', isRoot);
     console.log('disconnector:', disconnector);
@@ -273,9 +281,9 @@ class Viewer {
     const $play2 = this.$play2;
     const $play3 = this.$play3;
 
-    const onProgress = this.onProgress;
+    let total = this.total;
+
     this.torrentInfo[firstIteration] += 1;
-    console.log(this.torrentInfo[firstIteration]);
 
     let first = this.torrentInfo[firstIteration]
 
@@ -292,11 +300,16 @@ class Viewer {
     }
 
     // removes torrent 
-    if (this.torrentInfo[prevMagnetURI]) {
+    if (this.torrentInfo[prevMagnetURI] !== 0) {
+
+      // appends total uploaded to the value
+      total['uploaded'] += this.client.get(this.torrentInfo[prevMagnetURI]).uploaded;
+
       this.client.remove(this.torrentInfo[prevMagnetURI], () => {
         console.log('Magnet Removed')
       })
     }
+
 
     this.torrentInfo[prevMagnetURI] = magnetURI;
 
@@ -310,18 +323,24 @@ class Viewer {
 
       // Stream the file in the browser
       if (first === 1) {
-        file.renderTo(renderTo, { autoplay: true })
+        window.setTimeout(() => file.renderTo(renderTo, { autoplay: true }), 7000);
       } else {
         file.renderTo(renderTo, { autoplay: false })
       }
 
+      // listens for when torrents are done and appends total downloaded to menu
+      torrent.on('done', function () {
+        total['downloaded'] += torrent.downloaded;
+      })
+
       // Trigger statistics refresh
-      setInterval(onProgress(torrent), 500);
+      // setInterval(onProgress(torrent), 500);
     })
 
     // listen to when video ends, immediately play the other video
     currPlayer.onended = function () {
       currPlayer.pause();
+
       nextPlayer.play();
 
       nextPlayer.removeAttribute('hidden');
@@ -347,33 +366,9 @@ class Viewer {
     document.getElementById(this.ID_of_NodeToRenderVideo).appendChild(players);
   }
 
-  // Download Statistics
-  onProgress(torrent) {
-    // let $numPeers = this.$numPeers.bind(this);
-    // let $uploadSpeed = this.$uploadSpeed.bind(this);
-    // let $downloadSpeed = this.$downloadSpeed.bind(this);
-    console.log('i am working?')
-    let $numPeers = document.querySelector('#numPeers')
-    let $uploadSpeed = document.querySelector('#uploadSpeed')
-    let $downloadSpeed = document.querySelector('#downloadSpeed')
-    // Peers
-    $numPeers.innerHTML = torrent.numPeers + (torrent.numPeers === 1 ? ' peer' : ' peers');
-
-    console.log('torrent', torrent);
-    // Speed rates
-    $downloadSpeed.innerHTML = torrent.downloadSpeed + '/s'
-    $uploadSpeed.innerHTML = torrent.uploadSpeed + '/s'
-  }
-
-  // Human readable bytes util
-  prettyBytes(num) {
-    let exponent, unit, neg = num < 0, units = ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-    if (neg) num = -num;
-    if (num < 1) return (neg ? '-' : '') + num + ' B';
-    exponent = Math.min(Math.floor(Math.log(num) / Math.log(1000)), units.length - 1);
-    num = Number((num / Math.pow(1000, exponent)).toFixed(2));
-    unit = units[exponent];
-    return (neg ? '-' : '') + num + ' ' + unit;
+    // return the totals upload/download
+  returnTotals() {
+    return this.total;
   }
 }
 

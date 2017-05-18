@@ -101,6 +101,7 @@ class ViewerConnection {
 
   // Caller: begin connection to parent client
   initOffer() {
+
     console.log('CALLER');
     // console.log('Initiating offer...');
     // create offer to parent
@@ -117,6 +118,7 @@ class ViewerConnection {
 
   // Callee: sets offer as remote description and sends answer
   respondToOffer(callerId, offer) {
+
     console.log('CALLEE');
     this.RTCconn.setRemoteDescription(offer)
       // create answer to offer
@@ -125,6 +127,7 @@ class ViewerConnection {
       .then((answer) => this.RTCconn.setLocalDescription(answer))
       // send answer to caller
       .then(() => {
+
         console.log('Set local description with offer');
         const answer = this.RTCconn.localDescription;
         this.sendBySocket('answer', callerId, answer);
@@ -134,7 +137,9 @@ class ViewerConnection {
 
   respondToAnswer(answer) {
     this.RTCconn.setRemoteDescription(answer)
-      .then(() => console.log('Set remote description with answer'))
+      .then(() => {
+        console.log('Set remote description with answer');
+      })
       .catch(this.logError);
   }
 
@@ -192,6 +197,7 @@ class ViewerConnection {
     if (state === 'open') {
       // disconnect socket.io connection if not the root client
       if (!this.isRoot && this.socket.connected) {
+
         console.log('RTC connection succeeded! Disconnecting socket...');
         this.socket.disconnect();
       }
@@ -232,6 +238,7 @@ class ViewerConnection {
   // ICE connection handler
   _iceConnectionStateHandler(event) {
     const connState = this.RTCconn.iceConnectionState;
+
     console.log('ICE Connection State:', connState);
 
     if (connState === 'disconnected') {
@@ -241,6 +248,7 @@ class ViewerConnection {
 
   // Signaling state handler
   _signalingStateHandler(event) {
+    
     console.log('Signaling State:', this.RTCconn.signalingState);
   }
 
