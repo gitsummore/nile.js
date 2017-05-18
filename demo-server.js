@@ -3,8 +3,6 @@ const path = require('path');
 const fs = require('fs');
 const bodyParser = require('body-parser');
 
-const socketController = require('./socketController');
-
 const app = express();
 
 const port = parseInt(process.env.PORT, 10) || 8000;
@@ -14,7 +12,7 @@ const server = app.listen(port, () => {
   console.log(`Listening on port ${port}`)
 });
 
-const nileHandler = require('./nileServer')(server);
+const nileHandler = require('./server/nileServer')(server, 10);
 
 // parse application/json 
 app.use(bodyParser.json())
