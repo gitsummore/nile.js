@@ -1,3 +1,3 @@
-const broadcaster = new Broadcaster(10000, 'video', 'button-play-gum', 'button-stop-gum');
+const broadcaster = new Broadcaster(30000, 'video', 'button-play-gum', 'button-stop-gum');
 
 
