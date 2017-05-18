@@ -102,10 +102,6 @@ class ViewerConnection {
   // Caller: begin connection to parent client
   initOffer() {
 
-    let log = document.createElement('li');
-    log.innerHTML = "CALLER"
-    window.setTimeout(()=> document.getElementById('log').appendChild(log), 500);
-
     console.log('CALLER');
     // console.log('Initiating offer...');
     // create offer to parent
@@ -123,10 +119,6 @@ class ViewerConnection {
   // Callee: sets offer as remote description and sends answer
   respondToOffer(callerId, offer) {
 
-    let log = document.createElement('li');
-    log.innerHTML = "CALLEE"
-    document.getElementById('log').appendChild(log);
-
     console.log('CALLEE');
     this.RTCconn.setRemoteDescription(offer)
       // create answer to offer
@@ -135,10 +127,6 @@ class ViewerConnection {
       .then((answer) => this.RTCconn.setLocalDescription(answer))
       // send answer to caller
       .then(() => {
-
-        let log = document.createElement('li');
-        log.innerHTML = 'Set local description with offer'
-        window.setTimeout(() => document.getElementById('log').appendChild(log), 500);
 
         console.log('Set local description with offer');
         const answer = this.RTCconn.localDescription;
@@ -151,10 +139,6 @@ class ViewerConnection {
     this.RTCconn.setRemoteDescription(answer)
       .then(() => {
         console.log('Set remote description with answer');
-
-        let log = document.createElement('li');
-        log.innerHTML = 'Set remote description with answer'
-        window.setTimeout(() => document.getElementById('log').appendChild(log), 500);
       })
       .catch(this.logError);
   }
@@ -184,10 +168,6 @@ class ViewerConnection {
 
   // WebRTC connection state handler
   _connectionStateHandler() {
-    let log = document.createElement('li');
-    log.innerHTML = `Connection state changed to, ${conn.connectionState}`
-    window.setTimeout(() => document.getElementById('log').appendChild(log), 500);
-
     console.log('Connection state changed to', conn.connectionState);
 
     // if (conn.connectionState === 'connected') {
@@ -197,10 +177,6 @@ class ViewerConnection {
 
   // receiver handles request to open data channel
   _receiveDataChannel(event) {
-    let log = document.createElement('li');
-    log.innerHTML = `Receiving data channel...`
-    window.setTimeout(document.getElementById('log').appendChild(log), 500);
-
     console.log('Receiving data channel...');
     // store received channel
     this.channel = event.channel;
@@ -213,10 +189,6 @@ class ViewerConnection {
 
     const state = this.channel.readyState;
 
-    let log = document.createElement('li');
-    log.innerHTML = `Channel status:, ${state}`
-    document.getElementById('log').appendChild(log);
-
     console.log('Channel status:', state);
 
     // tell next client to reconnect w/ this client's parent, depending on isRoot
@@ -225,10 +197,6 @@ class ViewerConnection {
     if (state === 'open') {
       // disconnect socket.io connection if not the root client
       if (!this.isRoot && this.socket.connected) {
-
-        let log = document.createElement('li');
-        log.innerHTML = `RTC connection succeeded! Disconnecting socket...`
-        window.setTimeout(() => document.getElementById('log').appendChild(log), 1000);
 
         console.log('RTC connection succeeded! Disconnecting socket...');
         this.socket.disconnect();
@@ -252,10 +220,6 @@ class ViewerConnection {
 
     const { type, message } = msg;
 
-    let log = document.createElement('li');
-    log.innerHTML = `Received message of type '${type}'`
-    document.getElementById('log').appendChild(log);
-
     console.log(`Received message of type '${type}'`);
     const handler = this.messageHandlers[type];
 
@@ -275,10 +239,6 @@ class ViewerConnection {
   _iceConnectionStateHandler(event) {
     const connState = this.RTCconn.iceConnectionState;
 
-    let log = document.createElement('li');
-    log.innerHTML = `ICE Connection State:', ${connState}`
-    document.getElementById('log').appendChild(log);
-
     console.log('ICE Connection State:', connState);
 
     if (connState === 'disconnected') {
@@ -289,10 +249,6 @@ class ViewerConnection {
   // Signaling state handler
   _signalingStateHandler(event) {
     
-    let log = document.createElement('li');
-    log.innerHTML = `Signaling State:, ${this.RTCconn.signalingState}`
-    document.getElementById('log').appendChild(log);
-
     console.log('Signaling State:', this.RTCconn.signalingState);
   }
 
