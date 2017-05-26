@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "dist";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 30);
+/******/ 	return __webpack_require__(__webpack_require__.s = 33);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -109,7 +109,7 @@ module.exports = g;
 
 /***/ }),
 
-/***/ 11:
+/***/ 12:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -297,11 +297,11 @@ module.exports = g;
     attachTo.setImmediate = setImmediate;
     attachTo.clearImmediate = clearImmediate;
 })(typeof self === "undefined" ? typeof global === "undefined" ? undefined : global : self);
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0), __webpack_require__(3)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0), __webpack_require__(4)))
 
 /***/ }),
 
-/***/ 13:
+/***/ 14:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -355,13 +355,13 @@ exports._unrefActive = exports.active = function (item) {
 };
 
 // setimmediate attaches itself to the global object
-__webpack_require__(11);
+__webpack_require__(12);
 exports.setImmediate = setImmediate;
 exports.clearImmediate = clearImmediate;
 
 /***/ }),
 
-/***/ 28:
+/***/ 30:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2601,7 +2601,225 @@ if (true) {
 
 /***/ }),
 
-/***/ 3:
+/***/ 33:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); // import * as WebTorrent from 'webtorrent';
+// import * as MediaStreamRecorder from 'msr';
+
+
+var _webtorrentMin = __webpack_require__(5);
+
+var _webtorrentMin2 = _interopRequireDefault(_webtorrentMin);
+
+var _msr = __webpack_require__(30);
+
+var _msr2 = _interopRequireDefault(_msr);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Broadcaster = function () {
+  function Broadcaster(recordInterval, // the Interval that the webcam recording should seed each segment of the video
+  ID_of_NodeToRenderVideo, // The id where the video node is being appended to
+  startStreamID, // The id of the button node that BEGINS the recording/live streaming
+  stopStreamID // The id of the button node that ENDS the recording/live streaming
+  ) {
+    _classCallCheck(this, Broadcaster);
+
+    this.recordInterval = recordInterval; // interval to record video at (in ms)
+    this.ID_of_NodeToRenderVideo = ID_of_NodeToRenderVideo;
+    this.startStreamID = startStreamID;
+    this.stopStreamID = stopStreamID;
+
+    this.videoStream = null;
+
+    this.createBroadcast();
+
+    this.$video = document.getElementById('broadcaster');
+
+    this.startSeeding = this.startSeeding.bind(this);
+
+    this.startStream();
+  }
+
+  _createClass(Broadcaster, [{
+    key: 'startStream',
+    value: function startStream() {
+      var _recordInterval = this.recordInterval;
+      var startSeeding = this.startSeeding;
+      var videoStream = this.videoStream;
+      var $video = this.$video;
+
+      var torrentInfo = {
+        'magnetURI1': 0,
+        'magnetURI2': 0,
+        'magnetURI3': 0,
+        'was1': false,
+        'was2': false
+      };
+
+      var broadcaster = void 0;
+      // mute audio
+      this.$video.defaultMuted = true;
+
+      // allows you to see yourself while recording
+      var createSrc = window.URL ? window.URL.createObjectURL : function (stream) {
+        return stream;
+      };
+
+      // // creates a new instance of torrent so that user is able to seed the video/webm file
+      // let was1 = this.was1;
+      // let was2 = this.was1;
+
+      // when pressing the play button, start recording
+      document.getElementById('' + this.startStreamID).addEventListener('click', function () {
+        broadcaster = new _webtorrentMin2.default();
+
+        var mediaConstraints = {
+          audio: true,
+          video: true
+        };
+
+        // begin using the webcam
+        navigator.getUserMedia(mediaConstraints, onMediaSuccess, onMediaError);
+
+        function onMediaSuccess(stream) {
+          var mediaRecorder = new _msr2.default(stream);
+          // record a blob every _recordInterval amount of time
+          mediaRecorder.start(_recordInterval);
+          mediaRecorder.mimeType = 'video/webm';
+
+          // every _recordInterval, make a new torrent file and start seeding it
+          mediaRecorder.ondataavailable = function (blob) {
+
+            var file = new File([blob], 'nilejs.webm', {
+              type: 'video/webm'
+            });
+
+            // /* So that there is no delay in streaming between torrents, this section is going to 
+            //  * make instances of webtorrent and then alternate the seeding between the two
+            //  * once each seed is done, destroy the seed and initiate the next one
+            // */
+            if (torrentInfo.was1 && torrentInfo.was2) {
+              startSeeding(file, 'magnetURI3', '3', broadcaster, torrentInfo);
+              torrentInfo.was1 = torrentInfo.was2 = false;
+            } else if (torrentInfo.was1) {
+              startSeeding(file, 'magnetURI2', '2', broadcaster, torrentInfo);
+              torrentInfo.was2 = true;
+            } else {
+              startSeeding(file, 'magnetURI1', '1', broadcaster, torrentInfo);
+              torrentInfo.was1 = true;
+            }
+          };
+
+          // retrieve the devices that are being used to record
+          videoStream = stream.getTracks();
+
+          // play back the recording to the broadcaster
+          $video.src = createSrc(stream);
+          $video.play();
+        }
+
+        function onMediaError(e) {
+          console.error('media error', e);
+        }
+      });
+
+      // when the user pauses the video, stop the stream and send data to server
+      document.getElementById('' + this.stopStreamID).addEventListener('click', function () {
+        // resets all of the values to starting values
+        torrentInfo = {
+          'magnetURI1': 0,
+          'magnetURI2': 0,
+          'magnetURI3': 0,
+          'was1': false,
+          'was2': false
+        };
+
+        // Pause the video
+        $video.pause();
+
+        // stops the the audio and video from recording
+        videoStream.forEach(function (stream) {
+          return stream.stop();
+        });
+
+        // destroys the broadcasting client and starts back at the beginning
+        broadcaster.destroy(function () {
+          console.log('All torrents destroyed');
+        });
+      });
+    }
+  }, {
+    key: 'startSeeding',
+    value: function startSeeding(file, currMagnet, castNum, broadcaster, torrentInfo) {
+      var _this = this;
+
+      // remove the torrent if it is currently seeding
+      if (torrentInfo[currMagnet]) {
+        broadcaster.remove(torrentInfo[currMagnet], function () {
+          console.log('magnet ' + castNum + ' removed');
+        });
+      }
+
+      // start seeding the new torrent
+      broadcaster.seed(file, function (torrent) {
+        torrentInfo[currMagnet] = torrent.magnetURI;
+        console.log('broadcaster ' + castNum + ' is seeding ', torrent.magnetURI);
+        _this.sendMagnetToServer(torrent.magnetURI);
+      });
+
+      // check for if an error occurs, if it does, garbage collection and return error
+      broadcaster.on('error', function (err) {
+        console.log('webtorrents has encountered an error', err);
+      });
+    }
+
+    // send magnet to server
+
+  }, {
+    key: 'sendMagnetToServer',
+    value: function sendMagnetToServer(magnetURI) {
+      // send to server
+      var xhr = new XMLHttpRequest();
+
+      xhr.open('POST', '/magnet', true);
+
+      xhr.onreadystatechange = function () {
+        if (this.status === 200) {
+          console.log('Magnet Emitted');
+        } else {
+          console.log('Emit Failed');
+        }
+      };
+      xhr.setRequestHeader("Content-type", "application/json");
+      xhr.send(JSON.stringify({ 'magnetURI': magnetURI }));
+    }
+  }, {
+    key: 'createBroadcast',
+    value: function createBroadcast() {
+      var video = document.createElement('video');
+      video.setAttribute('id', 'broadcaster');
+      document.getElementById(this.ID_of_NodeToRenderVideo).appendChild(video);
+    }
+  }]);
+
+  return Broadcaster;
+}();
+
+// export default Broadcaster
+
+
+module.exports = Broadcaster;
+
+/***/ }),
+
+/***/ 4:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2795,201 +3013,7 @@ process.umask = function () {
 
 /***/ }),
 
-/***/ 30:
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-// import * as WebTorrent from 'webtorrent';
-// import * as MediaStreamRecorder from 'msr';
-var WebTorrent = __webpack_require__(4);
-var MediaStreamRecorder = __webpack_require__(28);
-
-var Broadcaster = function () {
-  function Broadcaster(recordInterval, // the Interval that the webcam recording should seed each segment of the video
-  videoNodeIDForPlayback, // The id of the video node in the html where the broadcaster can see their own recording
-  startStreamID, // The id of the button node that BEGINS the recording/live streaming
-  stopStreamID // The id of the button node that ENDS the recording/live streaming
-  ) {
-    _classCallCheck(this, Broadcaster);
-
-    this.recordInterval = recordInterval;
-    this.videoNodeIDForPlayback = videoNodeIDForPlayback;
-    this.startStreamID = startStreamID;
-    this.stopStreamID = stopStreamID;
-  }
-
-  _createClass(Broadcaster, [{
-    key: 'startStream',
-    value: function startStream() {
-      // interval to record video at (in ms)
-      var _recordInterval = this.recordInterval;
-      var sendMagnetToServer = this.sendMagnetToServer;
-      console.log(sendMagnetToServer);
-      var videoStream = null;
-      var video = document.getElementById('' + this.videoNodeIDForPlayback);
-
-      // will hold
-      var videoFile = void 0;
-
-      // allows you to see yourself while recording
-      var createSrc = window.URL ? window.URL.createObjectURL : function (stream) {
-        return stream;
-      };
-
-      // creates a new instance of torrent so that user is able to seed the video/webm file
-      var broadcaster1 = new WebTorrent();
-      var broadcaster2 = new WebTorrent();
-      var broadcaster3 = new WebTorrent();
-      var magnetURI1 = void 0;
-      var magnetURI2 = void 0;
-      var magnetURI3 = void 0;
-      var _wasLastBroadcaster_1 = false;
-      var _wasLastBroadcaster_2 = false;
-
-      // when pressing the play button, start recording
-      document.getElementById('' + this.startStreamID).addEventListener('click', function () {
-        var mediaConstraints = {
-          audio: true,
-          video: true
-        };
-
-        // begin using the webcam
-        navigator.getUserMedia(mediaConstraints, onMediaSuccess, onMediaError);
-
-        function onMediaSuccess(stream) {
-          var mediaRecorder = new MediaStreamRecorder(stream);
-          // record a blob every _recordInterval amount of time
-          mediaRecorder.start(_recordInterval);
-          mediaRecorder.mimeType = 'video/webm';
-
-          // every _recordInterval, make a new torrent file and start seeding it
-          mediaRecorder.ondataavailable = function (blob) {
-
-            var file = new File([blob], 'nilejs.webm', {
-              type: 'video/webm'
-            });
-
-            // /* So that there is no delay in streaming between torrents, this section is going to 
-            //  * make instances of webtorrent and then alternate the seeding between the two
-            //  * once each seed is done, destroy the seed and initiate the next one
-            // */
-            if (_wasLastBroadcaster_1 && _wasLastBroadcaster_2) {
-              if (magnetURI3) {
-                broadcaster3.destroy(function () {
-                  console.log('broadcaster3 removed');
-                });
-              }
-
-              broadcaster3 = new WebTorrent();
-
-              // start seeding the new torrent
-              broadcaster3.seed(file, function (torrent) {
-                magnetURI3 = torrent.magnetURI;
-                console.log('broadcaster3 is seeding ' + torrent.magnetURI);
-                sendMagnetToServer(magnetURI3);
-              });
-
-              _wasLastBroadcaster_1 = _wasLastBroadcaster_2 = false;
-            } else if (_wasLastBroadcaster_1) {
-              // if there is already a seed occuring, destroy it and re-seed
-              if (magnetURI2) {
-                broadcaster2.destroy(function () {
-                  console.log('broadcaster2 removed');
-                });
-              }
-
-              broadcaster2 = new WebTorrent();
-
-              // start seeding the new torrent
-              broadcaster2.seed(file, function (torrent) {
-                magnetURI2 = torrent.magnetURI;
-                console.log('broadcaster2 is seeding ' + torrent.magnetURI);
-                sendMagnetToServer(magnetURI2);
-              });
-
-              _wasLastBroadcaster_2 = true;
-            } else {
-
-              if (magnetURI1) {
-                broadcaster1.destroy(function () {
-                  console.log('broadcaster1 removed');
-                });
-              }
-
-              broadcaster1 = new WebTorrent();
-
-              broadcaster1.seed(file, function (torrent) {
-                magnetURI1 = torrent.magnetURI;
-                console.log('broadcaster1 is seeding ' + torrent.magnetURI);
-                sendMagnetToServer(magnetURI1);
-              });
-
-              _wasLastBroadcaster_1 = true;
-            }
-          };
-
-          // retrieve the devices that are being used to record
-          videoStream = stream.getTracks();
-
-          // // play back the recording to the broadcaster
-          video.src = createSrc(stream);
-          video.play();
-        }
-
-        function onMediaError(e) {
-          console.error('media error', e);
-        }
-      });
-
-      // when the user pauses the video, stop the stream and send data to server
-      document.getElementById('' + this.stopStreamID).addEventListener('click', function () {
-        // Pause the video
-        video.pause();
-
-        // stops the the audio and video from recording
-        videoStream.forEach(function (stream) {
-          return stream.stop();
-        });
-      });
-    }
-
-    // send magnet to server
-
-  }, {
-    key: 'sendMagnetToServer',
-    value: function sendMagnetToServer(magnetURI) {
-      // send to server
-      var xhr = new XMLHttpRequest();
-
-      xhr.open('POST', '/magnet', true);
-
-      xhr.onreadystatechange = function () {
-        if (this.status === 200) {
-          console.log('Magnet Emitted');
-        } else {
-          console.log('Emit Failed');
-        }
-      };
-
-      xhr.setRequestHeader("Content-type", "application/json");
-      xhr.send(JSON.stringify({ 'magnetURI': magnetURI }));
-    }
-  }]);
-
-  return Broadcaster;
-}();
-
-module.exports = Broadcaster;
-
-/***/ }),
-
-/***/ 4:
+/***/ 5:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8326,7 +8350,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       }).call(this, e("_process"), "undefined" != typeof global ? global : "undefined" != typeof self ? self : "undefined" != typeof window ? window : {});
     }, { "./lib/tcp-pool": 21, "./lib/torrent": 5, "./package.json": 122, _process: 66, "bittorrent-dht/client": 21, "create-torrent": 29, debug: 30, events: 34, inherits: 41, "load-ip-set": 21, "parse-torrent": 62, path: 63, randombytes: 73, "run-parallel": 86, "safe-buffer": 88, "simple-concat": 89, "simple-peer": 91, speedometer: 94, xtend: 119, "zero-fill": 121 }] }, {}, [123])(123);
 });
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0), __webpack_require__(13).setImmediate))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0), __webpack_require__(14).setImmediate))
 
 /***/ })
 

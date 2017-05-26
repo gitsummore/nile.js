@@ -5,22 +5,23 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Webtorrent Live Video Viewer</title>
+
   <link rel="stylesheet" href="viewer.html">
+
 </head>
 
 <body>
-  <video id="player1" ></video>
-  <video id="player2" hidden></video>
-  <video id="player3" hidden></video>
-
-  <!--<script src="https://cdn.jsdelivr.net/webtorrent/latest/webtorrent.min.js"></script>-->
-  <!--<script src="./../socket.io/socket.io.js"></script>-->
-  <!--<script src="utils.js"></script>-->
-  <!--<script src="./../module/viewer.js"></script>-->
+  <div id="videos"></div>
+  <div>
+    <code id="numPeers">0 peers</code><br>
+    <code id="downloaded">0 dl</code><br>
+    <code id="uploaded">0 ul</code>
+  </div>
+  <div>
+    <ul id="log">
+    </ul>
+  </div>
   <script src="./../dist/nile.Viewer.js"></script>
-  <script src="./../module/message.js"></script>
-  <script src="./../module/viewerConnection.js"></script>
-  <!--<script src="./../module/viewer.js"></script>-->
   <script src="viewMedia.js"></script>
 </body>
 

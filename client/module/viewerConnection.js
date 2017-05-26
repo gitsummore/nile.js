@@ -1,17 +1,28 @@
+import Message from './message';
+
 // set peer connection to Mozilla PeerConnection if in Firefox
 RTCPeerConnection = RTCPeerConnection || mozRTCPeerConnection;
+
 
 /**
  * Wrapper class for RTC connection between parent and child viewers
  */
 class ViewerConnection {
-  constructor(socket, isRoot) {
+  constructor(
+    socket,
+    isRoot,
+    messageHandlers = {},
+    addedIceServers = [],
+    iceDisconnHandler
+  ) {
     // ref to Viewer's socket connection
     this.socket = socket;
     // indicates whether this node is the root connecting to the server
     this.isRoot = isRoot;
     // event handlers for DataChannel messages
-    this.messageHandlers = {};
+    this.messageHandlers = messageHandlers;
+    // function provided by Viewer class to run when ICE disconnects
+    this.iceDisconnHandler = iceDisconnHandler;
 
     // reserved variables
     // RTC DataChannel
@@ -22,13 +33,14 @@ class ViewerConnection {
     // set up wrapped WebRTCConnection
     this.RTCconn = new RTCPeerConnection({
       iceServers: [
-        // STUN servers
-        { url: 'stun:stun.l.google.com:19302' },
-        { url: 'stun:stun1.l.google.com:19302' },
-        { url: 'stun:stun2.l.google.com:19302' },
-        { url: 'stun:stun3.l.google.com:19302' },
-        { url: 'stun:stun4.l.google.com:19302' },
-        // TODO: developer-provided TURN servers go here
+        // Default STUN servers
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' },
+        { urls: 'stun:stun2.l.google.com:19302' },
+        { urls: 'stun:stun3.l.google.com:19302' },
+        { urls: 'stun:stun4.l.google.com:19302' },
+        // user-provided TURN servers go here
+        ...addedIceServers
       ]
     });
 
@@ -71,9 +83,12 @@ class ViewerConnection {
   }
 
   // send messages thru connection's RTC data channel
-  sendMessage(msg) {
-    this.channel && this.channel.readyState === 'open' && this.channel.send(msg);
-  } 
+  sendMessage(type, msg) {
+    if (this.channel && this.channel.readyState === 'open') {
+      const messageJSON = JSON.stringify(new Message(type, msg));
+      this.channel.send(messageJSON);
+    }
+  }
 
   // add event listeners to RTCDataChannel
   _setupDataChannel() {
@@ -86,6 +101,7 @@ class ViewerConnection {
 
   // Caller: begin connection to parent client
   initOffer() {
+
     console.log('CALLER');
     // console.log('Initiating offer...');
     // create offer to parent
@@ -102,6 +118,7 @@ class ViewerConnection {
 
   // Callee: sets offer as remote description and sends answer
   respondToOffer(callerId, offer) {
+
     console.log('CALLEE');
     this.RTCconn.setRemoteDescription(offer)
       // create answer to offer
@@ -110,7 +127,8 @@ class ViewerConnection {
       .then((answer) => this.RTCconn.setLocalDescription(answer))
       // send answer to caller
       .then(() => {
-        // console.log('Set local description with offer');
+
+        console.log('Set local description with offer');
         const answer = this.RTCconn.localDescription;
         this.sendBySocket('answer', callerId, answer);
       })
@@ -119,7 +137,9 @@ class ViewerConnection {
 
   respondToAnswer(answer) {
     this.RTCconn.setRemoteDescription(answer)
-      // .then(() => console.log('Set remote description with answer'))
+      .then(() => {
+        console.log('Set remote description with answer');
+      })
       .catch(this.logError);
   }
 
@@ -163,6 +183,7 @@ class ViewerConnection {
     this._setupDataChannel();
   }
 
+  // DataChannel status handler
   _handleChannelStatusChange(event) {
     if (!this.channel) return;
 
@@ -170,15 +191,19 @@ class ViewerConnection {
 
     console.log('Channel status:', state);
 
+    // tell next client to reconnect w/ this client's parent, depending on isRoot
+    this.sendMessage(state);
+
     if (state === 'open') {
       // disconnect socket.io connection if not the root client
-      if (!this.isRoot) {
+      if (!this.isRoot && this.socket.connected) {
+
         console.log('RTC connection succeeded! Disconnecting socket...');
         this.socket.disconnect();
       }
     }
-    // if closed
-    else {
+    // tell neighboring clients to reconnect before this client disconnects
+    else if (state === 'closing') {
 
     }
   }
@@ -195,37 +220,46 @@ class ViewerConnection {
 
     const { type, message } = msg;
 
-    console.log(`Received message of type '${type}: ${message}`);
+    console.log(`Received message of type '${type}'`);
     const handler = this.messageHandlers[type];
-    
+
     // call handler if exists
     handler && handler(message);
   }
 
-  // close connections and free up resources
-  closeConn() {
+  // asynchronously closes RTC Peer Connection
+  closeRTC() {
+    // close DataChannel
+    this.channel.close();
+    // close RTC Peer Connection
     this.RTCconn.close();
-    this.RTCconn = null;
-    // tell other peer to close connection as well
-    sendBySocket('close', peerId);
   }
 
   // ICE connection handler
   _iceConnectionStateHandler(event) {
-    console.log('ICE Connection State:', this.RTCconn.iceConnectionState);
+    const connState = this.RTCconn.iceConnectionState;
+
+    console.log('ICE Connection State:', connState);
+
+    if (connState === 'disconnected') {
+      this.iceDisconnHandler && this.iceDisconnHandler();
+    }
   }
 
   // Signaling state handler
   _signalingStateHandler(event) {
+    
     console.log('Signaling State:', this.RTCconn.signalingState);
   }
 
-  // send message on RTC connection
+  // send message by socket.io
   sendBySocket(event, ...args) {
     this.socket.emit(event, ...args);
   }
 
   logError(err) {
-    console.log(err);
+    console.error(err);
   }
 }
+
+export default ViewerConnection;

@@ -1,3 +1,2 @@
-const viewer = new Viewer('body');
-
-viewer.setUpInitialConnection();
+const viewer = new Viewer('videos');
+viewer.startLogging();

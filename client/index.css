@@ -1,0 +1,35 @@
+body {
+  font-size: 40px;
+  background-image: url('http://hdwallpaperbackgrounds.net/wp-content/uploads/2015/10/Beautiful-Nile-River-HD-Wallpaper.jpg')
+}
+
+#container {
+  height: 90vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  /*background-color: lightslategrey;*/
+}
+
+#blob {
+  text-align: center;
+  width: 650px;
+  background-color: rgba(255, 255, 204, 0.5);
+  border-radius: 20px;
+}
+
+.broadcaster {
+  width: 280px;
+  margin: 20px;
+  font-size: 30px;
+  font-weight: bold;
+  padding: 20px;
+  opacity: 0.5;
+  border-radius: 20px;
+}
+
+#secondCont {
+  display: flex;
+  flex-direction: row;
+}

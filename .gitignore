@@ -1,13 +1,11 @@
 .DS_Store
 node_modules
 
-# Video uploads
-uploads/
-**/*.webm
-
-# Torrent files
-*.torrent
-**/*.torrent
-
 # NPM
 *debug.log
+
+# Bundled files
+client/dist/
+
+# Test Torrent
+*.torrent
