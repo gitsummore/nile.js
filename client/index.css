@@ -21,12 +21,14 @@ body {
 
 .broadcaster {
   width: 280px;
+  text-align: center;
   margin: 20px;
   font-size: 30px;
   font-weight: bold;
   padding: 20px;
   opacity: 0.5;
   border-radius: 20px;
+  background: white;
 }
 
 #secondCont {
