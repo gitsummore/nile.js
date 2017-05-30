@@ -23,14 +23,14 @@ To use it, require nileServer from our package and pass in the Node Server insta
 You'll also need to pass in the number of WebSockets the server has to maintain. Let's use 10 for now.
 
 Here's how you would use it in your server:
-```
+```js
 const server = app.listen(8000);
 const socketLimit = 10;
 const nileServer = require('nile.js/nileServer')(server, 10);
 ```
 
 Now add the nile.js middleware w/ app.use:
-```
+```js
 app.use('/', nileServer);
 ```
 
@@ -40,7 +40,7 @@ Note that this middleware will use a "magnet" route to accept POST requests with
 
 #### Broadcaster
 If using a file bundler e.g. (webpack), you may import the module.
-```
+```js
 import { Broadcaster } from 'nile.js'
 ```
 If you just want to test the module without bundling, it is currently being hosted on unpkg CDN. Use it as a script in your html file.
@@ -61,13 +61,13 @@ Because torrents are immutable, we approximate streaming with torrents by settin
 Next, pass in the ID of the video tag you'd like to view your recording playback from as well as button IDs for the starting and stopping the stream.
 
 __Example__:
-```
+```js
 const broadcaster = new Broadcaster(8000, 'video', 'button-play-gum', 'button-stop-gum');
 ```
 
 #### Viewer
 If using a file bundler e.g. (webpack), you may import the module.
-```
+```js
 import { Viewer } from 'nile.js'
 ```
 If you just want to test the module without bundling, it is currently being hosted on unpkg CDN. Use it as a script in your html file.
@@ -82,7 +82,7 @@ __2 parameters__:
 The Viewer object receives torrent links from Socket.io or RTCDataChannel connections and progressively renders the videos from the torrents to the supplied ID, *ID_of_NodeToRenderVideo*.
 
 __Example__:
-```
+```js
 const viewer = new Viewer('videos');
 ```
 
