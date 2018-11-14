@@ -1,5 +1,7 @@
-# [nile.js][website]
+# nile.js
 A tool for scalable peer-to-peer video streaming using WebTorrent.
+
+__NOTE: This project is no longer being actively maintained__
 
 ## Why WebTorrent?
 By using the collective power of WebTorrent, video streams get progressively stronger as more peers contribute to a torrent. With torrents, it is also possible for users to access previous parts of a stream unlike traditional WebRTC video streaming.
@@ -90,4 +92,3 @@ The Viewer maintains two WebRTC connections, one to a parent (client closest to 
 
 In the event of a client disconnecting, the disconnecting Viewer will let its immediate child client know and tell it to reconnect to its parent. This maintains network integrity and ensures that the stream will still reach every client in that chain.
 
-[website]: http://www.nilejs.com
